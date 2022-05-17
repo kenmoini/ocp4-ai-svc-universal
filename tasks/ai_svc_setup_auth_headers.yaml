@@ -1,0 +1,46 @@
+---
+- name: Set up Basic Username/Password authentication
+  block:
+  - name: Set up temporary fact
+    set_fact:
+      tmp_auth_header_fact:
+        Authorization: "Basic {{ (assisted_service_authentication_basic_username + ':' + assisted_service_authentication_basic_password)|b64encode }}"
+
+  - name: Set up headers for Username/Password authentication
+    set_fact:
+      compiled_uri_headers: "{{ compiled_uri_headers | combine(tmp_auth_header_fact) }}"
+  when: assisted_service_authentication == "user-pass"
+
+- name: Set up Bearer Token authentication
+  block:
+  - name: Log into RH SSO API
+    uri:
+      url: https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token
+      body_format: form-urlencoded
+      method: POST
+      body:
+        grant_type: refresh_token
+        client_id: rhsm-api
+        refresh_token: "{{ assisted_service_authentication_api_bearer_token }}"
+    register: rh_sso_reg
+    when: assisted_service_fqdn == "api.openshift.com"
+    until: rh_sso_reg is not failed
+    retries: 30
+    delay: 10
+
+  - name: Set up temporary fact for RH Offline Token exchange
+    set_fact:
+      tmp_auth_header_fact:
+        Authorization: "Bearer {{ rh_sso_reg.json.access_token }}"
+    when: assisted_service_fqdn == "api.openshift.com"
+
+  - name: Set up temporary fact for normal non-RH Bearer Token
+    set_fact:
+      tmp_auth_header_fact:
+        Authorization: "Bearer {{ assisted_service_authentication_api_bearer_token }}"
+    when: assisted_service_fqdn != "api.openshift.com"
+
+  - name: Set up headers for Bearer authentication
+    set_fact:
+      compiled_uri_headers: "{{ compiled_uri_headers | combine(tmp_auth_header_fact) }}"
+  when: assisted_service_authentication == "bearer-token"

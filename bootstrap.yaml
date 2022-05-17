@@ -1,0 +1,98 @@
+---
+- name: Create an Assisted Installer provisioned OpenShift Cluster on Libvirt/KVM
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    cluster_id: ""
+    infraenv_id: ""
+    cluster_status: ""
+    deployment_name: ""
+    compiled_uri_headers:
+      User-Agent: AnsibleAutomation/4.2
+    generated_asset_directory: "./generated_assets"
+
+  tasks:
+    - name: Read in variables
+      include_vars:
+        dir: vars
+        extensions:
+          - 'yaml'
+          - 'yml'
+
+    #=========================================================================================================================
+    # Preflight
+    #=========================================================================================================================
+
+    - name: Initial Preflight Checks
+      include_tasks: tasks/preflight.yaml
+      tags:
+        - preflight
+
+    - name: Create generation directories
+      ansible.builtin.file:
+        state: directory
+        path: "{{ path_item }}"
+        mode: '0755'
+      loop:
+        - "{{ generated_asset_directory }}"
+        - "{{ generated_asset_directory }}/bin/"
+      loop_control:
+        loop_var: path_item
+      tags:
+        - preflight
+        - create_directories
+
+    - name: Preflight Check - Check for OpenShift binaries
+      include_tasks: tasks/preflight_check_ocp_binaries.yaml
+      tags:
+        - preflight
+        - binary_checks
+
+    - name: Preflight Check - Set up Authentication Headers if needed
+      include_tasks: tasks/ai_svc_setup_auth_headers.yaml
+      when: assisted_service_authentication != "none"
+      tags:
+        - preflight
+        - ai_setup_headers
+
+    - name: Preflight Check - Version Checks
+      include_tasks: tasks/ai_svc_query_openshift_versions.yaml
+      tags:
+        - preflight
+        - ai_query_versions
+
+    #=========================================================================================================================
+    # Cluster and InfraEnv checks
+    #=========================================================================================================================
+
+    - name: Read AI Service, check for existing cluster
+      uri:
+        headers: "{{ compiled_uri_headers }}"
+        url: "{{ assisted_service_endpoint }}/clusters"
+        return_content: yes
+        method: GET
+      register: read_clusters
+
+    - name: Read AI Service, check for existing infraenvs
+      uri:
+        headers: "{{ compiled_uri_headers }}"
+        url: "{{ assisted_service_endpoint }}/infra-envs"
+        return_content: yes
+        method: GET
+      register: read_infraenvs
+    
+    - name: Set facts if cluster exists
+      set_fact:
+        cluster_id: "{{ item.id }}"
+        cluster_status: "{{ item.status }}"
+      loop: "{{ read_clusters.json }}"
+      when: (item.base_dns_domain is defined) and ((item.base_dns_domain == cluster_domain) and (item.name == cluster_name))
+
+    - name: Set facts if infraenv exists
+      set_fact:
+        infraenv_id: "{{ item.id }}"
+        infraenv_download_url: "{{ item.download_url }}"
+      loop: "{{ read_infraenvs.json }}"
+      when: (item.cluster_id is defined) and (item.cluster_id == cluster_id) and (item.name == cluster_name)

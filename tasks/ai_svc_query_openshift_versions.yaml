@@ -1,0 +1,65 @@
+---
+- name: Query versions from Assisted Install API
+  uri:
+    headers: "{{ compiled_uri_headers }}"
+    url: "{{ assisted_service_endpoint }}/openshift-versions"
+    return_content: yes
+    method: GET
+    status_code: 200
+    body_format: json
+  register: ocp_versions
+
+- name: Explode the set OpenShift version
+  set_fact:
+    set_version_ex: "{{ cluster_version.split('.') }}"
+
+- name: Set facts
+  set_fact:
+    ai_svc_versions: "{{ (ocp_versions.json).keys()|list|community.general.version_sort }}"
+
+- name: Set the desired cluster version if it is x.y.z and in the available versions from OAS
+  when: cluster_version|string in ai_svc_versions and set_version_ex|length == 3
+  set_fact:
+    desired_cluster_version: "{{ cluster_version|string }}"
+
+- name: Get the versions that match the x.y pattern
+  set_fact:
+    matched_versions: "{{ matched_versions|default([]) + [version_item] }}"
+  loop: "{{ ai_svc_versions }}"
+  loop_control:
+    loop_var: version_item
+  when: set_version_ex|length == 2 and cluster_version|string in version_item
+
+- name: Set the desired_cluster_version when using the x.y pattern
+  set_fact:
+    desired_cluster_version: "{{ matched_versions|community.general.version_sort|last }}"
+  when: set_version_ex|length == 2
+
+# - name: d
+  # debug:
+    # msg:
+    # - "Desired cluster version: {{ desired_cluster_version }}"
+    # - "Matched versions: {{ matched_versions|community.general.version_sort }}"
+    # - "{{ ai_svc_versions }}"
+    # - "{{ ai_svc_version }}"
+    # - "{{ cluster_full_version }}"
+
+- name: Assert that the desired version is supported by the AI Service
+  assert:
+    that:
+      - desired_cluster_version|string in ai_svc_versions
+    fail_msg: "desired_cluster_version '{{ desired_cluster_version|string }}' from cluster_version '{{ cluster_version }}' is not serviced by this Assisted Installer Service!  Supported versions: {{ ai_svc_versions }}"
+    success_msg: "desired_cluster_version '{{ desired_cluster_version|string }}' from cluster_version '{{ cluster_version }}' is serviced by this Assisted Installer Service!"
+
+- name: Assert that SNO mode is supported by the desired version
+  assert:
+    that:
+      - cluster_version is version('4.8', '>=')
+    fail_msg: "desired_cluster_version '{{ desired_cluster_version|string }}' from cluster_version '{{ cluster_version }}' is not able to deploy as a Single Node OpenShift cluster - only available in 4.8+"
+    success_msg: "desired_cluster_version '{{ desired_cluster_version|string }}' from cluster_version '{{ cluster_version }}' is able to deploy as a Single Node OpenShift cluster!"
+  when: cluster_type == "SNO"
+
+- name: Set supporting facts now that we have the intended version
+  set_fact:
+    ai_svc_version: "{{ (ocp_versions.json)[desired_cluster_version|string] }}"
+    cluster_full_version: "{{ (ocp_versions.json)[desired_cluster_version|string].display_name }}"

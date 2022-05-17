@@ -1,0 +1,41 @@
+---
+- name: Check for required programs
+  ansible.builtin.shell: "which {{ item }}"
+  register: program_check
+  ignore_errors: true
+  with_items:
+    - curl
+    - jq
+    - git
+
+## Break out the following into their own tasks when the infra matches
+    #- qemu-img
+    #- virt-install
+  
+- name: Fail if needed programs are not found
+  fail:
+    msg: "{{ item.cmd | replace('which ','') }} is not found! You need to install it first."
+  failed_when: item.rc != 0
+  loop: "{{ program_check.results }}"
+  loop_control:
+    label: "{{ item.cmd | replace('which ','') }}"
+
+#====================================================================================================================
+# Check for needed variables
+#====================================================================================================================
+
+- name: Check for required variables - Global
+  assert:
+    that:
+      - vars[var_item] is defined
+  loop:
+    - ocp_pull_secret
+    - cluster_domain
+    - cluster_name
+    - cluster_type
+    - api_vip
+    - apps_vip
+    - cluster_nodes
+    - infrastructure_providers
+  loop_control:
+    loop_var: var_item

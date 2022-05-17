@@ -1,0 +1,323 @@
+---
+################################################## SSH Key Configuration
+# generate_ssh_key: true/false, will generate unique key pair if true
+generate_ssh_key: true
+# ssh_pub_key_path: If 'generate_ssh_key' is false, point to an existing SSH Public Key
+ssh_pub_key_path: "~/.ssh/id_rsa.pub"
+
+# core_user_password: If set, will set a standard password for the 'core' user
+# core_user_password: password123
+
+################################################## OpenShift Pull Secret
+# pull_secret: Often best to pull from a file outside of the repo - get it from here: https://cloud.redhat.com/openshift/install/pull-secret
+pull_secret: "{{ lookup('file', '~/pull-secret.txt') | to_json }}"
+
+################################################## Cluster Basics
+# cluster_type: Standard (HA CP+App Nodes), SNO (Single Node OpenShift)
+cluster_type: Standard
+cluster_version: "4.10"
+
+# cluster_name and cluster_domain will form the cluster base endpoint, eg cluster_name.cluster_domain
+# Ensure the DNS A records for {api,api-int,*.apps}.cluster_name.cluster_domain exist
+cluster_name: play-ocp
+cluster_domain: kemo.labs
+
+################################################## Cluster Networking
+# cluster_network_type = Default, Cilium, or Calico (TODO, only Default and Calico work atm)
+cluster_network_type: Default
+# cluster_api_vip: an IP or "auto"
+cluster_api_vip: 192.168.42.74
+# cluster_load_balancer_vip: an IP or "auto"
+cluster_load_balancer_vip: 192.168.42.75
+# cluster_node_cidr: A CIDR definition or "auto"
+cluster_node_cidr: 192.168.42.0/24
+
+################################################## Cluster Node IPAM
+# cluster_node_network_ipam: dhcp or static
+cluster_node_network_ipam: static
+######################### If cluster_node_network_ipam == static:
+cluster_node_network_static_dns_servers:
+  - 192.168.42.9
+  - 192.168.42.10
+cluster_node_network_static_dns_search_domains:
+  - kemo.labs
+cluster_nodes:
+  - name: cp-1
+    type: control-plane
+    infra:
+      name: labVMWare
+      type: vsphere
+    vm:
+      cpu_cores: 4
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 16384
+      disks:
+        - size: 130
+          name: boot
+    interfaces:
+      - name: eth0
+        mac_address: 54:52:00:42:69:11
+        dhcp: false
+        ipv4:
+          - address: 192.168.42.90
+            prefix: 24
+        routes:
+          - destination: 0.0.0.0/0
+            next_hop_address: 192.168.42.1
+            next_hop_interface: eth0
+            table_id: 254
+  - name: cp-2
+    type: control-plane
+    vm:
+      cpu_cores: 4
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 16384
+      disks:
+        - size: 130
+          name: boot
+    interfaces:
+      - name: eth0
+        mac_address: 54:52:00:42:69:12
+        dhcp: false
+        ipv4:
+          - address: 192.168.42.91
+            prefix: 24
+        routes:
+          - destination: 0.0.0.0/0
+            next_hop_address: 192.168.42.1
+            next_hop_interface: eth0
+            table_id: 254
+  - name: cp-3
+    type: control-plane
+    vm:
+      cpu_cores: 4
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 16384
+      disks:
+        - size: 130
+          name: boot
+    interfaces:
+      - name: eth0
+        mac_address: 54:52:00:42:69:13
+        dhcp: false
+        ipv4:
+          - address: 192.168.42.92
+            prefix: 24
+        routes:
+          - destination: 0.0.0.0/0
+            next_hop_address: 192.168.42.1
+            next_hop_interface: eth0
+            table_id: 254
+  - name: app-1
+    type: application-node
+    vm:
+      cpu_cores: 4
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 32768
+      disks:
+        - size: 130
+          name: boot
+        - size: 130
+          name: odf
+          # thick: true makes the QCOW thick provisioned, default is thin provisioning
+          thick: true
+    interfaces:
+      - name: eth0
+        mac_address: 54:52:00:42:69:14
+        dhcp: false
+        ipv4:
+          - address: 192.168.42.93
+            prefix: 24
+        routes:
+          - destination: 0.0.0.0/0
+            next_hop_address: 192.168.42.1
+            next_hop_interface: eth0
+            table_id: 254
+  - name: app-2
+    type: application-node
+    vm:
+      cpu_cores: 4
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 32768
+      disks:
+        - size: 130
+          name: boot
+        - size: 130
+          name: odf
+          # thick: true makes the QCOW thick provisioned, default is thin provisioning
+          thick: true
+    interfaces:
+      - name: eth0
+        mac_address: 54:52:00:42:69:15
+        dhcp: false
+        ipv4:
+          - address: 192.168.42.94
+            prefix: 24
+        routes:
+          - destination: 0.0.0.0/0
+            next_hop_address: 192.168.42.1
+            next_hop_interface: eth0
+            table_id: 254
+  - name: app-3
+    type: application-node
+    vm:
+      cpu_cores: 4
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 32768
+      disks:
+        - size: 130
+          name: boot
+        - size: 130
+          name: odf
+          # thick: true makes the QCOW thick provisioned, default is thin provisioning
+          thick: true
+    #pci_devices:
+    # A list of strings of PCI devices as reported by `sudo lspci -nn`
+    #  - "81:00.0"
+    #  - "81:00.1"
+    #  - "81:00.2"
+    #  - "81:00.3"
+    interfaces:
+      - name: eth0
+        mac_address: 54:52:00:42:69:16
+        dhcp: false
+        ipv4:
+          - address: 192.168.42.95
+            prefix: 24
+        routes:
+          - destination: 0.0.0.0/0
+            next_hop_address: 192.168.42.1
+            next_hop_interface: eth0
+            table_id: 254
+
+# extra_roles [optional]: name roles to run after cluster provisioning
+#extra_roles:
+#- ocp4-matrix-login
+#- ocp4-rhsm-entitlement
+#- ocp-operators-deploy-nfd
+#- ocp-operators-deploy-gpu-operator
+#- ocp4-certificates
+#- ocp4-ntp-configuration
+
+################################################## DO NOT EDIT PAST THIS LINE (unless you know what you're doing)
+cluster_network_cidr: 10.128.0.0/14
+cluster_network_host_prefix: 23
+cluster_service_cidr: 172.30.0.0/16
+
+cluster_skip_verify_tls: true
+
+generated_asset_directory: ./.generated
+
+#######################################################################################################################
+## OpenShift Assisted Installer Service additionalNTPSources & ocp4-ntp-configuration role needed variables
+#######################################################################################################################
+# optional: if you want to use a different NTP server to synchronize time
+#ntp_sources:
+#  - type: server
+#    address: 192.168.51.1
+#  - type: pool
+#    address: 0.rhel.pool.ntp.org
+
+#######################################################################################################################
+## OpenShift Assisted Installer Service proxy configuration
+#######################################################################################################################
+# optional: if you need to use an outbound proxy for the cluster
+#cluster_proxy:
+#  httpProxy: http://192.168.51.1:3128/
+#  httpsProxy: http://192.168.51.1:3128/
+#  noProxy:
+#  - 192.168.51.0/24
+#  - api-int.core-ocp.lab.kemo.network
+#  - api.core-ocp.lab.kemo.network
+
+#######################################################################################################################
+## ocp4-certificates role needed variables
+#######################################################################################################################
+#cluster_api_lb_tls_crt: "{{ lookup('file', '/opt/core-ocp.lab.kemo.network.full-chain.cert.pem') }}"
+#cluster_api_lb_tls_key: "{{ lookup('file', '/opt/core-ocp.lab.kemo.network.key.pem') }}"
+
+#cluster_app_lb_tls_crt: "{{ lookup('file', '/opt/core-ocp.lab.kemo.network.full-chain.cert.pem') }}"
+#cluster_app_lb_tls_key: "{{ lookup('file', '/opt/core-ocp.lab.kemo.network.key.pem') }}"
+
+additionalTrustBundles: |
+  -----BEGIN CERTIFICATE-----
+  MIIG3TCCBMWgAwIBAgIUJSmf6Ooxg8uIwfFlHQYFQl5KMSYwDQYJKoZIhvcNAQEL
+  BQAwgcMxIzAhBgkqhkiG9w0BCQEWFG5hLXNlLXJ0b0ByZWRoYXQuY29tMQswCQYD
+  VQQGEwJVUzEXMBUGA1UECAwOTm9ydGggQ2Fyb2xpbmExEDAOBgNVBAcMB1JhbGVp
+  Z2gxFDASBgNVBAoMC05vdCBSZWQgSGF0MRswGQYDVQQLDBJTRSBSVE8gTm90IElu
+  Zm9TZWMxMTAvBgNVBAMMKFNvdXRoZWFzdCBSVE8gUm9vdCBDZXJ0aWZpY2F0ZSBB
+  dXRob3JpdHkwHhcNMjIwMzA3MDAwNTA5WhcNNDIwOTE4MDAwNTA5WjCBwzEjMCEG
+  CSqGSIb3DQEJARYUbmEtc2UtcnRvQHJlZGhhdC5jb20xCzAJBgNVBAYTAlVTMRcw
+  FQYDVQQIDA5Ob3J0aCBDYXJvbGluYTEQMA4GA1UEBwwHUmFsZWlnaDEUMBIGA1UE
+  CgwLTm90IFJlZCBIYXQxGzAZBgNVBAsMElNFIFJUTyBOb3QgSW5mb1NlYzExMC8G
+  A1UEAwwoU291dGhlYXN0IFJUTyBSb290IENlcnRpZmljYXRlIEF1dGhvcml0eTCC
+  AiIwDQYJKoZIhvcNAQEBBQADggIPADCCAgoCggIBANGozAIcO/PB4uIwI31kuiGW
+  j+Nm+ZJruiOaG0P/Z99F/i7e9aOrQD8BHmlGOp9R0sdabrmidvowLE69g5z4+Q0E
+  4+Uvt4GX/DYOBVR/xuV3E8LFJN1zXXbFtXJlSBz3PLWNaySAcg55a/Pwz68EWFA1
+  H2RL5I/sPDpFiz0POnZ+MJ15BCQ2P5YCN7lsHSkmbRonz349WAhvE5OM6qIrBw/J
+  Y6AJtAuEVnyiKoilqEvg0Gz6mSnog2yJY1CktMmP7S6/DPuJpTrw74027mp+g1Pm
+  hRf8jVNsLNM7VPMo8AIodTCIc+Gv3EJ1bjMc/nF1F3K5jBQZrfe21QpgMKyeY/RV
+  FvoHaCy2Miw2RFE9HOo0rwnOohiXlZM6ZSL5AUfDH2tSlJJNr08fE4op48UMIahz
+  2My117CKFE2gRe5bhEEJAO9gOqsq1oOT4Oi3TP+lysjAVAIcnNFhQ1uRmJ93Y8HU
+  qOCOgH+PV7N+kNtOwy8y32+Czh6njL09IbR8TNH2fOXYVt7JDZjnfU+FdzagNWc5
+  C+aQCdpKIMig5OuU81Ac8k6+Aj0CBawOcBI63oxV/GWkUJPgQytmyo/2zswD9FcD
+  yIVL1nvJOwVWNEyOLtDWmEzSda6CVLFFQnAw35qgS94Hc7IS3nQW6XFEGj7xzTmd
+  b2xoEKhgx+dPw5h7AYPHAgMBAAGjgcYwgcMwHQYDVR0OBBYEFDzw4uwWVqsqJDNM
+  2Rz+ztC/ZgUNMB8GA1UdIwQYMBaAFDzw4uwWVqsqJDNM2Rz+ztC/ZgUNMA8GA1Ud
+  EwEB/wQFMAMBAf8wDgYDVR0PAQH/BAQDAgGGMGAGA1UdHwRZMFcwVaBToFGGT2h0
+  dHBzOi8vcmVkLWhhdC1zZS1ydG8uZ2l0aHViLmlvOjQ0My9jcmxzL3NlLXJ0by1y
+  b290LWNlcnRpZmljYXRlLWF1dGhvcml0eS5jcmwwDQYJKoZIhvcNAQELBQADggIB
+  AFu7g/6ghP0PaLsjjAPW+QWqv9tMk8w0MKbKgVeUOX5xz1I7Svc1ndi2dMcYwK8W
+  pgF4bVR8T17NE3V0/xy6BGktN9BtErI9guk3zb3GBIx/1b3Mgce7134nGvhi4ik7
+  ziNB2WYwOgwxEpSA1eS68WNMT6pWZvosEZu9AKMUQ8ULsfxiKwVT+Pj171JxIvDV
+  blhilnOrBap7sP1XwS9OPcQhm0AMtFEj/zhadO1h2ynwKjd/VE2/nskfLvm1dXK5
+  DtdHsCdtT/hJ0XQjLkwOkl87WHZsy4u6kxQzxKH+LDWfSOCOksYD86fBdfQC66gL
+  7yJpX9BznEaGCKgFam3m42eH9msCIV/JTTLUbsrwzaEhxBLtpUeo6j1xF2khF8Ri
+  45Sir0yotZE0i72S4TLllkgQx9AaOiRAWvtYkcP1TBJnzL5viac3pkTnPjLiQ9BO
+  V8+9Y1O6wU0KTbLdMaz+Wfpti1lcnphQDsMJoGTe6wl3QpAK2jz32aFMoTkoyDK5
+  MwQqiTMkyOkPCiY4Rq1RRnYGIU7Ob125IjaFqyLvG9KWuiFsH7yn2nVH5kwy7O75
+  7yx0UiBuGVfG66I09YM1jR9nq7mKv30Sq1Fa/X76XyxDBGk0rLRCw02Ziq0rS8WG
+  S5kIfhw8FM52x6RHCwRicArO8HSTCf4ueEkFL7yj5xSI
+  -----END CERTIFICATE-----
+
+
+#######################################################################################################################
+## OpenShift Assisted Installer Service Extra Injected Manifests
+#######################################################################################################################
+injected_manifests:
+- name: cluster-admin-rbacs.yaml
+  folder: manifests
+  content: |
+    kind: ClusterRoleBinding
+    apiVersion: rbac.authorization.k8s.io/v1
+    metadata:
+      name: rhatter-cluster-admins
+    subjects:
+      - kind: User
+        apiGroup: rbac.authorization.k8s.io
+        name: kmoini@redhat.com
+      - kind: User
+        apiGroup: rbac.authorization.k8s.io
+        name: takinosh@redhat.com
+      - kind: User
+        apiGroup: rbac.authorization.k8s.io
+        name: dtrapani@redhat.com
+      - kind: User
+        apiGroup: rbac.authorization.k8s.io
+        name: msolberg@redhat.com
+      - kind: User
+        apiGroup: rbac.authorization.k8s.io
+        name: mcostell@redhat.com
+      - kind: User
+        apiGroup: rbac.authorization.k8s.io
+        name: nkendyal@redhat.com
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: cluster-admin

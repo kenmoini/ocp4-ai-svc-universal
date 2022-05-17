@@ -1,0 +1,150 @@
+---
+
+#====================================================================================================================
+# oc
+#====================================================================================================================
+
+- name: Check for programs - oc
+  ansible.builtin.shell: "which oc"
+  register: program_check_oc
+  ignore_errors: true
+
+- name: Check the local bin dir for the oc file
+  ansible.builtin.stat:
+    path: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/openshift-oc"
+  register: local_oc_check
+
+- name: Download the oc program if is not found
+  when: program_check_oc.rc != 0
+  block:
+    - name: Download the tar package and extract
+      when: local_oc_check.stat.exists == False
+      ansible.builtin.unarchive:
+        src: https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-client-linux.tar.gz
+        dest: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/"
+        remote_src: yes
+
+    - name: Set the oc binary path
+      set_fact:
+        oc_binary: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/oc"
+
+- name: Set the openshift-install binary path
+  when: program_check_oc.rc == 0
+  set_fact:
+    oc_binary: "{{ program_check_oc.stdout_lines[0] }}"
+
+
+#====================================================================================================================
+# openshift-install
+#====================================================================================================================
+
+- name: Check for programs - openshift-install
+  ansible.builtin.shell: "which openshift-install"
+  register: program_check_openshift_install
+  ignore_errors: true
+
+- name: Check the local bin dir for the openshift-install file
+  ansible.builtin.stat:
+    path: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/openshift-install"
+  register: local_openshift_install_check
+
+- name: Download the openshift-install program if is not found
+  when: program_check_openshift_install.rc != 0
+  block:
+    - name: Download the tar package and extract
+      when: local_openshift_install_check.stat.exists == false
+      ansible.builtin.unarchive:
+        src: https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-install-linux.tar.gz
+        dest: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/"
+        remote_src: yes
+
+    - name: Set the openshift-install binary path
+      set_fact:
+        openshift_install_binary: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/openshift-install"
+
+- name: Set the openshift-install binary path
+  when: program_check_openshift_install.rc == 0
+  set_fact:
+    openshift_install_binary: "{{ program_check_openshift_install.stdout_lines[0] }}"
+
+#====================================================================================================================
+# butane
+#====================================================================================================================
+
+- name: Check for programs - butane
+  ansible.builtin.shell: "which butane"
+  register: program_check_butane
+  ignore_errors: true
+
+- name: Check the local bin dir for the butane file
+  ansible.builtin.stat:
+    path: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/butane"
+  register: local_butane_check
+
+- name: Download the butane program if is not found
+  when: program_check_butane.rc != 0
+  block:
+    - name: Download the binary
+      when: local_butane_check.stat.exists == False
+      ansible.builtin.get_url:
+        url: https://mirror.openshift.com/pub/openshift-v4/clients/butane/latest/butane-amd64
+        dest: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/butane"
+
+    - name: Set the butane binary path
+      set_fact:
+        butane_binary: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/butane"
+
+    - name: Set the executable bits
+      ansible.builtin.file:
+        path: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/butane"
+        mode: 0755
+
+- name: Set the butane binary path
+  when: program_check_butane.rc == 0
+  set_fact:
+    butane_binary: "{{ program_check_butane.stdout_lines[0] }}"
+
+#====================================================================================================================
+# coreos-installer
+#====================================================================================================================
+
+- name: Check for programs - coreos-installer
+  ansible.builtin.shell: "which coreos-installer"
+  register: program_check_coreos_installer
+  ignore_errors: true
+
+- name: Check the local bin dir for the coreos-installer file
+  ansible.builtin.stat:
+    path: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/coreos-installer"
+  register: local_coreos_installer_check
+
+- name: Download the coreos-installer program if is not found
+  when: program_check_coreos_installer.rc != 0
+  block:
+    - name: Download the binary
+      when: local_coreos_installer_check.stat.exists == False
+      ansible.builtin.get_url:
+        url: https://mirror.openshift.com/pub/openshift-v4/clients/coreos-installer/latest/coreos-installer_amd64
+        dest: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/coreos-installer"
+
+    - name: Set the executable bits
+      ansible.builtin.file:
+        path: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/coreos-installer"
+        mode: 0755
+
+    - name: Set the coreos-installer binary path
+      set_fact:
+        coreos_installer_binary: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/coreos-installer"
+
+- name: Set the coreos-installer binary path
+  when: program_check_coreos_installer.rc == 0
+  set_fact:
+    coreos_installer_binary: "{{ program_check_coreos_installer.stdout_lines[0] }}"
+
+- name: Output discovered binary paths
+  debug:
+    msg:
+    - "oc_binary: {{ oc_binary }}"
+    - "openshift_install_binary: {{ openshift_install_binary }}"
+    - "butane_binary: {{ butane_binary }}"
+    - "coreos_installer_binary: {{ coreos_installer_binary }}"

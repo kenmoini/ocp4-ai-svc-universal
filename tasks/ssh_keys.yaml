@@ -1,0 +1,54 @@
+---
+- name: Generate per-cluster SSH key if needed
+  block:
+    - name: Create the key pair
+      community.crypto.openssh_keypair:
+        path: "{{ generated_asset_directory }}/cluster_key-{{ deployment_name }}"
+    - name: Read SSH Key
+      set_fact:
+        ssh_public_key: "{{ lookup('file', generated_asset_directory+'/cluster_key-'+deployment_name+'.pub') }}"
+  when: generate_ssh_key|bool and (cluster_id == "")
+
+- name: Move keys to cluster folder
+  block:
+    - name: Stat for the public key file
+      stat:
+        path: "{{ generated_asset_directory }}/{{ cluster_id }}/cluster_key.pub"
+      register: public_key_check
+
+    - name: Copy private key
+      copy:
+        remote_src: yes
+        src: "{{ generated_asset_directory }}/cluster_key-{{ deployment_name }}"
+        dest: "{{ generated_asset_directory }}/{{ cluster_id }}/cluster_key"
+        mode: 0400
+      when: not public_key_check.stat.exists
+
+    - name: Copy public key
+      copy:
+        remote_src: yes
+        src: "{{ generated_asset_directory }}/cluster_key-{{ deployment_name }}.pub"
+        dest: "{{ generated_asset_directory }}/{{ cluster_id }}/cluster_key.pub"
+      when: not public_key_check.stat.exists
+
+    - name: Remove old cluster keys from primary generation folder
+      file:
+        state: absent
+        path: "{{ item }}"
+      loop:
+        - "{{ generated_asset_directory }}/cluster_key-{{ deployment_name }}.pub"
+        - "{{ generated_asset_directory }}/cluster_key-{{ deployment_name }}"
+      when: not public_key_check.stat.exists
+
+    - name: Read SSH Key
+      set_fact:
+        ssh_public_key: "{{ lookup('file', generated_asset_directory+'/' + cluster_id + '/cluster_key.pub') }}"
+    
+  when: generate_ssh_key|bool and (cluster_id != "")
+
+- name: Read in SSH key
+  block:
+    - name: Read pre-exising SSH Key
+      set_fact:
+        ssh_public_key: "{{ lookup('file', ssh_pub_key_path) }}"
+  when: not generate_ssh_key
