@@ -1,0 +1,53 @@
+---
+- name: Create temporary directory
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: "{{ cluster_name }}"
+  register: tempYAMLDir
+
+- name: Download and apply the Cilium Networking manifests
+  block:
+
+  - name: Download Cilium Tar
+    ansible.builtin.unarchive:
+      src: "{{ cilium_networking_tar_url }}"
+      dest: "{{ tempYAMLDir.path }}"
+      remote_src: yes
+
+  - name: Template the CiliumConfig
+    template:
+      src: templates/ciliumconfig.yaml.j2
+      dest: "{{ tempYAMLDir.path }}/cilium-olm-{{ cilium_networking_git_branch }}/manifests/cilium.{{ cilium_networking_version }}/ciliumconfig.yaml"
+
+  - name: Base64 Encode the files
+    set_fact:
+      cilium_manifests: "{{ cilium_manifests | default({}) | combine ({ (item | basename) : lookup('file', item) | b64encode }) }}"
+    with_fileglob:
+      - "{{ tempYAMLDir.path }}/cilium-olm-{{ cilium_networking_git_branch }}/manifests/cilium.{{ cilium_networking_version }}/*.yml"
+      - "{{ tempYAMLDir.path }}/cilium-olm-{{ cilium_networking_git_branch }}/manifests/cilium.{{ cilium_networking_version }}/*.yaml"
+
+  - name: Post the manifests to the cluster
+    uri:
+      headers: "{{ compiled_uri_headers }}"
+      url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/manifests"
+      return_content: yes
+      method: POST
+      body: "{\"file_name\":\"{{ manifest.key }}\", \"folder\":\"manifests\", \"content\":\"{{ manifest.value }}\"}"
+      status_code: 201
+      body_format: json
+    loop: "{{ cilium_manifests | dict2items }}"
+    loop_control:
+      loop_var: manifest
+
+  rescue:
+  - name: Use the registered var and the file module to remove the temporary file
+    ansible.builtin.file:
+      path: "{{ tempYAMLDir.path }}"
+      state: absent
+    when: tempYAMLDir.path is defined
+
+- name: Use the registered var and the file module to remove the temporary file
+  ansible.builtin.file:
+    path: "{{ tempYAMLDir.path }}"
+    state: absent
+  when: tempYAMLDir.path is defined

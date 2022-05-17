@@ -1,0 +1,21 @@
+{
+  "kind": "Cluster",
+  "name": "{{ cluster_name }}",
+  "openshift_version": "{{ cluster_full_version }}",
+  "base_dns_domain": "{{ cluster_domain }}",
+  "hyperthreading": "{{ cluster_hyperthreading }}",
+  "cluster_network_cidr": "{{ cluster_network_cidr }}",
+  "cluster_network_host_prefix": {{ cluster_network_host_prefix }},
+  "service_network_cidr": "{{ cluster_service_cidr }}",
+  "user_managed_networking": {{ ((cluster_api_vip == 'auto') and (cluster_apps_vip == 'auto')) | ternary('false', 'true') }},
+  "vip_dhcp_allocation": {{ ((cluster_api_vip == 'auto') and (cluster_apps_vip == 'auto')) | ternary('true', 'false') }},
+  "high_availability_mode": "{{ (cluster_type == 'Standard') | ternary('Full', 'None') }}",
+  "network_type": "{{ ocp_network_type}}",
+  "schedulable_masters": {{ schedulable_masters | default('false') }},
+  "platform": {
+    "type": "baremetal"
+  },
+  "ssh_authorized_key": "{{ ssh_public_key }}",
+  "ssh_public_key": "{{ ssh_public_key }}",
+  "pull_secret": {{ pull_secret }}
+}

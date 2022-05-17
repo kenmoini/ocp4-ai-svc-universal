@@ -1,0 +1,16 @@
+---
+- name: Inject extra manifests into the Discovery ISO via the injected_manifests variable
+  block:
+  - name: Apply extra manifests
+    uri:
+      headers: "{{ compiled_uri_headers }}"
+      url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/manifests"
+      return_content: yes
+      method: POST
+      body: "{\"file_name\":\"{{ manifest.name }}\", \"folder\":\"{{ manifest.folder }}\", \"content\":\"{{ manifest.content | b64encode }}\"}"
+      status_code: 201
+      body_format: json
+    loop: "{{ injected_manifests }}"
+    loop_control:
+      loop_var: manifest
+      label: "{{ manifest.name }}"

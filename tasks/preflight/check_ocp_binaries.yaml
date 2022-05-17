@@ -11,7 +11,7 @@
 
 - name: Check the local bin dir for the oc file
   ansible.builtin.stat:
-    path: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/openshift-oc"
+    path: "{{ generated_asset_directory }}/bin/openshift-oc"
   register: local_oc_check
 
 - name: Download the oc program if is not found
@@ -21,12 +21,12 @@
       when: local_oc_check.stat.exists == False
       ansible.builtin.unarchive:
         src: https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-client-linux.tar.gz
-        dest: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/"
+        dest: "{{ generated_asset_directory }}/bin/"
         remote_src: yes
 
     - name: Set the oc binary path
       set_fact:
-        oc_binary: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/oc"
+        oc_binary: "{{ generated_asset_directory }}/bin/oc"
 
 - name: Set the openshift-install binary path
   when: program_check_oc.rc == 0
@@ -45,7 +45,7 @@
 
 - name: Check the local bin dir for the openshift-install file
   ansible.builtin.stat:
-    path: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/openshift-install"
+    path: "{{ generated_asset_directory }}/bin/openshift-install"
   register: local_openshift_install_check
 
 - name: Download the openshift-install program if is not found
@@ -55,12 +55,12 @@
       when: local_openshift_install_check.stat.exists == false
       ansible.builtin.unarchive:
         src: https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-install-linux.tar.gz
-        dest: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/"
+        dest: "{{ generated_asset_directory }}/bin/"
         remote_src: yes
 
     - name: Set the openshift-install binary path
       set_fact:
-        openshift_install_binary: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/openshift-install"
+        openshift_install_binary: "{{ generated_asset_directory }}/bin/openshift-install"
 
 - name: Set the openshift-install binary path
   when: program_check_openshift_install.rc == 0
@@ -78,7 +78,7 @@
 
 - name: Check the local bin dir for the butane file
   ansible.builtin.stat:
-    path: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/butane"
+    path: "{{ generated_asset_directory }}/bin/butane"
   register: local_butane_check
 
 - name: Download the butane program if is not found
@@ -88,15 +88,15 @@
       when: local_butane_check.stat.exists == False
       ansible.builtin.get_url:
         url: https://mirror.openshift.com/pub/openshift-v4/clients/butane/latest/butane-amd64
-        dest: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/butane"
+        dest: "{{ generated_asset_directory }}/bin/butane"
 
     - name: Set the butane binary path
       set_fact:
-        butane_binary: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/butane"
+        butane_binary: "{{ generated_asset_directory }}/bin/butane"
 
     - name: Set the executable bits
       ansible.builtin.file:
-        path: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/butane"
+        path: "{{ generated_asset_directory }}/bin/butane"
         mode: 0755
 
 - name: Set the butane binary path
@@ -115,7 +115,7 @@
 
 - name: Check the local bin dir for the coreos-installer file
   ansible.builtin.stat:
-    path: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/coreos-installer"
+    path: "{{ generated_asset_directory }}/bin/coreos-installer"
   register: local_coreos_installer_check
 
 - name: Download the coreos-installer program if is not found
@@ -125,16 +125,16 @@
       when: local_coreos_installer_check.stat.exists == False
       ansible.builtin.get_url:
         url: https://mirror.openshift.com/pub/openshift-v4/clients/coreos-installer/latest/coreos-installer_amd64
-        dest: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/coreos-installer"
+        dest: "{{ generated_asset_directory }}/bin/coreos-installer"
 
     - name: Set the executable bits
       ansible.builtin.file:
-        path: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/coreos-installer"
+        path: "{{ generated_asset_directory }}/bin/coreos-installer"
         mode: 0755
 
     - name: Set the coreos-installer binary path
       set_fact:
-        coreos_installer_binary: "{{ generated_asset_directory }}/{{ cluster_domain }}/{{ cluster_name }}/bin/coreos-installer"
+        coreos_installer_binary: "{{ generated_asset_directory }}/bin/coreos-installer"
 
 - name: Set the coreos-installer binary path
   when: program_check_coreos_installer.rc == 0

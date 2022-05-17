@@ -1,0 +1,35 @@
+
+#- name: Print currently set ignition_config_override_files
+#  debug:
+#    msg: "{{ ignition_config_override_files }}"
+
+- name: Set as override string
+  set_fact:
+    ignition_config_override_bundle_string: "{\"ignition\": {\"version\": \"3.1.0\"}, \"storage\": {\"files\": [ {{ ignition_config_override_files }} ] } }"
+
+#- name: Print combined override string
+#  debug:
+#    msg: "{{ ignition_config_override_bundle_string }}"
+
+- name: Set the patch data
+  set_fact:
+    override_ic_body: "{ \"ignition_config_override\": '{{ ignition_config_override_bundle_string | to_json }}' }"
+
+#- name: Print override body
+#  debug:
+#    msg: "{{ override_ic_body }}"
+
+- name: Patch the ignition_config_override_bundle_string
+  uri:
+    headers: "{{ compiled_uri_headers }}"
+    url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}"
+    return_content: yes
+    method: PATCH
+    body:  '{{ override_ic_body }}'
+    status_code: 201
+    body_format: json
+  register: patchIgnitionConfigOverrides_resp
+
+#- name: d
+#  debug:
+#    msg: "{{ patchIgnitionConfigOverrides_resp }}"

@@ -1,0 +1,35 @@
+---
+- name: Set Networking facts
+  set_fact:
+    calico_networking_json: "{ \"networking\": {\"networkType\":\"Calico\"}}"
+    cilium_networking_json: "{ \"networking\": {\"networkType\":\"Cilium\"}}"
+
+- name: Set Calico Networking Cluster Preconfig
+  uri:
+    headers: "{{ compiled_uri_headers }}"
+    url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/install-config"
+    return_content: yes
+    method: PATCH
+    body: "{{ calico_networking_json | to_json }}"
+    status_code: 201
+    body_format: json
+  register: set_cluster_preconfig_networking_calico
+  when: cluster_network_type == "Calico"
+
+- name: Set Cilium Networking Cluster Preconfig
+  uri:
+    headers: "{{ compiled_uri_headers }}"
+    url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/install-config"
+    return_content: yes
+    method: PATCH
+    body: "{{ cilium_networking_json | to_json }}"
+    status_code: 201
+    body_format: json
+  register: set_cluster_preconfig_networking_cilium
+  when: cluster_network_type == "Cilium"
+
+- name: Set NMState Cluster Preconfig
+  set_fact:
+    static_networking_preconfig: "{{ rendered_template }}"
+  vars:
+    rendered_template: "{{ lookup('template', 'templates/static_networking_config.json.j2') }}"

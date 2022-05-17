@@ -1,0 +1,23 @@
+---
+### This file contains the details for what OCP 4 Assisted Installer endpoint will be coordinated with
+# assisted_service_fqdn: api.openshift.com or your custom assisted-installer FQDN
+assisted_service_fqdn: api.openshift.com
+# assisted_service_port: 443 for the RH Cloud or whatever your custom assisted-installer service is running at
+assisted_service_port: 443
+# assisted_service_transport: http or https
+assisted_service_transport: https
+
+# assisted_service_authentication: Authentication types, ie "none" for local deployments, "bearer-token" for the RH API & Hosted Service, "user-pass" for Basic UN:PW
+#assisted_service_authentication: none
+assisted_service_authentication: bearer-token
+
+# assisted_service_authentication_api_bearer_token: If using the RH Cloud Assisted Installer service, you will need an Offline API Token from this page: https://access.redhat.com/management/api
+assisted_service_authentication_api_bearer_token: "{{ rh_api_offline_token }}"
+
+#assisted_service_authentication_basic_username: someUser
+#assisted_service_authentication_basic_password: somePass
+
+
+################################################### DO NOT EDIT PAST THIS LINE
+assisted_service_api_base: /api/assisted-install/v2
+assisted_service_endpoint: "{{ assisted_service_transport }}://{{ assisted_service_fqdn }}:{{ assisted_service_port }}{{ assisted_service_api_base }}"

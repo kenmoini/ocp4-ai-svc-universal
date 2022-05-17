@@ -1,0 +1,22 @@
+---
+- name: Template out the infraenv.json file
+  template:
+    src: templates/infraenv.json.j2
+    dest: "{{ generated_asset_directory }}/{{ cluster_id }}/infraenv.json"
+
+- name: AI Service - Create Infraenv
+  uri:
+    headers: "{{ compiled_uri_headers }}"
+    url: "{{ assisted_service_endpoint }}/infra-envs/"
+    return_content: yes
+    method: POST
+    body: "{{ lookup('file',generated_asset_directory+'/'+cluster_id+'/infraenv.json') }}"
+    status_code: 201
+    body_format: json
+  register: create_infraenv
+
+- name: Set facts for Infraenv
+  set_fact:
+    infraenv_id: "{{ create_infraenv.json.id }}"
+    infraenv_download_url: "{{ create_infraenv.json.download_url }}"
+  when: (create_infraenv.json.cluster_id == cluster_id) and (create_infraenv.json.name == cluster_name)

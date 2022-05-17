@@ -1,0 +1,77 @@
+---
+
+- name: Set appropriate next steps
+  set_fact:
+    valid_next_steps:
+      - insufficient
+      - ready
+      - pending-for-input
+      - adding-hosts
+
+- name: Ensure the cluster is in a valid state to set names and roles
+  uri:
+    headers: "{{ compiled_uri_headers }}"
+    url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}"
+    return_content: yes
+    method: GET
+    status_code: 200
+    body_format: json
+  register: cluster_current_status
+
+- name: Set the Host names and roles
+  block:
+
+    - name: Pause for 5 seconds to let the API catch up
+      wait_for:
+        timeout: 5
+
+    - name: Get the list of hosts from the API
+      uri:
+        headers: "{{ compiled_uri_headers }}"
+        url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}/hosts"
+        return_content: yes
+        method: GET
+        status_code: 200
+      register: ai_svc_list_of_hosts
+
+    - name: template out new v2 api map
+      template:
+        src: templates/v2_host_roles_names_map.json.j2
+        dest: "{{ generated_asset_directory }}/{{ cluster_id }}/v2_host_roles_names_map.json"
+
+    - name: Set template fact
+      set_fact:
+        v2_host_roles_names_map: "{{ lookup('file', generated_asset_directory +'/'+ cluster_id +'/v2_host_roles_names_map.json') }}"
+
+    - name: Set the hostnames of the nodes
+      uri:
+        headers: "{{ compiled_uri_headers }}"
+        url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}/hosts/{{ host_item.id }}"
+        return_content: yes
+        method: PATCH
+        body: "{\"host_name\": \"{{ host_item.hostname }}\"}"
+        status_code: 201
+        body_format: json
+      loop: "{{ v2_host_roles_names_map }}"
+      loop_control:
+        loop_var: host_item
+
+    - name: Set the host roles of the nodes
+      uri:
+        headers: "{{ compiled_uri_headers }}"
+        url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}/hosts/{{ host_item.id }}"
+        return_content: yes
+        method: PATCH
+        body: "{\"host_role\": \"{{ host_item.role }}\"}"
+        status_code: 201
+        body_format: json
+      loop: "{{ v2_host_roles_names_map }}"
+      loop_control:
+        loop_var: host_item
+      when: cluster_type == "Standard"
+
+    - name: Pause for 5 seconds to let the API catch up
+      wait_for:
+        timeout: 5
+  when: cluster_current_status.json.status in valid_next_steps
+  

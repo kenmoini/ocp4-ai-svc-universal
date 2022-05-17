@@ -1,0 +1,16 @@
+---
+- name: Template out ISO Parameters
+  template:
+    src: templates/iso_params.json.j2
+    dest: "{{ generated_asset_directory }}/{{ cluster_id }}/iso_params.json"
+
+- name: AI Svc - Post ISO Parameters
+  uri:
+    headers: "{{ compiled_uri_headers }}"
+    url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}"
+    return_content: yes
+    method: PATCH
+    body: "{{ lookup('file', generated_asset_directory +'/'+ cluster_id +'/iso_params.json') }}"
+    status_code: 201
+    body_format: json
+  register: set_cluster_iso_params

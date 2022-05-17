@@ -1,0 +1,13 @@
+---
+- name: Ensure all the hosts are reporting into the Cluster
+  uri:
+    headers: "{{ compiled_uri_headers }}"
+    url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}"
+    return_content: yes
+    method: GET
+    status_code: 200
+    body_format: json
+  register: host_status
+  until: host_status.json.hosts|length == cluster_nodes|length
+  retries: 60
+  delay: 15

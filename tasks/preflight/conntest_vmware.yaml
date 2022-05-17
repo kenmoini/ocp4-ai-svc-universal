@@ -1,0 +1,18 @@
+---
+
+- name: Query vCenter for a connectivity test
+  community.vmware.vmware_datacenter_info:
+    hostname: '{{ provider.credentials.vcenter_hostname }}'
+    username: '{{ provider.credentials.vcenter_username }}'
+    password: '{{ provider.credentials.vcenter_password }}'
+    validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
+  register: vcenter_test_info
+
+- name: Fail if the vCenter instance cannot be connected to
+  fail:
+    msg: "Cannot connect to vCenter at {{ provider.credentials.vcenter_hostname }}!"
+  when: vcenter_test_info.datacenter_info | length == 0
+
+- name: Reset facts
+  set_fact:
+    vcenter_test_info: {}

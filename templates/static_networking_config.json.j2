@@ -1,0 +1,9 @@
+  "static_network_config": [
+{% for ocp_node in cluster_nodes %}
+    {
+      "network_yaml": "{{ lookup('template', 'templates/host_static_networking.yaml.j2', template_vars=dict(ocp_node=ocp_node)) | replace('\n', '\\n') }}",
+      "mac_interface_map": {{ lookup('template', 'templates/mac_interface_map.json.j2', template_vars=dict(ocp_node=ocp_node)) | to_json }}
+    }{% if ocp_node.name != cluster_nodes[-1].name %},{% endif %}
+
+{% endfor %}
+  ]

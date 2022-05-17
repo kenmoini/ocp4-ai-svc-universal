@@ -1,0 +1,20 @@
+---
+apiVersion: cilium.io/v1alpha1
+kind: CiliumConfig
+metadata:
+  name: cilium
+  namespace: cilium
+spec:
+  ipam:
+    mode: "cluster-pool"
+    operator:
+      clusterPoolIPv4PodCIDR: "{{ cluster_network_cidr }}"
+      clusterPoolIPv4MaskSize: "{{ cluster_network_host_prefix }}"
+  nativeRoutingCIDR: "{{ cluster_network_cidr }}"
+  cni:
+    binPath: "/var/lib/cni/bin"
+    confPath: "/var/run/multus/cni/net.d"
+  prometheus:
+    serviceMonitor: {enabled: false}
+  hubble:
+    tls: {enabled: false}

@@ -3,18 +3,22 @@
 # generate_ssh_key: true/false, will generate unique key pair if true
 generate_ssh_key: true
 # ssh_pub_key_path: If 'generate_ssh_key' is false, point to an existing SSH Public Key
-ssh_pub_key_path: "~/.ssh/id_rsa.pub"
-
-# core_user_password: If set, will set a standard password for the 'core' user
-# core_user_password: password123
+#ssh_pub_key_path: "~/.ssh/id_rsa.pub"
 
 ################################################## OpenShift Pull Secret
-# pull_secret: Often best to pull from a file outside of the repo - get it from here: https://cloud.redhat.com/openshift/install/pull-secret
-pull_secret: "{{ lookup('file', '~/pull-secret.txt') | to_json }}"
+# pull_secret: Often best to pull from a file outside of the repo, remove any whitespace - get it from here: https://cloud.redhat.com/openshift/install/pull-secret
+pull_secret_path: ~/ocp-pull-secret
+pull_secret: "{{ lookup('file', pull_secret_path) | to_json }}"
+
+################################################## Red Hat API Offline Token
+# rh_api_offline_token: If using the RH Cloud Assisted Installer service, you will need an Offline API Token from this page: https://access.redhat.com/management/api
+rh_api_offline_token_path: "/mnt/remoteWork/rh-api-offline-token"
+rh_api_offline_token: "{{ lookup('file', rh_api_offline_token_path) }}"
 
 ################################################## Cluster Basics
 # cluster_type: Standard (HA CP+App Nodes), SNO (Single Node OpenShift)
 cluster_type: Standard
+# cluster_version can be x.y or x.y.z - must be formatted as a STRING
 cluster_version: "4.10"
 
 # cluster_name and cluster_domain will form the cluster base endpoint, eg cluster_name.cluster_domain
@@ -23,22 +27,21 @@ cluster_name: play-ocp
 cluster_domain: kemo.labs
 
 ################################################## Cluster Networking
-# cluster_network_type = Default, Cilium, or Calico (TODO, only Default and Calico work atm)
-cluster_network_type: Default
 # cluster_api_vip: an IP or "auto"
 cluster_api_vip: 192.168.42.74
-# cluster_load_balancer_vip: an IP or "auto"
-cluster_load_balancer_vip: 192.168.42.75
+# cluster_apps_vip: an IP or "auto"
+cluster_apps_vip: 192.168.42.75
 # cluster_node_cidr: A CIDR definition or "auto"
 cluster_node_cidr: 192.168.42.0/24
 
 ################################################## Cluster Node IPAM
 # cluster_node_network_ipam: dhcp or static
 cluster_node_network_ipam: static
-######################### If cluster_node_network_ipam == static:
+
 cluster_node_network_static_dns_servers:
   - 192.168.42.9
   - 192.168.42.10
+
 cluster_node_network_static_dns_search_domains:
   - kemo.labs
 cluster_nodes:
@@ -204,15 +207,6 @@ cluster_nodes:
 #- ocp-operators-deploy-gpu-operator
 #- ocp4-certificates
 #- ocp4-ntp-configuration
-
-################################################## DO NOT EDIT PAST THIS LINE (unless you know what you're doing)
-cluster_network_cidr: 10.128.0.0/14
-cluster_network_host_prefix: 23
-cluster_service_cidr: 172.30.0.0/16
-
-cluster_skip_verify_tls: true
-
-generated_asset_directory: ./.generated
 
 #######################################################################################################################
 ## OpenShift Assisted Installer Service additionalNTPSources & ocp4-ntp-configuration role needed variables

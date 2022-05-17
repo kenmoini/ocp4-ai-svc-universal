@@ -1,0 +1,30 @@
+---
+- name: Set appropriate next steps
+  set_fact:
+    valid_next_steps:
+      - insufficient
+      - ready
+      - pending-for-input
+      - adding-hosts
+
+- name: Ensure the cluster is in a valid state to set cluster VIPs and networking config
+  uri:
+    headers: "{{ compiled_uri_headers }}"
+    url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}"
+    return_content: yes
+    method: GET
+    status_code: 200
+    body_format: json
+  register: cluster_current_status
+
+- name: Set Cluster VIPs and Networking Configuration
+  uri:
+    headers: "{{ compiled_uri_headers }}"
+    url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}"
+    return_content: yes
+    method: PATCH
+    body: "{{ lookup('template', 'templates/network_vips.json.j2') }}"
+    status_code: 201
+    body_format: json
+  register: set_cluster_network_vips
+  when: cluster_current_status.json.status in valid_next_steps

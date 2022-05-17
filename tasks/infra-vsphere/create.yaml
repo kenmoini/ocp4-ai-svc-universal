@@ -1,0 +1,19 @@
+---
+
+#===========================================================================
+# vCenter Organizational Structure
+#===========================================================================
+
+- name: Create Cluster Folder
+  community.vmware.vcenter_folder:
+    hostname: "{{ vcenter_hostname }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    validate_certs: false
+    datacenter_name: "{{ vcenter_datacenter }}"
+    folder_name: "{{ cluster_name }}"
+    folder_type: vm
+    state: present
+  tags:
+    - vmware_tasks
+    - vmware_create_folder

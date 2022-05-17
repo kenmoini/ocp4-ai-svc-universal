@@ -10,9 +10,20 @@ The following tasks performed by the different Playbooks are:
 
 - Preflight for binaries, create asset generation directory, set HTTP Headers & Authentication
 - Preflight checks for supported OpenShift versions on the Assisted Installer Service
-- TODO: Preflight to do connectivity tests to infrastructure platforms
+- Preflight to do connectivity tests to infrastructure platforms
 - Query the AI Svc, check for existing cluster with the same name, set facts if so
-
+- Set needed facts, or create a new cluster with new SSH keys
+- Configure cluster on the AI Svc with Cluster/InfraEnv deployment specs and ISO Params
+- Download the generated Discovery ISO
+- Upload the generated Discovery ISO to the target infrastructure platforms
+- Create & boot the needed infrastructure resources on the target infrastructure platforms
+- Wait for the hosts to report into the AI Svc
+- Set Host Names and Roles on the AI Svc
+- Set Network VIPs on the AI Svc
+- Wait for the hosts to be ready
+- Start the cluster installation on the AI Svc
+- Wait for the cluster to be fully installed
+- Pull cluster credentials from the AI Svc
 
 ## Prerequisites
 
@@ -82,20 +93,20 @@ ansible-galaxy collection install -r requirements.yml
 cp example_vars/cluster-config.yaml CLUSTER_NAME.cluster-config.yaml
 ```
 
-- Copy the other relevant files from `example_vars/` to `vars/` and modify as you see fit, such as those for infrastructure credentials.
+- Copy the other relevant files from `example_vars/` to `vars/` or the working directory and modify as you see fit, such as those for infrastructure credentials.
 
 ### Running the Playbook
 
 With the needed variables altered, you can run the Playbook with the following command:
 
 ```bash
-ansible-playbook -e "@cluster-name.cluster-config.yaml" bootstrap.yaml
+ansible-playbook -e "@CLUSTER_NAME.cluster-config.yaml" bootstrap.yaml
 ```
 
 ### Destroying the Cluster
 
-If you are done with the cluster or some error occured you can quickly delete it from the Nutanix environment, the Assisted Installer Service, and the local assets:
+If you are done with the cluster or some error occurred you can quickly delete it from your infrastructure environments, the Assisted Installer Service, and the local assets that were generated during creation:
 
 ```bash
-ansible-playbook -e "@my-ocp-cluster.cluster-config.yaml" destroy.yaml
+ansible-playbook -e "@CLUSTER_NAME.cluster-config.yaml" destroy.yaml
 ```

@@ -1,0 +1,20 @@
+[
+{% for host in ai_svc_list_of_hosts.json %}
+  {
+    "id": "{{ host.id }}",
+{% set h_inventory = host.inventory | from_json %}
+{% set h_interfaces = h_inventory.interfaces | to_json %}
+{% for node in cluster_nodes %}
+{% set node_set = {'flag': False } %}
+{% for iface in node.interfaces %}
+{% if iface.mac_address in ( h_inventory | json_query('interfaces[*].mac_address')) and (node_set.flag == False) %}
+    "hostname": "{{ node.name }}",
+    "role": "{% if node.type == "application-node" %}worker{% endif %}{% if node.type == "control-plane" %}master{% endif %}{% if node.type == "sno" %}sno{% endif %}"
+{% if node_set.update({'flag':True}) %}{% endif %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+  }{% if host.id != ai_svc_list_of_hosts.json[-1].id %},{% endif %}
+
+{% endfor %}
+]

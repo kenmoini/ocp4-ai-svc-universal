@@ -29,12 +29,12 @@
     that:
       - vars[var_item] is defined
   loop:
-    - ocp_pull_secret
+    - pull_secret
     - cluster_domain
     - cluster_name
     - cluster_type
-    - api_vip
-    - apps_vip
+    - cluster_api_vip
+    - cluster_apps_vip
     - cluster_nodes
     - infrastructure_providers
   loop_control:

@@ -1,0 +1,23 @@
+---
+
+- name: Template out the deployment.json file
+  template:
+    src: templates/deployment.json.j2
+    dest: "{{ generated_asset_directory }}/deployment-{{ deployment_name }}.json"
+
+- name: AI Service - Create Cluster
+  uri:
+    headers: "{{ compiled_uri_headers }}"
+    url: "{{ assisted_service_endpoint }}/clusters/"
+    return_content: yes
+    method: POST
+    body: "{{ lookup('file',generated_asset_directory+'/deployment-'+deployment_name+'.json') }}"
+    status_code: 201
+    body_format: json
+  register: create_cluster
+
+- name: Set facts for Cluster
+  set_fact:
+    cluster_id: "{{ create_cluster.json.id }}"
+    cluster_status: "{{ create_cluster.json.status }}"
+  when: (create_cluster.json.base_dns_domain == cluster_domain) and (create_cluster.json.name == cluster_name)
