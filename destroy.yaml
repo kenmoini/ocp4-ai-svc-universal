@@ -1,0 +1,220 @@
+---
+- name: Destroy an Assisted Installer provisioned OpenShift Cluster
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    cluster_id: ""
+    infraenv_id: ""
+    cluster_status: ""
+    deployment_name: ""
+    compiled_uri_headers:
+      User-Agent: AnsibleAutomation/4.2
+    generated_asset_directory: "./generated_assets"
+    delete_generated_assets: true
+
+  tasks:
+    - name: Read in variables
+      include_vars:
+        dir: vars
+        extensions:
+          - 'yaml'
+          - 'yml'
+
+    #=========================================================================================================================
+    # Preflight
+    #=========================================================================================================================
+
+    - name: Initial Preflight Checks
+      include_tasks: tasks/preflight/main.yaml
+      tags:
+        - preflight
+
+    - name: Preflight Check, AI Service - Set up Authentication Headers if needed
+      include_tasks: tasks/ai-svc/setup_auth_headers.yaml
+      when: assisted_service_authentication != "none"
+      tags:
+        - preflight
+        - ai_setup_headers
+
+    - name: Preflight Check, AI Service - Version Checks
+      include_tasks: tasks/ai-svc/query_openshift_versions.yaml
+      tags:
+        - preflight
+        - ai_query_versions
+
+    #=========================================================================================================================
+    # Preflight Infrastructure Connection Tests
+    #=========================================================================================================================
+
+    - name: Preflight Check - Nutanix Connection Test
+      include_tasks: tasks/preflight/conntest_nutanix.yaml
+      tags:
+        - preflight
+        - conntest_nutanix
+      loop: "{{ infrastructure_providers }}"
+      loop_control:
+        loop_var: provider
+      when: provider.type == "nutanix"
+
+    - name: Preflight Check - VMWare Connection Test
+      include_tasks: tasks/preflight/conntest_vmware.yaml
+      tags:
+        - preflight
+        - conntest_vmware
+      loop: "{{ infrastructure_providers }}"
+      loop_control:
+        loop_var: provider
+      when: provider.type == "vsphere"
+
+    #=========================================================================================================================
+    # Assisted Installer Service - Cluster and InfraEnv checks
+    #=========================================================================================================================
+
+    - name: AI Service - Check for existing cluster
+      uri:
+        headers: "{{ compiled_uri_headers }}"
+        url: "{{ assisted_service_endpoint }}/clusters"
+        return_content: yes
+        method: GET
+      register: read_clusters
+
+    - name: AI Service - Check for existing infraenvs
+      uri:
+        headers: "{{ compiled_uri_headers }}"
+        url: "{{ assisted_service_endpoint }}/infra-envs"
+        return_content: yes
+        method: GET
+      register: read_infraenvs
+    
+    - name: Set facts if cluster exists
+      set_fact:
+        cluster_id: "{{ cluster_item.id }}"
+        cluster_status: "{{ cluster_item.status }}"
+      loop: "{{ read_clusters.json }}"
+      loop_control:
+        loop_var: cluster_item
+        label: "Cluster ID: {{ cluster_item.id }}"
+      when: (cluster_item.base_dns_domain is defined) and ((cluster_item.base_dns_domain == cluster_domain) and (cluster_item.name == cluster_name))
+
+    - name: Set facts if infraenv exists
+      set_fact:
+        infraenv_id: "{{ infraenv_item.id }}"
+        infraenv_download_url: "{{ infraenv_item.download_url }}"
+      loop: "{{ read_infraenvs.json }}"
+      loop_control:
+        loop_var: infraenv_item
+        label: "InfraEnv ID: {{ infraenv_item.id }}"
+      when: (infraenv_item.cluster_id is defined) and (infraenv_item.cluster_id == cluster_id) and (infraenv_item.name == cluster_name)
+
+    #=========================================================================================================================
+    # Assisted Installer Service - Delete InfraEnv
+    #=========================================================================================================================
+
+    - name: Delete the infraenv from the Assisted Installer service
+      when: infraenv_id != ""
+      block:
+        - name: Get the list of hosts from the API
+          uri:
+            headers: "{{ compiled_uri_headers }}"
+            url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}/hosts"
+            return_content: yes
+            method: GET
+            status_code: 200
+          register: ai_svc_list_of_hosts
+
+        - name: Delete the hosts from the infraenv
+          uri:
+            headers: "{{ compiled_uri_headers }}"
+            url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}/hosts/{{ host_item.id }}"
+            return_content: yes
+            method: DELETE
+            status_code: 204
+          loop: "{{ ai_svc_list_of_hosts.json }}"
+          loop_control:
+            loop_var: host_item
+            label: "Host ID: {{ host_item.id }}"
+
+        - name: Delete the infraenv
+          uri:
+            headers: "{{ compiled_uri_headers }}"
+            url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}"
+            return_content: yes
+            method: DELETE
+            status_code: 204
+            body_format: json
+          register: delete_infraenv
+          ignore_errors: yes
+
+    #=========================================================================================================================
+    # Assisted Installer Service - Delete Cluster
+    #=========================================================================================================================
+
+    - name: Delete the cluster from the Assisted Installer service
+      when: cluster_id != ""
+      block:
+        - name: Cancel the cluster just in case
+          uri:
+            headers: "{{ compiled_uri_headers }}"
+            url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/actions/cancel"
+            return_content: yes
+            method: POST
+            status_code: 202
+            body_format: json
+          register: cancel_cluster
+          ignore_errors: yes
+
+        - name: Reset the cluster just in case
+          uri:
+            headers: "{{ compiled_uri_headers }}"
+            url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/actions/reset"
+            return_content: yes
+            method: POST
+            status_code: 202
+            body_format: json
+          register: reset_cluster
+          ignore_errors: yes
+
+        - name: Delete the cluster
+          uri:
+            headers: "{{ compiled_uri_headers }}"
+            url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}"
+            return_content: yes
+            method: DELETE
+            status_code: 204
+            body_format: json
+          register: delete_cluster
+          ignore_errors: yes
+
+    #=========================================================================================================================
+    # Infrastructure-specific Destruction Tasks - vSphere
+    #=========================================================================================================================
+
+    - name: Create the vSphere targeted hosts
+      set_fact:
+        vsphere_hosts: "{{ vsphere_hosts | default([]) + [node_item] }}"
+      loop: "{{ cluster_nodes }}"
+      loop_control:
+        loop_var: node_item
+      when: node_item.infra.type == "vsphere"
+
+    - name: Delete the vSphere infrastructure
+      when: vsphere_hosts is defined and vsphere_hosts | length > 0
+      block:
+        - name: Delete infrastructure
+          include_tasks: tasks/infra-vsphere/destroy.yaml
+          loop: "{{ vsphere_hosts }}"
+          loop_control:
+            loop_var: node_item
+            label: "vSphere Host: {{ node_item.name }}"
+
+    #=========================================================================================================================
+    # Delete local cluster files
+    #=========================================================================================================================
+
+    - name: Delete the generated content directory
+      file:
+        state: absent
+        path: "{{ generated_asset_directory }}/{{ cluster_id }}/"
+      when: delete_generated_assets|bool and cluster_id != ""
