@@ -242,6 +242,28 @@
           when: not iso_check.stat.exists
 
     #=========================================================================================================================
+    # Infrastructure-specific Creation Tasks - Nutanix
+    #=========================================================================================================================
+
+    - name: Create the Nutanix targeted hosts
+      set_fact:
+        nutanix_hosts: "{{ nutanix_hosts | default([]) + [node_item] }}"
+      loop: "{{ cluster_nodes }}"
+      loop_control:
+        loop_var: node_item
+      when: node_item.infra.type == "nutanix"
+
+    - name: Create the Nutanix infrastructure
+      when: nutanix_hosts is defined and nutanix_hosts | length > 0
+      block:
+        - name: Deploy infrastructure
+          include_tasks: tasks/infra-nutanix/create.yaml
+          loop: "{{ nutanix_hosts }}"
+          loop_control:
+            loop_var: node_item
+            label: "Nutanix Host: {{ node_item.name }}"
+
+    #=========================================================================================================================
     # Infrastructure-specific Creation Tasks - vSphere
     #=========================================================================================================================
 
