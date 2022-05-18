@@ -1,4 +1,10 @@
 ---
+#===========================================================================
+# Get the Infrastructure Provider for this host
+#===========================================================================
+
+- name: Get the infrastructure provider for this host
+  include_tasks: "target_infra_credential.yaml"
 
 #===========================================================================
 # vCenter Organizational Structure
@@ -6,14 +12,161 @@
 
 - name: Create Cluster Folder
   community.vmware.vcenter_folder:
-    hostname: "{{ vcenter_hostname }}"
-    username: "{{ vcenter_username }}"
-    password: "{{ vcenter_password }}"
-    validate_certs: false
-    datacenter_name: "{{ vcenter_datacenter }}"
+    hostname: '{{ provider.credentials.vcenter_hostname }}'
+    username: '{{ provider.credentials.vcenter_username }}'
+    password: '{{ provider.credentials.vcenter_password }}'
+    validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
+    datacenter_name: "{{ provider.configuration.vcenter_datacenter }}"
     folder_name: "{{ cluster_name }}"
     folder_type: vm
     state: present
   tags:
     - vmware_tasks
     - vmware_create_folder
+
+- name: Create the ISOs directory on the datacenter/datastore
+  community.vmware.vsphere_file:
+    host: '{{ provider.credentials.vcenter_hostname }}'
+    username: '{{ provider.credentials.vcenter_username }}'
+    password: '{{ provider.credentials.vcenter_password }}'
+    validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
+    datacenter: "{{ provider.configuration.vcenter_datacenter }}"
+    datastore: "{{ provider.configuration.vcenter_datastore }}"
+    path: /ISOs
+    state: directory
+  tags:
+    - vmware_tasks
+    - vmware_create_iso_directory
+
+#===========================================================================
+# Upload ISO
+#===========================================================================
+
+- name: Check for the ISO
+  community.vmware.vsphere_file:
+    host: '{{ provider.credentials.vcenter_hostname }}'
+    username: '{{ provider.credentials.vcenter_username }}'
+    password: '{{ provider.credentials.vcenter_password }}'
+    validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
+    datacenter: "{{ provider.configuration.vcenter_datacenter }}"
+    datastore: "{{ provider.configuration.vcenter_datastore }}"
+    path: "ISOs/ocp-ai-{{ cluster_id }}.iso"
+    state: file
+  ignore_errors: true
+  register: vmware_check_for_iso
+  tags:
+    - vmware_tasks
+    - vmware_check_for_iso
+
+- name: Upload Discovery ISO to the target Cluster Store
+  community.vmware.vsphere_copy:
+    hostname: '{{ provider.credentials.vcenter_hostname }}'
+    username: '{{ provider.credentials.vcenter_username }}'
+    password: '{{ provider.credentials.vcenter_password }}'
+    validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
+    datacenter: "{{ provider.configuration.vcenter_datacenter }}"
+    datastore: "{{ provider.configuration.vcenter_datastore }}"
+    src: "{{ generated_asset_directory }}/{{ cluster_id }}/ocp_ai.iso"
+    path: "ISOs/ocp-ai-{{ cluster_id }}.iso"
+  ignore_errors: true
+  when: vmware_check_for_iso.state == "absent"
+  tags:
+    - vmware_tasks
+    - vmware_upload_ova
+
+
+#===========================================================================
+# Assemble VM Metadata
+#===========================================================================
+
+- name: Setup VMWare disk dictionary - {{ node_item.name }}
+  set_fact:
+    disks: "{{ disks | default([]) + [{ 'size_gb' : disk_item.size, 'type' : 'thin' }] }}"
+  loop: "{{ node_item.vm.disks }}"
+  loop_control:
+    loop_var: disk_item
+  tags:
+    - vmware_tasks
+    - vmware_create_vms
+    - vmware_vm_metadata
+    - vmware_vm_metadata_disks
+
+- name: Setup VMWare network dictionary - {{ node_item.name }}
+  set_fact:
+    networks: "{{ networks | default([]) + [{ 'name' : iface_item.vcenter_network | default(provider.configuration.vcenter_network), 'device_type' : 'vmxnet3', 'mac' : iface_item.mac_address|default('') }] }}"
+  loop: "{{ node_item.interfaces }}"
+  loop_control:
+    loop_var: iface_item
+  tags:
+    - vmware_tasks
+    - vmware_create_vms
+    - vmware_vm_metadata
+    - vmware_vm_metadata_networks
+
+#===========================================================================
+# Create VM
+#===========================================================================
+
+- name: Create VM - {{ node_item.name }}
+  community.vmware.vmware_guest:
+    hostname: '{{ provider.credentials.vcenter_hostname }}'
+    username: '{{ provider.credentials.vcenter_username }}'
+    password: '{{ provider.credentials.vcenter_password }}'
+    validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
+    datacenter: "{{ provider.configuration.vcenter_datacenter }}"
+    datastore: "{{ provider.configuration.vcenter_datastore }}"
+    cluster: "{{ provider.configuration.vcenter_cluster }}"
+    name: "{{ cluster_name }}-{{ node_item.name }}"
+    folder: "{{ cluster_name }}"
+    guest_id: coreos64Guest
+    state: present
+    disk: "{{ disks }}"
+    hardware:
+      memory_mb: "{{ node_item.vm.memory }}"
+      num_cpu_cores_per_socket : "{{ node_item.vm.cpu_cores }}"
+      num_cpus : "{{ (node_item.vm.cpu_sockets|int * node_item.vm.cpu_cores|int) }}"
+      hotadd_cpu: yes
+      hotadd_memory: yes
+      version: "{{ vcenter_hardware_version | int }}"
+      nested_virt: "{{ vsphere_nested_virt | default(False) }}"
+    cdrom:
+    - controller_number: 0
+      unit_number: 0
+      state: present
+      type: iso
+      iso_path: "[{{ provider.configuration.vcenter_datastore }}] ISOs/ocp-ai-{{ cluster_id }}.iso"
+    networks: "{{ networks }}"
+  tags:
+    - vmware_tasks
+    - vmware_create_vms
+    - vmware_configure_vm_hardware
+
+- name: Power On VM - {{ node_item.name }}
+  community.vmware.vmware_guest:
+    hostname: '{{ provider.credentials.vcenter_hostname }}'
+    username: '{{ provider.credentials.vcenter_username }}'
+    password: '{{ provider.credentials.vcenter_password }}'
+    validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
+    datacenter: "{{ provider.configuration.vcenter_datacenter }}"
+    datastore: "{{ provider.configuration.vcenter_datastore }}"
+    cluster: "{{ provider.configuration.vcenter_cluster }}"
+    name: "{{ cluster_name }}-{{ node_item.name }}"
+    folder: "{{ cluster_name }}"
+    state: powered-on
+  tags:
+    - vmware_tasks
+    - vmware_create_vms
+    - vmware_boot_vm
+
+#===========================================================================
+# Cleanup
+#===========================================================================
+
+- name: Resetting Facts - {{ node_item.name }}
+  set_fact:
+    disks: []
+    named_provider: {}
+    networks: []
+    provider: {}
+    provider_list: {}
+    vmware_check_for_iso: {}

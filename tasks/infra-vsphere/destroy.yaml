@@ -1,1 +1,82 @@
 ---
+#===========================================================================
+# Get the Infrastructure Provider for this host
+#===========================================================================
+
+- name: Get the infrastructure provider for this host
+  include_tasks: "target_infra_credential.yaml"
+
+#===========================================================================
+# Remove VM
+#===========================================================================
+
+- name: Power Off VM - {{ node_item.name }}
+  community.vmware.vmware_guest:
+    hostname: '{{ provider.credentials.vcenter_hostname }}'
+    username: '{{ provider.credentials.vcenter_username }}'
+    password: '{{ provider.credentials.vcenter_password }}'
+    validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
+    datacenter: "{{ provider.configuration.vcenter_datacenter }}"
+    datastore: "{{ provider.configuration.vcenter_datastore }}"
+    cluster: "{{ provider.configuration.vcenter_cluster }}"
+    name: "{{ cluster_name }}-{{ node_item.name }}"
+    folder: "{{ cluster_name }}"
+    state: powered-off
+  tags:
+    - vmware_tasks
+    - vmware_destroy_vms
+    - vmware_halt_vm
+
+- name: Delete VM - {{ node_item.name }}
+  community.vmware.vmware_guest:
+    hostname: '{{ provider.credentials.vcenter_hostname }}'
+    username: '{{ provider.credentials.vcenter_username }}'
+    password: '{{ provider.credentials.vcenter_password }}'
+    validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
+    datacenter: "{{ provider.configuration.vcenter_datacenter }}"
+    datastore: "{{ provider.configuration.vcenter_datastore }}"
+    cluster: "{{ provider.configuration.vcenter_cluster }}"
+    name: "{{ cluster_name }}-{{ node_item.name }}"
+    folder: "{{ cluster_name }}"
+    state: absent
+  tags:
+    - vmware_tasks
+    - vmware_destroy_vms
+    - vmware_delete_vm
+
+#===========================================================================
+# Delete ISO
+#===========================================================================
+
+- name: Delete the previous iso if present
+  community.vmware.vsphere_file:
+    host: '{{ provider.credentials.vcenter_hostname }}'
+    username: '{{ provider.credentials.vcenter_username }}'
+    password: '{{ provider.credentials.vcenter_password }}'
+    validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
+    datacenter: "{{ provider.configuration.vcenter_datacenter }}"
+    datastore: "{{ provider.configuration.vcenter_datastore }}"
+    path: "ISOs/ocp-ai-{{ cluster_id }}.iso"
+    state: absent
+  ignore_errors: true
+  tags:
+    - vmware_tasks
+    - vmware_delete_previous_iso
+
+#===========================================================================
+# vCenter Organizational Structure
+#===========================================================================
+
+- name: Delete Cluster Folder
+  community.vmware.vcenter_folder:
+    hostname: '{{ provider.credentials.vcenter_hostname }}'
+    username: '{{ provider.credentials.vcenter_username }}'
+    password: '{{ provider.credentials.vcenter_password }}'
+    validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
+    datacenter_name: "{{ provider.configuration.vcenter_datacenter }}"
+    folder_name: "{{ cluster_name }}"
+    folder_type: vm
+    state: absent
+  tags:
+    - vmware_tasks
+    - vmware_delete_folder
