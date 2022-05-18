@@ -55,13 +55,13 @@
       include_tasks: tasks/ai-svc/setup_auth_headers.yaml
       tags:
         - preflight
-        - ai_setup_headers
+        - ai_svc_setup_headers
 
     - name: Preflight Check, AI Service - Version Checks
       include_tasks: tasks/ai-svc/query_openshift_versions.yaml
       tags:
         - preflight
-        - ai_query_versions
+        - ai_svc_query_versions
 
     #=========================================================================================================================
     # Preflight Infrastructure Connection Tests
@@ -98,6 +98,9 @@
         return_content: yes
         method: GET
       register: read_clusters
+      tags:
+        - ai_svc
+        - ai_svc_query_clusters
 
     - name: AI Service - Check for existing infraenvs
       uri:
@@ -106,6 +109,9 @@
         return_content: yes
         method: GET
       register: read_infraenvs
+      tags:
+        - ai_svc
+        - ai_svc_query_infraenvs
     
     - name: Set facts if cluster exists
       when: (cluster_item.base_dns_domain is defined) and ((cluster_item.base_dns_domain == cluster_domain) and (cluster_item.name == cluster_name))
@@ -116,6 +122,9 @@
       loop_control:
         loop_var: cluster_item
         label: "Cluster ID: {{ cluster_item.id }}"
+      tags:
+        - ai_svc
+        - ai_svc_set_cluster
 
     - name: Set facts if infraenv exists
       when: (infraenv_item.cluster_id is defined) and (infraenv_item.cluster_id == cluster_id) and (infraenv_item.name == cluster_name)
@@ -126,6 +135,9 @@
       loop_control:
         loop_var: infraenv_item
         label: "InfraEnv ID: {{ infraenv_item.id }}"
+      tags:
+        - ai_svc
+        - ai_svc_set_infraenv
 
     #=========================================================================================================================
     # Cluster Definition
@@ -140,9 +152,14 @@
 
         - name: SSH Key Generation & Reading
           include_tasks: tasks/ssh_keys.yaml
+          tags:
+            - ssh_keys
 
         - name: AI Service - Create the base cluster deployment definition
           include_tasks: tasks/ai-svc/create_cluster.yaml
+          tags:
+            - ai_svc
+            - ai_svc_create_cluster
 
     #=========================================================================================================================
     # Move resources from temporary deployment_id to cluster_id paths
@@ -156,6 +173,8 @@
           file:
             path: "{{ generated_asset_directory }}/{{ cluster_id }}"
             state: directory
+          tags:
+            - create_cluster_dir
 
         - name: Copy deployment file into cluster directory
           copy:
@@ -171,6 +190,8 @@
 
     - name: SSH Key Migration & Reread
       include_tasks: tasks/ssh_keys.yaml
+      tags:
+        - ssh_keys
 
     #=========================================================================================================================
     # Create InfraEnv
@@ -181,6 +202,9 @@
       block:
         - name: Create the infraenv deployment definition
           include_tasks: tasks/ai-svc/create_infraenv.yaml
+      tags:
+        - ai_svc
+        - ai_svc_create_infraenv
 
     #=========================================================================================================================
     # Perform additional Assisted Installer Configuration steps
@@ -192,36 +216,57 @@
         - name: AI Service - Inject extra manifests
           include_tasks: tasks/ai-svc/preconfig_extra_manifests.yaml
           when: injected_manifests is defined
+          tags:
+            - ai_svc_inject_extra_manifests
 
         - name: AI Service - Patch in Cluster Preconfiguration for Networking
           include_tasks: tasks/ai-svc/preconfig_networking.yaml
+          tags:
+            - ai_svc_preconfig_networking
 
         - name: AI Service - Inject Cilium Networking Cluster Manifests
           include_tasks: tasks/networking_cilium.yaml
           when: cluster_network_type == "Cilium"
+          tags:
+            - ai_svc_inject_cilium_manifests
 
         - name: AI Service - Inject Calico Networking Cluster Manifests
           include_tasks: tasks/networking_calico.yaml
           when: cluster_network_type == "Calico"
+          tags:
+            - ai_svc_inject_calico_manifests
 
         - name: AI Service - Add Additional Root CAs to the Discovery ISO
           include_tasks: tasks/ai-svc/add_additionalTrustBundle_to_infraenv.yaml
           when: additionalTrustBundles is defined
+          tags:
+            - ai_svc_add_additionalTrustBundle_to_infraenv
 
         - name: AI Service - Patch the proxy configuration
           include_tasks: tasks/ai-svc/add_proxy_config.yaml
           when: cluster_proxy is defined
+          tags:
+            - ai_svc_add_proxy_config
 
         - name: AI Service - Patch the NTP configuration
           include_tasks: tasks/ai-svc/add_ntp_config.yaml
           when: ntp_sources is defined
+          tags:
+            - ai_svc_add_ntp_config
 
         - name: AI Service - Add Ignition Config Overrides
           include_tasks: tasks/ai-svc/set_ignition_config_overrides.yaml
           when: ignition_config_override_files is defined and ignition_config_override_files | length > 0
+          tags:
+            - ai_svc_set_ignition_config_overrides
 
         - name: AI Service - Reconfigure ISO Parameters
           include_tasks: tasks/ai-svc/configure_iso_params.yaml
+          tags:
+            - ai_svc_configure_iso_params
+      tags:
+        - ai_svc
+        - ai_configure_cluster
 
     #=========================================================================================================================
     # Downloading of the Discovery ISO
@@ -233,6 +278,8 @@
           ansible.builtin.stat:
             path: "{{ generated_asset_directory }}/{{ cluster_id }}/ocp_ai.iso"
           register: iso_check
+          tags:
+            - check_for_local_iso
 
         - name: Pull OpenShift ISO if needed
           when: not iso_check.stat.exists
@@ -240,50 +287,89 @@
             headers: "{{ compiled_uri_headers }}"
             url: "{{ infraenv_download_url }}"
             dest: "{{ generated_asset_directory }}/{{ cluster_id }}/ocp_ai.iso"
+          tags:
+            - ai_svc
+            - ai_svc_download_iso
+      tags:
+        - download_iso
 
     #=========================================================================================================================
     # Infrastructure-specific Creation Tasks - Nutanix
     #=========================================================================================================================
 
-    - name: Create the Nutanix targeted hosts
+    - name: Create the list of Nutanix targeted hosts
       when: node_item.infra.type == "nutanix"
       set_fact:
         nutanix_hosts: "{{ nutanix_hosts | default([]) + [node_item] }}"
       loop: "{{ cluster_nodes }}"
       loop_control:
         loop_var: node_item
+      tags:
+        - infra_nutanix
+        - infra_nutanix_create_hosts_list
 
     - name: Create the Nutanix infrastructure
       when: nutanix_hosts is defined and nutanix_hosts | length > 0
       block:
-        - name: Deploy infrastructure
+        - name: Deploy Nutanix infrastructure
           include_tasks: tasks/infra-nutanix/create.yaml
           loop: "{{ nutanix_hosts }}"
           loop_control:
             loop_var: node_item
             label: "Nutanix Host: {{ node_item.name }}"
+      tags:
+        - infra_nutanix
+        - infra_nutanix_create_infra
 
     #=========================================================================================================================
     # Infrastructure-specific Creation Tasks - vSphere
     #=========================================================================================================================
 
-    - name: Create the vSphere targeted hosts
+    - name: Create the list of vSphere targeted hosts
       when: node_item.infra.type == "vsphere"
       set_fact:
         vsphere_hosts: "{{ vsphere_hosts | default([]) + [node_item] }}"
+        unique_vsphere_infra_providers: []
       loop: "{{ cluster_nodes }}"
+      loop_control:
+        loop_var: node_item
+      tags:
+        - infra_vsphere
+        - infra_vsphere_create_hosts_list
+
+    - name: Create the list of unique vSphere infrastructure providers
+      when: vsphere_hosts is defined and vsphere_hosts | length > 0
+      include_tasks: tasks/infra-vsphere/get_unique_providers.yaml
+      loop: "{{ vsphere_hosts }}"
       loop_control:
         loop_var: node_item
 
     - name: Create the vSphere infrastructure
-      when: vsphere_hosts is defined and vsphere_hosts | length > 0
+      when:
+      - vsphere_hosts is defined
+      - vsphere_hosts | length > 0
+      - unique_vsphere_infra_providers | length > 0
       block:
-        - name: Deploy infrastructure
+        - name: Perform per vSphere Infrastructure Provider set up
+          include_tasks: tasks/infra-vsphere/setup_per_provider.yaml
+          loop: "{{ unique_vsphere_infra_providers }}"
+          loop_control:
+            loop_var: provider
+            label: "vSphere Infrastructure Provider: {{ provider.name }}"
+          tags:
+            - infra_vsphere_per_provider_setup
+
+        - name: Deploy vSphere infrastructure
           include_tasks: tasks/infra-vsphere/create.yaml
           loop: "{{ vsphere_hosts }}"
           loop_control:
             loop_var: node_item
             label: "vSphere Host: {{ node_item.name }}"
+          tags:
+            - infra_vsphere_deploy_infra
+      tags:
+        - infra_vsphere
+        - infra_vsphere_create_infra
 
     #=========================================================================================================================
     # AI Service - Configure Cluster
@@ -291,13 +377,22 @@
 
     - name: Wait for hosts to report into the Assisted Installer service
       include_tasks: tasks/ai-svc/check_for_hosts.yaml
+      tags:
+        - ai_svc
+        - ai_svc_wait_for_hosts
 
     - name: Set Host Names and Roles for Standard HA OpenShift Cluster
       include_tasks: tasks/ai-svc/set_host_names_roles.yaml
       #when: cluster_type == "Standard"
+      tags:
+        - ai_svc
+        - ai_svc_set_host_names_roles
 
     - name: Set Network VIPs
       include_tasks: tasks/ai-svc/set_vips.yaml
+      tags:
+        - ai_svc
+        - ai_svc_set_vips
 
     #=========================================================================================================================
     # AI Service - Start Cluster Install
@@ -305,9 +400,15 @@
 
     - name: Check to make sure the hosts are ready and the cluster can be installed
       include_tasks: tasks/ai-svc/check_install_ready.yaml
+      tags:
+        - ai_svc
+        - ai_svc_check_install_ready
 
     - name: Start the Cluster installation
       include_tasks: tasks/ai-svc/start_install.yaml
+      tags:
+        - ai_svc
+        - ai_svc_start_install
 
     #=========================================================================================================================
     # AI Service - Wait for Installation to complete
@@ -315,6 +416,12 @@
 
     - name: Wait for the cluster to be fully installed
       include_tasks: tasks/ai-svc/check_cluster_install_finished.yaml
+      tags:
+        - ai_svc
+        - ai_svc_wait_for_cluster_install
 
     - name: Pull cluster credentials
       include_tasks: tasks/ai-svc/query_cluster_credentials.yaml
+      tags:
+        - ai_svc
+        - ai_svc_pull_cluster_credentials
