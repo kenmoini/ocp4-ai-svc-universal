@@ -25,6 +25,16 @@ The following tasks performed by the different Playbooks are:
 - Wait for the cluster to be fully installed
 - Pull cluster credentials from the AI Svc
 
+### destroy.yaml
+
+- Preflight for setting HTTP Headers & Authentication
+- Preflight to do connectivity tests to infrastructure platforms
+- Query the AI Svc, check for existing cluster with the same name, set facts if so
+- Power off & delete the infrastructure compute on the target infrastructure platforms
+- Delete the Discovery ISO and other shared items from the target infrastructure platforms
+- Delete the cluster from the AI Svc
+- Delete local generated cluster files
+
 ## Prerequisites
 
 - Ansible Automation - `python3 -m pip install ansible`
