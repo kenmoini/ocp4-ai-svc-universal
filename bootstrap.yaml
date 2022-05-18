@@ -232,16 +232,26 @@
           when: not iso_check.stat.exists
 
     #=========================================================================================================================
-    # Infrastructure-specific uploading of the Discovery ISO
+    # Infrastructure-specific Creation Tasks - vSphere
     #=========================================================================================================================
 
-    - name: f
-      fail:
-        msg: die
+    - name: Create the vSphere targeted hosts
+      set_fact:
+        vsphere_hosts: "{{ vsphere_hosts | default([]) + [node_item] }}"
+      loop: "{{ cluster_nodes }}"
+      loop_control:
+        loop_var: node_item
+      when: node_item.infra.type == "vsphere"
 
-    #=========================================================================================================================
-    # Infrastructure-specific Creation Tasks
-    #=========================================================================================================================
+    - name: Create the vSphere infrastructure
+      when: vsphere_hosts is defined and vsphere_hosts | length > 0
+      block:
+        - name: Deploy infrastructure
+          include_tasks: tasks/infra-vsphere/create.yaml
+          loop: "{{ vsphere_hosts }}"
+          loop_control:
+            loop_var: node_item
+            label: "vSphere Host: {{ node_item.name }}"
 
     #=========================================================================================================================
     # AI Service - Configure Cluster
@@ -252,7 +262,7 @@
 
     - name: Set Host Names and Roles for Standard HA OpenShift Cluster
       include_tasks: tasks/ai-svc/set_host_names_roles.yaml
-      when: cluster_type == "Standard"
+      #when: cluster_type == "Standard"
 
     - name: Set Network VIPs
       include_tasks: tasks/ai-svc/set_vips.yaml
