@@ -67,11 +67,21 @@
     # Preflight Infrastructure Connection Tests
     #=========================================================================================================================
 
+    - name: Preflight Check - Nutanix Connection Test
+      include_tasks: tasks/preflight/conntest_nutanix.yaml
+      tags:
+        - preflight
+        - conntest_nutanix
+      loop: "{{ infrastructure_providers }}"
+      loop_control:
+        loop_var: provider
+      when: provider.type == "nutanix"
+
     - name: Preflight Check - VMWare Connection Test
       include_tasks: tasks/preflight/conntest_vmware.yaml
       tags:
         - preflight
-        - contest_vmware
+        - conntest_vmware
       loop: "{{ infrastructure_providers }}"
       loop_control:
         loop_var: provider
