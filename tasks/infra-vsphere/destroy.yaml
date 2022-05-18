@@ -48,6 +48,22 @@
 # Delete ISO
 #===========================================================================
 
+- name: Check for the ISO
+  community.vmware.vsphere_file:
+    host: '{{ provider.credentials.vcenter_hostname }}'
+    username: '{{ provider.credentials.vcenter_username }}'
+    password: '{{ provider.credentials.vcenter_password }}'
+    validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
+    datacenter: "{{ provider.configuration.vcenter_datacenter }}"
+    datastore: "{{ provider.configuration.vcenter_datastore }}"
+    path: "ISOs/ocp-ai-{{ cluster_id }}.iso"
+    state: file
+  ignore_errors: true
+  register: vmware_check_for_iso
+  tags:
+    - vmware_tasks
+    - vmware_check_for_iso
+
 - name: Delete the previous iso if present
   community.vmware.vsphere_file:
     host: '{{ provider.credentials.vcenter_hostname }}'
@@ -59,6 +75,7 @@
     path: "ISOs/ocp-ai-{{ cluster_id }}.iso"
     state: absent
   ignore_errors: true
+  when: vmware_check_for_iso.state != "absent"
   tags:
     - vmware_tasks
     - vmware_delete_previous_iso
@@ -77,6 +94,7 @@
     folder_name: "{{ cluster_name }}"
     folder_type: vm
     state: absent
+  ignore_errors: true
   tags:
     - vmware_tasks
     - vmware_delete_folder
