@@ -4,9 +4,9 @@
   set_fact:
     ignition_config_override_files: "{{ ignition_config_override_files | default('') }}{{ ',' if ignition_config_override_files is defined and ignition_config_override_files != '' }}{{ '{\"path\": \"/etc/pki/ca-trust/source/anchors/extra_ca.pem\", \"mode\": 420, \"overwrite\": true, \"user\": { \"name\": \"root\"},\"contents\": {\"source\": \"data:text/plain;base64,{{ additionalTrustBundles | b64encode }}\"}}' }}"
 
-- name: debug ignition_config_override_files
-  debug:
-    msg: "{{ ignition_config_override_files }}"
+#- name: debug ignition_config_override_files
+#  debug:
+#    msg: "{{ ignition_config_override_files }}"
 
 - name: Set body data
   set_fact:
