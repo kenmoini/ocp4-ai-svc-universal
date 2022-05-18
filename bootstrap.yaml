@@ -326,7 +326,7 @@
       - unique_nutanix_infra_providers | length > 0
       block:
         - name: Perform per Nutanix Infrastructure Provider set up
-          include_tasks: tasks/infra-nutanix/setup_per_provider.yaml
+          include_tasks: tasks/infra-nutanix/per_provider_setup.yaml
           loop: "{{ unique_nutanix_infra_providers }}"
           loop_control:
             loop_var: provider
