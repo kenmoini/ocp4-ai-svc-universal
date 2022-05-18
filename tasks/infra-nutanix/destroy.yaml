@@ -1,1 +1,8 @@
 ---
+#===========================================================================
+# Get the Infrastructure Provider for this host
+#===========================================================================
+
+- name: Get the infrastructure provider for this host
+  include_tasks: "target_infra_credential.yaml"
+
