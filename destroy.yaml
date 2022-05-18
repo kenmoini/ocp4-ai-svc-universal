@@ -51,22 +51,22 @@
     - name: Preflight Check - Nutanix Connection Test
       when: provider.type == "nutanix"
       include_tasks: tasks/preflight/conntest_nutanix.yaml
-      tags:
-        - preflight
-        - conntest_nutanix
       loop: "{{ infrastructure_providers }}"
       loop_control:
         loop_var: provider
+      tags:
+        - preflight
+        - conntest_nutanix
 
     - name: Preflight Check - VMWare Connection Test
       when: provider.type == "vsphere"
       include_tasks: tasks/preflight/conntest_vmware.yaml
-      tags:
-        - preflight
-        - conntest_vmware
       loop: "{{ infrastructure_providers }}"
       loop_control:
         loop_var: provider
+      tags:
+        - preflight
+        - conntest_vmware
 
     #=========================================================================================================================
     # Assisted Installer Service - Cluster and InfraEnv checks
@@ -79,6 +79,9 @@
         return_content: yes
         method: GET
       register: read_clusters
+      tags:
+        - ai_svc
+        - ai_svc_query_clusters
 
     - name: AI Service - Check for existing infraenvs
       uri:
@@ -87,6 +90,9 @@
         return_content: yes
         method: GET
       register: read_infraenvs
+      tags:
+        - ai_svc
+        - ai_svc_query_infraenvs
     
     - name: Set facts if cluster exists
       when: (cluster_item.base_dns_domain is defined) and ((cluster_item.base_dns_domain == cluster_domain) and (cluster_item.name == cluster_name))
@@ -97,6 +103,9 @@
       loop_control:
         loop_var: cluster_item
         label: "Cluster ID: {{ cluster_item.id }}"
+      tags:
+        - ai_svc
+        - ai_svc_set_cluster
 
     - name: Set facts if infraenv exists
       when: (infraenv_item.cluster_id is defined) and (infraenv_item.cluster_id == cluster_id) and (infraenv_item.name == cluster_name)
@@ -107,6 +116,115 @@
       loop_control:
         loop_var: infraenv_item
         label: "InfraEnv ID: {{ infraenv_item.id }}"
+      tags:
+        - ai_svc
+        - ai_svc_set_infraenv
+
+    #=========================================================================================================================
+    # Infrastructure-specific Destruction Tasks - vSphere
+    #=========================================================================================================================
+
+    - name: Create the list of vSphere targeted hosts
+      set_fact:
+        vsphere_hosts: "{{ vsphere_hosts | default([]) + [node_item] }}"
+        unique_vsphere_infra_providers: []
+      loop: "{{ cluster_nodes }}"
+      loop_control:
+        loop_var: node_item
+      when: node_item.infra.type == "vsphere"
+      tags:
+        - infra_vsphere
+        - infra_vsphere_create_hosts_list
+
+    - name: Create the list of unique vSphere infrastructure providers
+      when: vsphere_hosts is defined and vsphere_hosts | length > 0
+      include_tasks: tasks/infra-vsphere/get_unique_providers.yaml
+      loop: "{{ vsphere_hosts }}"
+      loop_control:
+        loop_var: node_item
+      tags:
+        - infra_vsphere
+        - infra_vsphere_create_infra_list
+
+    - name: Delete the vSphere infrastructure
+      when:
+      - vsphere_hosts is defined
+      - vsphere_hosts | length > 0
+      - unique_vsphere_infra_providers | length > 0
+      block:
+        - name: Delete infrastructure
+          include_tasks: tasks/infra-vsphere/destroy.yaml
+          loop: "{{ vsphere_hosts }}"
+          loop_control:
+            loop_var: node_item
+            label: "vSphere Host: {{ node_item.name }}"
+          tags:
+            - infra_vsphere_delete_infra
+
+        - name: Perform per vSphere Infrastructure Provider destruction
+          include_tasks: tasks/infra-vsphere/per_provider_delete.yaml
+          loop: "{{ unique_vsphere_infra_providers }}"
+          loop_control:
+            loop_var: provider
+            label: "vSphere Infrastructure Provider: {{ provider.name }}"
+          tags:
+            - infra_vsphere_per_provider_delete
+      tags:
+        - infra_vsphere
+        - infra_vsphere_destroy_infra
+
+    #=========================================================================================================================
+    # Infrastructure-specific Destruction Tasks - Nutanix
+    #=========================================================================================================================
+
+    - name: Create the list of Nutanix targeted hosts
+      set_fact:
+        nutanix_hosts: "{{ nutanix_hosts | default([]) + [node_item] }}"
+        unique_nutanix_infra_providers: []
+      loop: "{{ cluster_nodes }}"
+      loop_control:
+        loop_var: node_item
+      when: node_item.infra.type == "nutanix"
+      tags:
+        - infra_nutanix
+        - infra_nutanix_create_hosts_list
+
+    - name: Create the list of unique Nutanix infrastructure providers
+      when: nutanix_hosts is defined and nutanix_hosts | length > 0
+      include_tasks: tasks/infra-nutanix/get_unique_providers.yaml
+      loop: "{{ nutanix_hosts }}"
+      loop_control:
+        loop_var: node_item
+      tags:
+        - infra_nutanix
+        - infra_nutanix_create_infra_list
+
+    - name: Delete the Nutanix infrastructure
+      when:
+      - nutanix_hosts is defined
+      - nutanix_hosts | length > 0
+      - unique_nutanix_infra_providers | length > 0
+      block:
+        - name: Delete infrastructure
+          include_tasks: tasks/infra-nutanix/destroy.yaml
+          loop: "{{ nutanix_hosts }}"
+          loop_control:
+            loop_var: node_item
+            label: "Nutanix Host: {{ node_item.name }}"
+          tags:
+            - infra_nutanix_delete_infra
+
+        - name: Perform per Nutanix Infrastructure Provider destruction
+          include_tasks: tasks/infra-nutanix/per_provider_delete.yaml
+          loop: "{{ unique_nutanix_infra_providers }}"
+          loop_control:
+            loop_var: provider
+            label: "Nutanix Infrastructure Provider: {{ provider.name }}"
+          tags:
+            - infra_nutanix_per_provider_delete
+      tags:
+        - infra_nutanix
+        - infra_nutanix_destroy_infra
 
     #=========================================================================================================================
     # Assisted Installer Service - Delete InfraEnv
@@ -123,6 +241,8 @@
             method: GET
             status_code: 200
           register: ai_svc_list_of_hosts
+          tags:
+            - ai_svc_get_hosts
 
         - name: Delete the hosts from the infraenv
           uri:
@@ -135,6 +255,8 @@
           loop_control:
             loop_var: host_item
             label: "Host ID: {{ host_item.id }}"
+          tags:
+            - ai_svc_delete_hosts
 
         - name: Delete the infraenv
           uri:
@@ -146,6 +268,11 @@
             body_format: json
           register: delete_infraenv
           ignore_errors: yes
+          tags:
+            - ai_svc_delete_infraenv
+      tags:
+        - ai_svc
+        - ai_svc_remove_infraenv
 
     #=========================================================================================================================
     # Assisted Installer Service - Delete Cluster
@@ -164,6 +291,8 @@
             body_format: json
           register: cancel_cluster
           ignore_errors: yes
+          tags:
+            - ai_svc_cancel_cluster
 
         - name: Reset the cluster just in case
           uri:
@@ -175,6 +304,8 @@
             body_format: json
           register: reset_cluster
           ignore_errors: yes
+          tags:
+            - ai_svc_reset_cluster
 
         - name: Delete the cluster
           uri:
@@ -186,28 +317,11 @@
             body_format: json
           register: delete_cluster
           ignore_errors: yes
-
-    #=========================================================================================================================
-    # Infrastructure-specific Destruction Tasks - vSphere
-    #=========================================================================================================================
-
-    - name: Create the vSphere targeted hosts
-      set_fact:
-        vsphere_hosts: "{{ vsphere_hosts | default([]) + [node_item] }}"
-      loop: "{{ cluster_nodes }}"
-      loop_control:
-        loop_var: node_item
-      when: node_item.infra.type == "vsphere"
-
-    - name: Delete the vSphere infrastructure
-      when: vsphere_hosts is defined and vsphere_hosts | length > 0
-      block:
-        - name: Delete infrastructure
-          include_tasks: tasks/infra-vsphere/destroy.yaml
-          loop: "{{ vsphere_hosts }}"
-          loop_control:
-            loop_var: node_item
-            label: "vSphere Host: {{ node_item.name }}"
+          tags:
+            - ai_svc_delete_cluster
+      tags:
+        - ai_svc
+        - ai_svc_remove_cluster
 
     #=========================================================================================================================
     # Delete local cluster files
@@ -218,3 +332,5 @@
       file:
         state: absent
         path: "{{ generated_asset_directory }}/{{ cluster_id }}/"
+      tags:
+        - delete_generated_content
