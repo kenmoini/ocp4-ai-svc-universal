@@ -16,6 +16,9 @@ cluster_hyperthreading: all
 # discovery_iso_type: full-iso | minimal-iso
 discovery_iso_type: full-iso
 
+vcenter_hardware_version: 15
+vsphere_nested_virt: false
+
 #####################################################################
 # Cilium Networking default configuration
 cilium_networking_git_branch: master
