@@ -51,8 +51,8 @@
         - binary_checks
 
     - name: Preflight Check, AI Service - Set up Authentication Headers if needed
-      include_tasks: tasks/ai-svc/setup_auth_headers.yaml
       when: assisted_service_authentication != "none"
+      include_tasks: tasks/ai-svc/setup_auth_headers.yaml
       tags:
         - preflight
         - ai_setup_headers
@@ -68,6 +68,7 @@
     #=========================================================================================================================
 
     - name: Preflight Check - Nutanix Connection Test
+      when: provider.type == "nutanix"
       include_tasks: tasks/preflight/conntest_nutanix.yaml
       tags:
         - preflight
@@ -75,9 +76,9 @@
       loop: "{{ infrastructure_providers }}"
       loop_control:
         loop_var: provider
-      when: provider.type == "nutanix"
 
     - name: Preflight Check - VMWare Connection Test
+      when: provider.type == "vsphere"
       include_tasks: tasks/preflight/conntest_vmware.yaml
       tags:
         - preflight
@@ -85,7 +86,6 @@
       loop: "{{ infrastructure_providers }}"
       loop_control:
         loop_var: provider
-      when: provider.type == "vsphere"
 
     #=========================================================================================================================
     # Cluster and InfraEnv checks
@@ -108,6 +108,7 @@
       register: read_infraenvs
     
     - name: Set facts if cluster exists
+      when: (cluster_item.base_dns_domain is defined) and ((cluster_item.base_dns_domain == cluster_domain) and (cluster_item.name == cluster_name))
       set_fact:
         cluster_id: "{{ cluster_item.id }}"
         cluster_status: "{{ cluster_item.status }}"
@@ -115,9 +116,9 @@
       loop_control:
         loop_var: cluster_item
         label: "Cluster ID: {{ cluster_item.id }}"
-      when: (cluster_item.base_dns_domain is defined) and ((cluster_item.base_dns_domain == cluster_domain) and (cluster_item.name == cluster_name))
 
     - name: Set facts if infraenv exists
+      when: (infraenv_item.cluster_id is defined) and (infraenv_item.cluster_id == cluster_id) and (infraenv_item.name == cluster_name)
       set_fact:
         infraenv_id: "{{ infraenv_item.id }}"
         infraenv_download_url: "{{ infraenv_item.download_url }}"
@@ -125,13 +126,13 @@
       loop_control:
         loop_var: infraenv_item
         label: "InfraEnv ID: {{ infraenv_item.id }}"
-      when: (infraenv_item.cluster_id is defined) and (infraenv_item.cluster_id == cluster_id) and (infraenv_item.name == cluster_name)
 
     #=========================================================================================================================
     # Cluster Definition
     #=========================================================================================================================
 
     - name: Create Cluster if it does not already exist
+      when: cluster_id == ""
       block:
         - name: Set random var for this deployment json run
           set_fact:
@@ -142,13 +143,13 @@
 
         - name: AI Service - Create the base cluster deployment definition
           include_tasks: tasks/ai-svc/create_cluster.yaml
-      when: cluster_id == ""
 
     #=========================================================================================================================
     # Move resources from temporary deployment_id to cluster_id paths
     #=========================================================================================================================
 
     - name: Set Cluster Configuration
+      when: deployment_name != ""
       block:
 
         - name: Create Cluster Asset Generation Directory
@@ -167,7 +168,6 @@
             path: "{{ generated_asset_directory }}/deployment-{{ deployment_name }}.json"
             state: absent
 
-      when: deployment_name != ""
 
     - name: SSH Key Migration & Reread
       include_tasks: tasks/ssh_keys.yaml
@@ -177,10 +177,10 @@
     #=========================================================================================================================
 
     - name: AI Service - Create the infraenv if it does not already exist
+      when: infraenv_id == ""
       block:
         - name: Create the infraenv deployment definition
           include_tasks: tasks/ai-svc/create_infraenv.yaml
-      when: infraenv_id == ""
 
     #=========================================================================================================================
     # Perform additional Assisted Installer Configuration steps
@@ -235,23 +235,23 @@
           register: iso_check
 
         - name: Pull OpenShift ISO if needed
+          when: not iso_check.stat.exists
           get_url:
             headers: "{{ compiled_uri_headers }}"
             url: "{{ infraenv_download_url }}"
             dest: "{{ generated_asset_directory }}/{{ cluster_id }}/ocp_ai.iso"
-          when: not iso_check.stat.exists
 
     #=========================================================================================================================
     # Infrastructure-specific Creation Tasks - Nutanix
     #=========================================================================================================================
 
     - name: Create the Nutanix targeted hosts
+      when: node_item.infra.type == "nutanix"
       set_fact:
         nutanix_hosts: "{{ nutanix_hosts | default([]) + [node_item] }}"
       loop: "{{ cluster_nodes }}"
       loop_control:
         loop_var: node_item
-      when: node_item.infra.type == "nutanix"
 
     - name: Create the Nutanix infrastructure
       when: nutanix_hosts is defined and nutanix_hosts | length > 0
@@ -268,12 +268,12 @@
     #=========================================================================================================================
 
     - name: Create the vSphere targeted hosts
+      when: node_item.infra.type == "vsphere"
       set_fact:
         vsphere_hosts: "{{ vsphere_hosts | default([]) + [node_item] }}"
       loop: "{{ cluster_nodes }}"
       loop_control:
         loop_var: node_item
-      when: node_item.infra.type == "vsphere"
 
     - name: Create the vSphere infrastructure
       when: vsphere_hosts is defined and vsphere_hosts | length > 0

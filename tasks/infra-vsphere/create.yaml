@@ -59,6 +59,7 @@
     - vmware_check_for_iso
 
 - name: Upload Discovery ISO to the target Cluster Store
+  when: vmware_check_for_iso.state == "absent"
   community.vmware.vsphere_copy:
     hostname: '{{ provider.credentials.vcenter_hostname }}'
     username: '{{ provider.credentials.vcenter_username }}'
@@ -69,7 +70,6 @@
     src: "{{ generated_asset_directory }}/{{ cluster_id }}/ocp_ai.iso"
     path: "ISOs/ocp-ai-{{ cluster_id }}.iso"
   ignore_errors: true
-  when: vmware_check_for_iso.state == "absent"
   tags:
     - vmware_tasks
     - vmware_upload_ova

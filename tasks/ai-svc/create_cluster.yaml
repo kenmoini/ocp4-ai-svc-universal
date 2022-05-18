@@ -17,7 +17,7 @@
   register: create_cluster
 
 - name: Set facts for Cluster
+  when: (create_cluster.json.base_dns_domain == cluster_domain) and (create_cluster.json.name == cluster_name)
   set_fact:
     cluster_id: "{{ create_cluster.json.id }}"
     cluster_status: "{{ create_cluster.json.status }}"
-  when: (create_cluster.json.base_dns_domain == cluster_domain) and (create_cluster.json.name == cluster_name)

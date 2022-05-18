@@ -16,7 +16,7 @@
   register: create_infraenv
 
 - name: Set facts for Infraenv
+  when: (create_infraenv.json.cluster_id == cluster_id) and (create_infraenv.json.name == cluster_name)
   set_fact:
     infraenv_id: "{{ create_infraenv.json.id }}"
     infraenv_download_url: "{{ create_infraenv.json.download_url }}"
-  when: (create_infraenv.json.cluster_id == cluster_id) and (create_infraenv.json.name == cluster_name)

@@ -41,13 +41,13 @@
 
   rescue:
   - name: Use the registered var and the file module to remove the temporary file
+    when: tempYAMLDir.path is defined
     ansible.builtin.file:
       path: "{{ tempYAMLDir.path }}"
       state: absent
-    when: tempYAMLDir.path is defined
 
 - name: Use the registered var and the file module to remove the temporary file
+  when: tempYAMLDir.path is defined
   ansible.builtin.file:
     path: "{{ tempYAMLDir.path }}"
     state: absent
-  when: tempYAMLDir.path is defined

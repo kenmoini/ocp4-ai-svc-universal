@@ -9,9 +9,9 @@
   register: vcenter_test_info
 
 - name: Fail if the vCenter instance cannot be connected to
+  when: vcenter_test_info.datacenter_info | length == 0
   fail:
     msg: "Cannot connect to vCenter at {{ provider.credentials.vcenter_hostname }}!"
-  when: vcenter_test_info.datacenter_info | length == 0
 
 - name: Reset facts
   set_fact:

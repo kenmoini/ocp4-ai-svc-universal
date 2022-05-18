@@ -32,8 +32,8 @@
         - preflight
 
     - name: Preflight Check, AI Service - Set up Authentication Headers if needed
-      include_tasks: tasks/ai-svc/setup_auth_headers.yaml
       when: assisted_service_authentication != "none"
+      include_tasks: tasks/ai-svc/setup_auth_headers.yaml
       tags:
         - preflight
         - ai_setup_headers
@@ -49,6 +49,7 @@
     #=========================================================================================================================
 
     - name: Preflight Check - Nutanix Connection Test
+      when: provider.type == "nutanix"
       include_tasks: tasks/preflight/conntest_nutanix.yaml
       tags:
         - preflight
@@ -56,9 +57,9 @@
       loop: "{{ infrastructure_providers }}"
       loop_control:
         loop_var: provider
-      when: provider.type == "nutanix"
 
     - name: Preflight Check - VMWare Connection Test
+      when: provider.type == "vsphere"
       include_tasks: tasks/preflight/conntest_vmware.yaml
       tags:
         - preflight
@@ -66,7 +67,6 @@
       loop: "{{ infrastructure_providers }}"
       loop_control:
         loop_var: provider
-      when: provider.type == "vsphere"
 
     #=========================================================================================================================
     # Assisted Installer Service - Cluster and InfraEnv checks
@@ -89,6 +89,7 @@
       register: read_infraenvs
     
     - name: Set facts if cluster exists
+      when: (cluster_item.base_dns_domain is defined) and ((cluster_item.base_dns_domain == cluster_domain) and (cluster_item.name == cluster_name))
       set_fact:
         cluster_id: "{{ cluster_item.id }}"
         cluster_status: "{{ cluster_item.status }}"
@@ -96,9 +97,9 @@
       loop_control:
         loop_var: cluster_item
         label: "Cluster ID: {{ cluster_item.id }}"
-      when: (cluster_item.base_dns_domain is defined) and ((cluster_item.base_dns_domain == cluster_domain) and (cluster_item.name == cluster_name))
 
     - name: Set facts if infraenv exists
+      when: (infraenv_item.cluster_id is defined) and (infraenv_item.cluster_id == cluster_id) and (infraenv_item.name == cluster_name)
       set_fact:
         infraenv_id: "{{ infraenv_item.id }}"
         infraenv_download_url: "{{ infraenv_item.download_url }}"
@@ -106,7 +107,6 @@
       loop_control:
         loop_var: infraenv_item
         label: "InfraEnv ID: {{ infraenv_item.id }}"
-      when: (infraenv_item.cluster_id is defined) and (infraenv_item.cluster_id == cluster_id) and (infraenv_item.name == cluster_name)
 
     #=========================================================================================================================
     # Assisted Installer Service - Delete InfraEnv
@@ -214,7 +214,7 @@
     #=========================================================================================================================
 
     - name: Delete the generated content directory
+      when: delete_generated_assets|bool and cluster_id != ""
       file:
         state: absent
         path: "{{ generated_asset_directory }}/{{ cluster_id }}/"
-      when: delete_generated_assets|bool and cluster_id != ""

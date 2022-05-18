@@ -1,8 +1,8 @@
 ---
 - name: Combine no proxy list
+  when: cluster_proxy.noProxy is defined
   set_fact:
     cluster_no_proxy: "{{ cluster_proxy.noProxy | join(',') }}"
-  when: cluster_proxy.noProxy is defined
 
 - name: Set proxy env vars config file
   set_fact:

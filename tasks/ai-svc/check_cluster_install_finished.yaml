@@ -27,11 +27,11 @@
     failed_when: false
   
   - name: Resync auth headers
-    block:
-    - name: Set up Authentication Headers if needed
-      include_tasks: tasks/ai-svc/setup_auth_headers.yaml
-      when: assisted_service_authentication != "none"
-
-    - name: INCEPTION - Wait for the cluster to be fully installed
-      include_tasks: tasks/ai-svc/check_cluster_install_finished.yaml
     when: cluster_install_statustwo.status == 401
+    block:
+      - name: Set up Authentication Headers if needed
+        when: assisted_service_authentication != "none"
+        include_tasks: tasks/ai-svc/setup_auth_headers.yaml
+
+      - name: INCEPTION - Wait for the cluster to be fully installed
+        include_tasks: tasks/ai-svc/check_cluster_install_finished.yaml

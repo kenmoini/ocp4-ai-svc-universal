@@ -19,6 +19,7 @@
   register: cluster_current_status
 
 - name: Set the Host names and roles
+  when: cluster_current_status.json.status in valid_next_steps
   block:
 
     - name: Pause for 5 seconds to let the API catch up
@@ -57,6 +58,7 @@
         loop_var: host_item
 
     - name: Set the host roles of the nodes
+      when: cluster_type == "Standard"
       uri:
         headers: "{{ compiled_uri_headers }}"
         url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}/hosts/{{ host_item.id }}"
@@ -68,10 +70,8 @@
       loop: "{{ v2_host_roles_names_map }}"
       loop_control:
         loop_var: host_item
-      when: cluster_type == "Standard"
 
     - name: Pause for 5 seconds to let the API catch up
       wait_for:
         timeout: 5
-  when: cluster_current_status.json.status in valid_next_steps
   

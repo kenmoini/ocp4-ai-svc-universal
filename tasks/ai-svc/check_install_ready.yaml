@@ -21,6 +21,7 @@
   register: cluster_current_status
 
 - name: Ensure the cluster is ready to install
+  when: cluster_current_status.json.status not in invalid_next_steps
   uri:
     headers: "{{ compiled_uri_headers }}"
     url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}"
@@ -32,4 +33,3 @@
   until: (cluster_install_status.json.status == "ready")
   retries: 60
   delay: 15
-  when: cluster_current_status.json.status not in invalid_next_steps

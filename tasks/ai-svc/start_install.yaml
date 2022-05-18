@@ -13,6 +13,7 @@
   #delay: 30
 
 - name: Start the Installation of the OpenShift Cluster
+  when: cluster_current_status.json.status == "ready"
   uri:
     headers: "{{ compiled_uri_headers }}"
     url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/actions/install"
@@ -20,4 +21,3 @@
     method: POST
     status_code: 202
     body_format: json
-  when: cluster_current_status.json.status == "ready"

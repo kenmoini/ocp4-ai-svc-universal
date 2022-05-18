@@ -18,6 +18,7 @@
   register: cluster_current_status
 
 - name: Set Cluster VIPs and Networking Configuration
+  when: cluster_current_status.json.status in valid_next_steps
   uri:
     headers: "{{ compiled_uri_headers }}"
     url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}"
@@ -27,4 +28,3 @@
     status_code: 201
     body_format: json
   register: set_cluster_network_vips
-  when: cluster_current_status.json.status in valid_next_steps

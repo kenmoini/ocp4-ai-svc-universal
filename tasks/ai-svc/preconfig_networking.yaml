@@ -5,6 +5,7 @@
     cilium_networking_json: "{ \"networking\": {\"networkType\":\"Cilium\"}}"
 
 - name: Set Calico Networking Cluster Preconfig
+  when: cluster_network_type == "Calico"
   uri:
     headers: "{{ compiled_uri_headers }}"
     url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/install-config"
@@ -14,9 +15,9 @@
     status_code: 201
     body_format: json
   register: set_cluster_preconfig_networking_calico
-  when: cluster_network_type == "Calico"
 
 - name: Set Cilium Networking Cluster Preconfig
+  when: cluster_network_type == "Cilium"
   uri:
     headers: "{{ compiled_uri_headers }}"
     url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/install-config"
@@ -26,7 +27,6 @@
     status_code: 201
     body_format: json
   register: set_cluster_preconfig_networking_cilium
-  when: cluster_network_type == "Cilium"
 
 - name: Set NMState Cluster Preconfig
   set_fact:
