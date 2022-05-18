@@ -1,4 +1,6 @@
 .generated/
 .generated/**
-*.cluster_config.yml
-*.cluster_config.yaml
+*.cluster-config.yml
+*.cluster-config.yaml
+credentials-infrastructure.yml
+credentials-infrastructure.yaml
