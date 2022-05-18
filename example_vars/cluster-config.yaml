@@ -23,14 +23,14 @@ cluster_version: "4.10"
 
 # cluster_name and cluster_domain will form the cluster base endpoint, eg cluster_name.cluster_domain
 # Ensure the DNS A records for {api,api-int,*.apps}.cluster_name.cluster_domain exist
-cluster_name: play-ocp
+cluster_name: vsphere-ocp-ha
 cluster_domain: kemo.labs
 
 ################################################## Cluster Networking
 # cluster_api_vip: an IP or "auto"
-cluster_api_vip: 192.168.42.74
+cluster_api_vip: 192.168.42.88
 # cluster_apps_vip: an IP or "auto"
-cluster_apps_vip: 192.168.42.75
+cluster_apps_vip: 192.168.42.89
 # cluster_node_cidr: A CIDR definition or "auto"
 cluster_node_cidr: 192.168.42.0/24
 
@@ -49,6 +49,7 @@ cluster_nodes:
     type: control-plane
     infra:
       name: labVMWare
+      # type: vsphere | nutanix | libvirt
       type: vsphere
     vm:
       cpu_cores: 4
@@ -70,8 +71,13 @@ cluster_nodes:
             next_hop_address: 192.168.42.1
             next_hop_interface: eth0
             table_id: 254
+        vcenter_network: "VMNetwork"
   - name: cp-2
     type: control-plane
+    infra:
+      name: labVMWare
+      # type: vsphere | nutanix | libvirt
+      type: vsphere
     vm:
       cpu_cores: 4
       cpu_sockets: 1
@@ -92,8 +98,13 @@ cluster_nodes:
             next_hop_address: 192.168.42.1
             next_hop_interface: eth0
             table_id: 254
+        vcenter_network: "VMNetwork"
   - name: cp-3
     type: control-plane
+    infra:
+      name: labVMWare
+      # type: vsphere | nutanix | libvirt
+      type: vsphere
     vm:
       cpu_cores: 4
       cpu_sockets: 1
@@ -114,8 +125,13 @@ cluster_nodes:
             next_hop_address: 192.168.42.1
             next_hop_interface: eth0
             table_id: 254
+        vcenter_network: "VMNetwork"
   - name: app-1
     type: application-node
+    infra:
+      name: labVMWare
+      # type: vsphere | nutanix | libvirt
+      type: vsphere
     vm:
       cpu_cores: 4
       cpu_sockets: 1
@@ -140,8 +156,13 @@ cluster_nodes:
             next_hop_address: 192.168.42.1
             next_hop_interface: eth0
             table_id: 254
+        vcenter_network: "VMNetwork"
   - name: app-2
     type: application-node
+    infra:
+      name: labVMWare
+      # type: vsphere | nutanix | libvirt
+      type: vsphere
     vm:
       cpu_cores: 4
       cpu_sockets: 1
@@ -166,8 +187,13 @@ cluster_nodes:
             next_hop_address: 192.168.42.1
             next_hop_interface: eth0
             table_id: 254
+        vcenter_network: "VMNetwork"
   - name: app-3
     type: application-node
+    infra:
+      name: labVMWare
+      # type: vsphere | nutanix | libvirt
+      type: vsphere
     vm:
       cpu_cores: 4
       cpu_sockets: 1
@@ -198,6 +224,7 @@ cluster_nodes:
             next_hop_address: 192.168.42.1
             next_hop_interface: eth0
             table_id: 254
+        vcenter_network: "VMNetwork"
 
 # extra_roles [optional]: name roles to run after cluster provisioning
 #extra_roles:
