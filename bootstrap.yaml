@@ -301,6 +301,7 @@
       when: node_item.infra.type == "nutanix"
       set_fact:
         nutanix_hosts: "{{ nutanix_hosts | default([]) + [node_item] }}"
+        unique_nutanix_infra_providers: []
       loop: "{{ cluster_nodes }}"
       loop_control:
         loop_var: node_item
@@ -308,9 +309,31 @@
         - infra_nutanix
         - infra_nutanix_create_hosts_list
 
-    - name: Create the Nutanix infrastructure
+    - name: Create the list of unique Nutanix infrastructure providers
       when: nutanix_hosts is defined and nutanix_hosts | length > 0
+      include_tasks: tasks/infra-nutanix/get_unique_providers.yaml
+      loop: "{{ nutanix_hosts }}"
+      loop_control:
+        loop_var: node_item
+      tags:
+        - infra_nutanix
+        - infra_nutanix_create_infra_list
+
+    - name: Create the Nutanix infrastructure
+      when:
+      - nutanix_hosts is defined
+      - nutanix_hosts | length > 0
+      - unique_nutanix_infra_providers | length > 0
       block:
+        - name: Perform per Nutanix Infrastructure Provider set up
+          include_tasks: tasks/infra-nutanix/setup_per_provider.yaml
+          loop: "{{ unique_nutanix_infra_providers }}"
+          loop_control:
+            loop_var: provider
+            label: "Nutanix Infrastructure Provider: {{ provider.name }}"
+          tags:
+            - infra_nutanix_per_provider_setup
+
         - name: Deploy Nutanix infrastructure
           include_tasks: tasks/infra-nutanix/create.yaml
           loop: "{{ nutanix_hosts }}"
@@ -343,6 +366,9 @@
       loop: "{{ vsphere_hosts }}"
       loop_control:
         loop_var: node_item
+      tags:
+        - infra_vsphere
+        - infra_vsphere_create_infra_list
 
     - name: Create the vSphere infrastructure
       when:
@@ -351,7 +377,7 @@
       - unique_vsphere_infra_providers | length > 0
       block:
         - name: Perform per vSphere Infrastructure Provider set up
-          include_tasks: tasks/infra-vsphere/setup_per_provider.yaml
+          include_tasks: tasks/infra-vsphere/per_provider_setup.yaml
           loop: "{{ unique_vsphere_infra_providers }}"
           loop_control:
             loop_var: provider
