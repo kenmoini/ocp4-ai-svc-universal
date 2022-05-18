@@ -16,8 +16,13 @@ cluster_hyperthreading: all
 # discovery_iso_type: full-iso | minimal-iso
 discovery_iso_type: full-iso
 
+######################### vSphere - General Variables
 vcenter_hardware_version: 15
 vsphere_nested_virt: false
+
+######################### Nutanix - General Variables
+nutanix_prism_api_v3_base: "/api/nutanix/v3"
+nutanix_prism_api_v2_base: "/PrismGateway/services/rest/v2.0"
 
 #####################################################################
 # Cilium Networking default configuration
