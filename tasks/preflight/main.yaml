@@ -1,24 +1,27 @@
 ---
 - name: Check for required programs
-  ansible.builtin.shell: "which {{ item }}"
+  ansible.builtin.shell: "which {{ program_item }}"
   register: program_check
   ignore_errors: true
-  with_items:
+  loop:
     - curl
     - jq
     - git
+  loop_control:
+    loop_var: program_item
 
 ## Break out the following into their own tasks when the infra matches
     #- qemu-img
     #- virt-install
   
 - name: Fail if needed programs are not found
+  failed_when: program_item.rc != 0
   fail:
-    msg: "{{ item.cmd | replace('which ','') }} is not found! You need to install it first."
-  failed_when: item.rc != 0
+    msg: "{{ program_item.cmd | replace('which ','') }} is not found! You need to install it first."
   loop: "{{ program_check.results }}"
   loop_control:
-    label: "{{ item.cmd | replace('which ','') }}"
+    label: "{{ program_item.cmd | replace('which ','') }}"
+    loop_var: program_item
 
 #====================================================================================================================
 # Check for needed variables
