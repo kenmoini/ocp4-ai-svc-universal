@@ -1,4 +1,8 @@
 ---
+
+#######################################################################################################################
+## OpenShift Assisted Installer Service Extra Injected Manifests
+#######################################################################################################################
 ## This variable file is used for pre-cluster and pre-Discovery ISO creation manifest injection
 ## This example is configured to support SNO on Nutanix deployments
 
