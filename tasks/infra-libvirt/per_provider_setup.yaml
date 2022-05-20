@@ -1,0 +1,37 @@
+---
+
+- name: Set iso name
+  set_fact:
+    iso_name: "ocp_ai-{{ cluster_id }}.iso"
+
+- name: Use SCP to copy the ISO to the target Libvirt host when connecting with qemu+ssh
+  when: provider.credentials.libvirt_transport is defined and provider.credentials.libvirt_transport == 'qemu+ssh'
+  block:
+    - name: Set user facts
+      when: provider.credentials.libvirt_username is defined
+      set_fact:
+        user_target: "{{ provider.credentials.libvirt_username }}@"
+
+    - name: Check for the ISO on the remote host
+      shell: |
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i {{ provider.credentials.libvirt_ssh_key_path }} {{ user_target | default('') }}{{ provider.credentials.libvirt_endpoint }} ls -1 {{ provider.configuration.libvirt_base_iso_path | default('/var/lib/libvirt/images') }}
+      register: disk_check
+
+    - name: SCP over the ISO to the remote Libvirt host
+      when: iso_name not in disk_check.stdout_lines
+      shell: |
+        scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i {{ provider.credentials.libvirt_ssh_key_path }} {{ generated_asset_directory }}/{{ cluster_id }}/ocp_ai.iso {{ user_target | default('') }}{{ provider.credentials.libvirt_endpoint }}:{{ provider.configuration.libvirt_base_iso_path | default('/var/lib/libvirt/images') }}/ocp_ai-{{ cluster_id }}.iso
+
+- name: Copy ISO to the target path when connecting with qemu locally
+  when: (provider.credentials.libvirt_transport is defined and provider.credentials.libvirt_transport == 'qemu') or (provider.credentials.libvirt_transport is not defined)
+  block:
+    - name: Copy ISO to the target path
+      copy:
+        src: "{{ generated_asset_directory }}/{{ cluster_id }}/ocp_ai-{{ cluster_id }}.iso"
+        dest: "{{ provider.configuration.libvirt_base_iso_path | default('/var/lib/libvirt/images') }}"
+
+- name: Reset facts
+  set_fact:
+    iso_name: ""
+    user_target: ""
+    disk_check: {}

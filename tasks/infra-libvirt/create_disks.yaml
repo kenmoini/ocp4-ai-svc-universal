@@ -1,0 +1,35 @@
+---
+
+- name: Set iso name
+  set_fact:
+    qcow_name: "{{ cluster_name }}-{{ node_item.name }}-{{ disk_item.name }}.qcow2"
+
+- name: Set disk provisioning type
+  when: disk_item.type is defined and disk_item.type == 'thick'
+  set_fact:
+    disk_provisioning_type: " -o preallocation=full"
+
+- name: Remote Libvirt Target 
+  block:
+    - name: Set user facts
+      when: provider.credentials.libvirt_username is defined
+      set_fact:
+        user_target: "{{ provider.credentials.libvirt_username }}@"
+
+    - name: Check for the existing disk via SSH
+      shell: |
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i {{ provider.credentials.libvirt_ssh_key_path }} {{ user_target | default('') }}{{ provider.credentials.libvirt_endpoint }} ls -1 {{ provider.configuration.libvirt_base_iso_path | default('/var/lib/libvirt/images') }}
+      register: disk_check
+
+    - name: Create the disk if it does not exist
+      when: qcow_name not in disk_check.stdout_lines
+      shell: |
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i {{ provider.credentials.libvirt_ssh_key_path }} {{ user_target | default('') }}{{ provider.credentials.libvirt_endpoint }} qemu-img create{{ disk_provisioning_type | default('') }} -f qcow2 {{ provider.configuration.libvirt_base_iso_path | default('/var/lib/libvirt/images') }}/{{ qcow_name }} {{ disk_item.size }}G
+
+- name: Reset facts
+  set_fact:
+    disk_check: {}
+    iso_name: ""
+    qcow_name: ""
+    user_target: ""
+    disk_provisioning_type: ""

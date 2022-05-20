@@ -1,0 +1,32 @@
+---
+- name: Set extra facts - ssh_key_option
+  when: provider.credentials.libvirt_ssh_key_path is defined
+  set_fact:
+    ssh_key_option: "&keyfile={{ provider.credentials.libvirt_ssh_key_path }}"
+
+- name: Set extra facts - user_target
+  when: provider.credentials.libvirt_username is defined
+  set_fact:
+    user_target: "{{ provider.credentials.libvirt_username }}@"
+
+- name: Set the Libvirt url
+  set_fact:
+    libvirt_uri: "{{ provider.credentials.libvirt_transport | default('qemu') }}://{{ user_target | default('') }}{{ provider.credentials.libvirt_endpoint | default('') }}/system{{ provider.credentials.libvirt_options | default('?no_verify=1&socket=/var/run/libvirt/libvirt-sock') }}{{ ssh_key_option | default('') }}"
+
+- name: Query Libvirt network endpoint for a connectivity test
+  community.libvirt.virt_net:
+    command: list_nets
+    uri: "{{ libvirt_uri }}"
+  register: libvirt_test_info
+
+- name: Fail if the Libvirt instance cannot be connected to
+  when: libvirt_test_info.failed|bool
+  fail:
+    msg: "Cannot connect to Libvirt at {{ provider.credentials.libvirt_endpoint }}!"
+
+- name: Reset facts
+  set_fact:
+    libvirt_test_info: {}
+    libvirt_uri: ""
+    ssh_key_option: ""
+    user_target: ""

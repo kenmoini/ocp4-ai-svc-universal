@@ -1,1 +1,77 @@
 ---
+#===========================================================================
+# Get the Infrastructure Provider for this host
+#===========================================================================
+
+- name: Get the infrastructure provider for this host - {{ node_item.name }}
+  include_tasks: "target_infra_credential.yaml"
+
+#===========================================================================
+# Set Per VM Metadata
+#===========================================================================
+
+- name: Set extra facts - ssh_key_option - {{ node_item.name }}
+  when: provider.credentials.libvirt_ssh_key_path is defined
+  set_fact:
+    ssh_key_option: "&keyfile={{ provider.credentials.libvirt_ssh_key_path }}"
+
+- name: Set extra facts - user_target - {{ node_item.name }}
+  when: provider.credentials.libvirt_username is defined
+  set_fact:
+    user_target: "{{ provider.credentials.libvirt_username }}@"
+
+- name: Set the Libvirt url and VM Name - {{ node_item.name }}
+  set_fact:
+    libvirt_uri: "{{ provider.credentials.libvirt_transport | default('qemu') }}://{{ user_target | default('') }}{{ provider.credentials.libvirt_endpoint | default('') }}/system{{ provider.credentials.libvirt_options | default('?no_verify=1&socket=/var/run/libvirt/libvirt-sock') }}{{ ssh_key_option | default('') }}"
+    vm_name: "{{ cluster_name }}-{{ node_item.name }}"
+
+#===========================================================================
+# Power Off and Destroy VM
+#===========================================================================
+
+- name: List all VMs
+  community.libvirt.virt:
+    command: list_vms
+    uri: "{{ libvirt_uri }}"
+  register: all_vms
+
+- name: List only running VMs
+  community.libvirt.virt:
+    command: list_vms
+    state: running
+    uri: "{{ libvirt_uri }}"
+  register: running_vms
+
+- name: Destroy the VM - {{ node_item.name }}
+  community.libvirt.virt:
+    command: destroy
+    name: "{{ cluster_name }}-{{ node_item.name }}"
+    uri: "{{ libvirt_uri }}"
+  when: vm_name in running_vms.list_vms
+
+- name: Undefine the VM - {{ node_item.name }}
+  community.libvirt.virt:
+    command: undefine
+    name: "{{ cluster_name }}-{{ node_item.name }}"
+    uri: "{{ libvirt_uri }}"
+  when: vm_name in all_vms.list_vms
+
+#===========================================================================
+# Destroy the VM Disks
+#===========================================================================
+
+- name: Delete the VM disks - {{ node_item.name }}
+  include_tasks: "delete_disks.yaml"
+  loop: "{{ node_item.vm.disks }}"
+  loop_control:
+    loop_var: disk_item
+
+#===========================================================================
+# Reset facts for next item in the loop
+#===========================================================================
+- name: Reset facts
+  set_fact:
+    libvirt_uri: ""
+    ssh_key_option: ""
+    user_target: ""
+    vm_name: ""
