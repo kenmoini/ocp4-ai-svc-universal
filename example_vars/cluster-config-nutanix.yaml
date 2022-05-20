@@ -71,6 +71,7 @@ cluster_nodes:
             next_hop_address: 192.168.42.1
             next_hop_interface: eth0
             table_id: 254
+        # [optional] nutanix_network, if not specified, will use the network defined in the infrastructure provider credentials
         nutanix_network: "LabLAN"
   - name: cp-2
     type: control-plane
@@ -98,6 +99,7 @@ cluster_nodes:
             next_hop_address: 192.168.42.1
             next_hop_interface: eth0
             table_id: 254
+        # [optional] nutanix_network, if not specified, will use the network defined in the infrastructure provider credentials
         nutanix_network: "LabLAN"
   - name: cp-3
     type: control-plane
@@ -125,6 +127,7 @@ cluster_nodes:
             next_hop_address: 192.168.42.1
             next_hop_interface: eth0
             table_id: 254
+        # [optional] nutanix_network, if not specified, will use the network defined in the infrastructure provider credentials
         nutanix_network: "LabLAN"
   - name: app-1
     type: application-node
@@ -154,6 +157,7 @@ cluster_nodes:
             next_hop_address: 192.168.42.1
             next_hop_interface: eth0
             table_id: 254
+        # [optional] nutanix_network, if not specified, will use the network defined in the infrastructure provider credentials
         nutanix_network: "LabLAN"
   - name: app-2
     type: application-node
@@ -183,6 +187,7 @@ cluster_nodes:
             next_hop_address: 192.168.42.1
             next_hop_interface: eth0
             table_id: 254
+        # [optional] nutanix_network, if not specified, will use the network defined in the infrastructure provider credentials
         nutanix_network: "LabLAN"
   - name: app-3
     type: application-node
@@ -212,6 +217,7 @@ cluster_nodes:
             next_hop_address: 192.168.42.1
             next_hop_interface: eth0
             table_id: 254
+        # [optional] nutanix_network, if not specified, will use the network defined in the infrastructure provider credentials
         nutanix_network: "LabLAN"
 
 # [optional] extra_roles: name of roles to run after cluster provisioning

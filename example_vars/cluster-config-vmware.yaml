@@ -71,6 +71,7 @@ cluster_nodes:
             next_hop_address: 192.168.42.1
             next_hop_interface: eth0
             table_id: 254
+        # [optional] vcenter_network, if not specified, will use the network defined in the infrastructure provider credentials
         vcenter_network: "VMNetwork"
   - name: cp-2
     type: control-plane
@@ -98,6 +99,7 @@ cluster_nodes:
             next_hop_address: 192.168.42.1
             next_hop_interface: eth0
             table_id: 254
+        # [optional] vcenter_network, if not specified, will use the network defined in the infrastructure provider credentials
         vcenter_network: "VMNetwork"
   - name: cp-3
     type: control-plane
@@ -125,6 +127,7 @@ cluster_nodes:
             next_hop_address: 192.168.42.1
             next_hop_interface: eth0
             table_id: 254
+        # [optional] vcenter_network, if not specified, will use the network defined in the infrastructure provider credentials
         vcenter_network: "VMNetwork"
   - name: app-1
     type: application-node
@@ -156,6 +159,7 @@ cluster_nodes:
             next_hop_address: 192.168.42.1
             next_hop_interface: eth0
             table_id: 254
+        # [optional] vcenter_network, if not specified, will use the network defined in the infrastructure provider credentials
         vcenter_network: "VMNetwork"
   - name: app-2
     type: application-node
@@ -187,6 +191,7 @@ cluster_nodes:
             next_hop_address: 192.168.42.1
             next_hop_interface: eth0
             table_id: 254
+        # [optional] vcenter_network, if not specified, will use the network defined in the infrastructure provider credentials
         vcenter_network: "VMNetwork"
   - name: app-3
     type: application-node
@@ -218,6 +223,7 @@ cluster_nodes:
             next_hop_address: 192.168.42.1
             next_hop_interface: eth0
             table_id: 254
+        # [optional] vcenter_network, if not specified, will use the network defined in the infrastructure provider credentials
         vcenter_network: "VMNetwork"
 
 ################################################## Extra Post-Provisioning Roles
