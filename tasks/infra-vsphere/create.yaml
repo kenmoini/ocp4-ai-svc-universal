@@ -12,7 +12,7 @@
 
 - name: Setup VMWare disk dictionary - {{ node_item.name }}
   set_fact:
-    disks: "{{ disks | default([]) + [{ 'size_gb' : disk_item.size, 'type' : 'thin' }] }}"
+    disks: "{{ disks | default([]) + [{ 'size_gb' : disk_item.size, 'type' : type|default('thin') }] }}"
   loop: "{{ node_item.vm.disks }}"
   loop_control:
     loop_var: disk_item
