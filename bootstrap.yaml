@@ -238,7 +238,7 @@
 
         - name: AI Service - Add Additional Root CAs to the Discovery ISO
           include_tasks: tasks/ai-svc/add_additionalTrustBundle_to_infraenv.yaml
-          when: additionalTrustBundles is defined
+          when: additionalTrustBundle is defined
           tags:
             - ai_svc_add_additionalTrustBundle_to_infraenv
 

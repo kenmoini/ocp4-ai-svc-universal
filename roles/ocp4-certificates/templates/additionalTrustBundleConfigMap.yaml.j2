@@ -6,4 +6,4 @@ metadata:
   namespace: "openshift-config"
 data:
   ca-bundle.crt: |
-    {{ additionalTrustBundles | indent(4) }}
+    {{ additionalTrustBundle | indent(4) }}

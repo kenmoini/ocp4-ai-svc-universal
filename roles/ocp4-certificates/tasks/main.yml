@@ -14,7 +14,7 @@
       - strategic-merge
       - merge
       definition: "{{ lookup('template', 'templates/additionalTrustBundleConfigMap.yaml.j2') | from_yaml }}"
-    when: additionalTrustBundles is defined
+    when: additionalTrustBundle is defined
 
 
   - name: Create Secret for API LoadBalancer
@@ -75,7 +75,7 @@
         spec:
           trustedCA:
             name: root-certificate-bundle
-    when: additionalTrustBundles is defined
+    when: additionalTrustBundle is defined
 
   - name: Patch the cluster IngressController Operator
     kubernetes.core.k8s:
