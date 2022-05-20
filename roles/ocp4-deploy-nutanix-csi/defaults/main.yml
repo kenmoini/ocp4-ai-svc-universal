@@ -1,0 +1,15 @@
+---
+# defaults file for ocp4-nutanix-csi
+
+operator_namespace: ntnx-system
+secret_name: ntnx-secret
+
+nutanix_csi_deploy_files_storageclass: false
+nutanix_csi_deploy_volumes_storageclass: false
+nutanix_csi_deploy_iscsid_machineconfig: true
+
+## StorageClass Defaults
+nutanix_csi_volumes_filesystem_type: ext4
+nutanix_csi_volumes_flashmode: false
+
+nutanix_csi_deploy_files_storageclass_selinux_patch: true

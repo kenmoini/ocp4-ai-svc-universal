@@ -1,0 +1,26 @@
+---
+# tasks file for ocp4-matrix-login
+- name: Apply the Login Screen HTML Template
+  k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      type: Generic
+      metadata:
+        name: matrix-login-template
+        namespace: openshift-config
+      data:
+        login.html: "{{ lookup('template', 'templates/login.html.j2' ) | b64encode }}"
+
+- name: Patch the OAuth Config
+  k8s:
+    definition:
+      apiVersion: config.openshift.io/v1
+      kind: OAuth
+      metadata:
+        name: cluster
+      spec:
+        templates:
+          login:
+            name: matrix-login-template

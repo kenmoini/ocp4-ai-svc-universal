@@ -1,0 +1,15 @@
+---
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: worker
+  name: 99-custom-enable-iscsid-worker
+spec:
+  config:
+    ignition:
+      version: 2.2.0
+    systemd:
+      units:
+      - enabled: true
+        name: iscsid.service

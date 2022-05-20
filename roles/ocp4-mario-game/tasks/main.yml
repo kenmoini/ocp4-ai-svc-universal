@@ -1,0 +1,127 @@
+---
+# tasks file for ocp4-workloads-mario
+- name: Create Namespace/Project for Mario
+  k8s:
+    state: present
+    kind: Namespace
+    api_version: v1
+    merge_type:
+    - strategic-merge
+    - merge
+    definition:
+      metadata:
+        name: "{{ mario_project_namespace }}"
+        annotations:
+          openshift.io/description: "A randomly generating Super Mario Bros clone in a container!"
+          openshift.io/display-name: "Infinite Mario"
+      spec: {}
+  tags:
+  - preflight
+  - create_ns
+
+- name: Create infinite-mario DeploymentConfig
+  k8s:
+    namespace: "{{ mario_project_namespace }}"
+    kind: DeploymentConfig
+    api_version: apps.openshift.io/v1
+    definition:
+      metadata:
+        name: infinite-mario
+        labels:
+          app: infinite-mario
+          app.kubernetes.io/part-of: infinite-mario
+          app.kubernetes.io/component: infinite-mario
+          app.kubernetes.io/instance: infinite-mario
+      spec:
+        strategy:
+          type: Rolling
+          rollingParams:
+            updatePeriodSeconds: 1
+            intervalSeconds: 1
+            timeoutSeconds: 600
+            maxUnavailable: 25%
+            maxSurge: 25%
+          resources: {}
+          activeDeadlineSeconds: 21600
+        triggers:
+          - type: ConfigChange
+        replicas: 1
+        selector:
+          app: infinite-mario
+          deploymentconfig: infinite-mario
+        template:
+          metadata:
+            creationTimestamp: null
+            labels:
+              app: infinite-mario
+              deploymentconfig: infinite-mario
+          spec:
+            containers:
+              - name: infinite-mario
+                image: "quay.io/kmoini/infinite_mario"
+                imagePullPolicy: Always
+            restartPolicy: Always
+            terminationGracePeriodSeconds: 30
+            dnsPolicy: ClusterFirst
+            securityContext: {}
+            schedulerName: default-scheduler
+
+- name: Create infinite-mario Service
+  k8s:
+    state: present
+    definition:
+      kind: Service
+      apiVersion: v1
+      metadata:
+        name: infinite-mario
+        namespace: "{{ mario_project_namespace }}"
+        labels:
+          app: infinite-mario
+          app.kubernetes.io/component: infinite-mario
+          app.kubernetes.io/instance: infinite-mario
+      spec:
+        ports:
+          - name: 8080-tcp
+            protocol: TCP
+            port: 8080
+            targetPort: 8080
+        selector:
+          app: infinite-mario
+          deploymentconfig: infinite-mario
+        type: ClusterIP
+        sessionAffinity: None
+
+- name: Create infinite-mario Route
+  k8s:
+    state: present
+    definition:
+      kind: Route
+      apiVersion: route.openshift.io/v1
+      metadata:
+        name: infinite-mario
+        namespace: "{{ mario_project_namespace }}"
+      spec:
+        to:
+          kind: Service
+          name: infinite-mario
+          weight: 100
+        port:
+          targetPort: "8080-tcp"
+        tls:
+          termination: edge
+        wildcardPolicy: None
+
+- name: Get infinite-mario Route
+  k8s_info:
+    kind: Route
+    api_version: route.openshift.io/v1
+    name: infinite-mario
+    namespace: "{{ mario_project_namespace }}"
+  register: mario_route_r
+
+- name: COMPLETE - Display needed resources
+  debug:
+    msg:
+      - Infinite Mario successfully launched!
+      - "=================================================================="
+      - "- Infinite Mario: https://{{ mario_route_r.resources[0].status.ingress[0].host }}"

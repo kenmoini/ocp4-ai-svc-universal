@@ -1,0 +1,4 @@
+---
+# defaults file for ocp4-matrix-login
+dripping_text_color: "#a30000"
+dripping_text_font_size: 10
