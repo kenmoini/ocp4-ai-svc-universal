@@ -2,6 +2,40 @@
 
 This set of resources handles an idempotent way to deploy OpenShift via the Assisted Installer Service to any number of infrastructure platforms.
 
+## Features
+
+- Use the Red Hat hosted Assisted Installer or your own hosted Assisted Installer Service
+- End to end deployment and destruction of OpenShift clusters from a bit of YAML and a single command
+- Deploy to different ***AND*** multiple infrastructure platforms
+- Pre-installation configuration of:
+  - Additional Root CA Trust Bundles
+  - Custom CNIs like Calico and Cilium
+  - Injecting additional manifests and ignition overrides
+  - Multiple Disks
+  - Multiple Network Interfaces, on different networks, with NMState-based configurations
+  - NTP Servers
+- Post-installation configuration of OpenShift with Roles such as:
+  - ocp4-certificates for custom Root and Load Balancer certificates
+  - ocp4-deploy-nutanix-csi to deploy the Nutanix CSI
+  - ocp4-mario-game for a fun demo workload
+  - ocp4-ntp-configuration to configure chrony/ntp
+  - ocp4-red-matrix-login to configure the drippy Red Matrix Login
+  - ocp4-rhsm-entitlement to apply Red Hat Subscription Manager Entitlement for entitled builds
+
+### Supported Infrastructure Platforms
+
+- Libvirt/KVM, tested with RHEL 8.5
+- Nutanix AHV, tested with Nutanix CE
+- VMWare, tested with vSphere 7+
+
+### Upcoming Infrastructure Platforms
+
+- Bare Metal
+- HyperV
+- OpenStack
+
+---
+
 ## Operations
 
 The following tasks performed by the different Playbooks are:
@@ -35,12 +69,26 @@ The following tasks performed by the different Playbooks are:
 - Delete the cluster from the AI Svc
 - Delete local generated cluster files
 
+---
+
 ## Prerequisites
 
 - Ansible Automation - `python3 -m pip install ansible`
 - cURL - `dnf install curl`
 - Git - `dnf install git`
 - jq - `dnf install jq`
+
+### Red Hat Registry Pull Secret
+
+To deploy OpenShift in a connected environment, you need to provide a registry pull secret.  Get yours from here: https://cloud.redhat.com/openshift/install/pull-secret
+
+It's suggested to use the Copy-to-Clipboard button to copy the registry pull secret to the clipboard.  Then, paste it into a file somewhere like `~/ocp-pull-secret` - make sure there is no white space in the JSON structure.
+
+### Red Hat API Offline Token
+
+To use the Red Hat hosted Assisted Install Service, you need to provide a Red Hat API Offline Token.  Get yours from here: https://access.redhat.com/management/api
+
+Take the token and store it in a file somewhere like `~/rh-api-offline-token`
 
 ### One-time | Installing oc
 
@@ -70,6 +118,8 @@ sudo mv oc /usr/local/bin
 cd -
 rm -rf /tmp/bindl
 ```
+
+---
 
 ## Usage
 
@@ -103,14 +153,14 @@ ansible-galaxy collection install -r requirements.yml
 cp example_vars/cluster-config.yaml CLUSTER_NAME.cluster-config.yaml
 ```
 
-- Copy the other relevant files from `example_vars/` to `vars/` or the working directory and modify as you see fit, such as those for infrastructure credentials.
+- Copy the other relevant files from `example_vars/` to `vars/` to auto-load them - or the working directory to manually include them - and modify as you see fit, such as those for infrastructure credentials.
 
 ### Running the Playbook
 
 With the needed variables altered, you can run the Playbook with the following command:
 
 ```bash
-ansible-playbook -e "@CLUSTER_NAME.cluster-config.yaml" bootstrap.yaml
+ansible-playbook -e "@CLUSTER_NAME.cluster-config.yaml" -e "@credentials-infrastructure.yaml" bootstrap.yaml
 ```
 
 ### Destroying the Cluster
@@ -118,5 +168,5 @@ ansible-playbook -e "@CLUSTER_NAME.cluster-config.yaml" bootstrap.yaml
 If you are done with the cluster or some error occurred you can quickly delete it from your infrastructure environments, the Assisted Installer Service, and the local assets that were generated during creation:
 
 ```bash
-ansible-playbook -e "@CLUSTER_NAME.cluster-config.yaml" destroy.yaml
+ansible-playbook -e "@CLUSTER_NAME.cluster-config.yaml" -e "@credentials-infrastructure.yaml" destroy.yaml
 ```
