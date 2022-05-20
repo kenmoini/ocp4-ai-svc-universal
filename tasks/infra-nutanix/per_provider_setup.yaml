@@ -1,0 +1,112 @@
+---
+# Organization stuff
+
+#===========================================================================
+# Upload ISO
+#===========================================================================
+
+- name: Check for image, get the image info
+  include_tasks: get_image_info.yaml
+
+- name: Conditionally create the local image relay if it does not exist
+  when: nutanix_ocp_ai_iso_uuid is not defined
+  block:
+
+    - name: Get available Storage Containers
+      uri:
+        url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v2_base }}/storage_containers"
+        return_content: yes
+        method: GET
+        status_code: 200
+        body_format: json
+        body: '{"filter_criteria": "name=={{ provider.configuration.prism_image_storage_container_name }}"}'
+        force_basic_auth: yes
+        user: "{{ provider.credentials.prism_username }}"
+        password: "{{ provider.credentials.prism_password }}"
+        validate_certs: "{{provider.credentials.prism_verify_ssl }}"
+      register: nutanix_image_storage_info
+
+    - name: Set Facts - Set Cluster Image Storage Container
+      when: storage_container.name == provider.configuration.prism_image_storage_container_name
+      set_fact:
+        image_storage_container_uuid: "{{ storage_container.storage_container_uuid }}"
+      loop: "{{ nutanix_image_storage_info.json.entities }}"
+      loop_control:
+        loop_var: storage_container
+        label: "{{ storage_container.name }}"
+
+    - name: Create Image if it does not exist
+      uri:
+        url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v2_base }}/images"
+        return_content: yes
+        method: POST
+        status_code: [200, 201]
+        body_format: json
+        body: >
+          {
+            "image_type": "ISO_IMAGE",
+            "name": "ocp-ai-{{ cluster_id }}",
+            "annotation": "OpenShift Assisted Installer ISO for Cluster {{ cluster_name }} with Cluster ID {{ cluster_id }} and InfraEnv ID {{ infraenv_id }}",
+            "image_import_spec": {
+              "url": "{{ infraenv_download_url }}",
+              "storage_container_uuid": "{{ image_storage_container_uuid }}"
+            }
+          }'
+        force_basic_auth: yes
+        user: "{{ provider.credentials.prism_username }}"
+        password: "{{ provider.credentials.prism_password }}"
+        validate_certs: "{{provider.credentials.prism_verify_ssl }}"
+      register: nutanix_create_image_info
+
+    - name: Get Task details
+      uri:
+        url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v2_base }}/tasks/{{ nutanix_create_image_info.json.task_uuid }}"
+        return_content: yes
+        method: GET
+        status_code: 200
+        body_format: json
+        force_basic_auth: yes
+        user: "{{ provider.credentials.prism_username }}"
+        password: "{{ provider.credentials.prism_password }}"
+        validate_certs: "{{provider.credentials.prism_verify_ssl }}"
+      register: nutanix_image_task_info
+
+    - name: Get Image details
+      uri:
+        url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v2_base }}/images/{{ nutanix_image_task_info.json.entity_list[0].entity_id }}"
+        return_content: yes
+        method: GET
+        status_code: 200
+        body_format: json
+        force_basic_auth: yes
+        user: "{{ provider.credentials.prism_username }}"
+        password: "{{ provider.credentials.prism_password }}"
+        validate_certs: "{{provider.credentials.prism_verify_ssl }}"
+      register: nutanix_image_detail_info
+      delay: 10
+      retries: 30
+      until: nutanix_image_detail_info is not failed
+
+    - name: Set Image Info
+      set_fact:
+        nutanix_ocp_ai_iso_uuid: "{{ nutanix_image_detail_info.json.uuid }}"
+        nutanix_ocp_ai_iso_vm_disk_uuid: "{{ nutanix_image_detail_info.json.vm_disk_id }}"
+        nutanix_ocp_ai_iso_name: "{{ nutanix_image_detail_info.json.name }}"
+
+- name: Fail when no Image was created
+  when: nutanix_ocp_ai_iso_uuid is not defined
+  fail:
+    msg: "No Image seems to have been uploaded, nutanix_ocp_ai_iso_uuid is undefined!"
+
+- name: Image Information
+  debug:
+    msg:
+      - "Image UUID: {{ nutanix_ocp_ai_iso_uuid }}"
+      - "Image VM Disk UUID: {{ nutanix_ocp_ai_iso_vm_disk_uuid }}"
+      - "Image Name: {{ nutanix_ocp_ai_iso_name }}"
+
+- name: Reset facts
+  set_fact:
+    nutanix_ocp_ai_iso_uuid: ""
+    nutanix_ocp_ai_iso_vm_disk_uuid: ""
+    nutanix_ocp_ai_iso_name: ""

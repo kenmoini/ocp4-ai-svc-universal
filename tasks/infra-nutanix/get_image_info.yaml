@@ -1,0 +1,28 @@
+---
+
+#===========================================================================
+# ISO Image
+#===========================================================================
+
+- name: Get list of images
+  uri:
+    url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v2_base }}/images?include_vm_disk_paths=false&include_vm_disk_sizes=false'"
+    return_content: yes
+    method: GET
+    status_code: 200
+    body_format: json
+    force_basic_auth: yes
+    user: "{{ provider.credentials.prism_username }}"
+    password: "{{ provider.credentials.prism_password }}"
+    validate_certs: "{{provider.credentials.prism_verify_ssl }}"
+  register: nutanix_images_info
+
+- name: Set Image Info if it exists
+  when: image.name == "ocp-ai-" + cluster_id
+  set_fact:
+    nutanix_ocp_ai_iso_uuid: "{{ image.uuid }}"
+    nutanix_ocp_ai_iso_vm_disk_uuid: "{{ image.vm_disk_id }}"
+    nutanix_ocp_ai_iso_name: "{{ image.name }}"
+  loop: "{{ nutanix_images_info.json.entities }}"
+  loop_control:
+    loop_var: image

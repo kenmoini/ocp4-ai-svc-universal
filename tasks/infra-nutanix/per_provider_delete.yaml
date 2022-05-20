@@ -1,0 +1,38 @@
+---
+
+- name: Delete the AI ISO
+  block:
+  - name: Get list of images
+    uri:
+      url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v3_base }}/images/list"
+      return_content: yes
+      method: POST
+      status_code: 200
+      body_format: json
+      body: '{"kind":"image", "filter": "name==ocp-ai-{{ cluster_id }}"}'
+      force_basic_auth: yes
+      user: "{{ provider.credentials.prism_username }}"
+      password: "{{ provider.credentials.prism_password }}"
+      validate_certs: "{{provider.credentials.prism_verify_ssl }}"
+    register: nutanix_images_info
+
+  - name: Set Image UUID
+    set_fact:
+      nutanix_ocp_ai_iso_uuid: "{{ image.metadata.uuid }}"
+    when: image.spec.name == "ocp-ai-{{ cluster_id }}"
+    loop: "{{ nutanix_images_info.json.entities }}"
+    loop_control:
+      loop_var: image
+
+  - name: Delete Image if it exists
+    uri:
+      url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v3_base }}/images/{{ nutanix_ocp_ai_iso_uuid }}"
+      return_content: yes
+      method: DELETE
+      status_code: 202
+      body_format: json
+      force_basic_auth: yes
+      user: "{{ provider.credentials.prism_username }}"
+      password: "{{ provider.credentials.prism_password }}"
+      validate_certs: "{{provider.credentials.prism_verify_ssl }}"
+    when: nutanix_ocp_ai_iso_uuid is defined

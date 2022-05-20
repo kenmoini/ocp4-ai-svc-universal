@@ -4,7 +4,7 @@
 
 - name: Get available clusters
   uri:
-    url: "{{ provider.credentials.prism_endpoint }}{{ nutanix_prism_api_v3_base }}/clusters/list"
+    url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v3_base }}/clusters/list"
     return_content: yes
     method: POST
     status_code: 200
@@ -13,7 +13,7 @@
     force_basic_auth: yes
     user: "{{ provider.credentials.prism_username }}"
     password: "{{ provider.credentials.prism_password }}"
-    validate_certs: "{{ not provider.credentials.prism_skip_ssl_verification|bool }}"
+    validate_certs: "{{provider.credentials.prism_verify_ssl }}"
   register: nutanix_clusters_info
 
 - name: Set Facts - Set Cluster UUID
@@ -29,7 +29,7 @@
 
 - name: Get available Networks
   uri:
-    url: "{{ provider.credentials.prism_endpoint }}{{ nutanix_prism_api_v3_base }}/subnets/list"
+    url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v3_base }}/subnets/list"
     return_content: yes
     method: POST
     status_code: 200
@@ -38,7 +38,7 @@
     force_basic_auth: yes
     user: "{{ provider.credentials.prism_username }}"
     password: "{{ provider.credentials.prism_password }}"
-    validate_certs: "{{ not provider.credentials.prism_skip_ssl_verification|bool }}"
+    validate_certs: "{{provider.credentials.prism_verify_ssl }}"
   register: nutanix_networks_info
 
 - name: Set Facts - Set Network UUID
@@ -54,7 +54,7 @@
 
 - name: Get available Storage Containers
   uri:
-    url: "{{ provider.credentials.prism_endpoint }}{{ nutanix_prism_api_v2_base }}/storage_containers"
+    url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v2_base }}/storage_containers"
     return_content: yes
     method: GET
     status_code: 200
@@ -63,7 +63,7 @@
     force_basic_auth: yes
     user: "{{ provider.credentials.prism_username }}"
     password: "{{ provider.credentials.prism_password }}"
-    validate_certs: "{{ not provider.credentials.prism_skip_ssl_verification|bool }}"
+    validate_certs: "{{provider.credentials.prism_verify_ssl }}"
   register: nutanix_image_storage_info
 
 - name: Set Facts - Set Cluster Image Storage Container
@@ -79,7 +79,7 @@
 
 - name: Get available Storage Containers
   uri:
-    url: "{{ provider.credentials.prism_endpoint }}{{ nutanix_prism_api_v2_base }}/storage_containers"
+    url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v2_base }}/storage_containers"
     return_content: yes
     method: GET
     status_code: 200
@@ -88,7 +88,7 @@
     force_basic_auth: yes
     user: "{{ provider.credentials.prism_username }}"
     password: "{{ provider.credentials.prism_password }}"
-    validate_certs: "{{ not provider.credentials.prism_skip_ssl_verification|bool }}"
+    validate_certs: "{{provider.credentials.prism_verify_ssl }}"
   register: nutanix_vm_storage_info
 
 - name: Set Facts - Set Cluster VM Storage Container

@@ -6,3 +6,79 @@
 - name: Get the infrastructure provider for this host
   include_tasks: "target_infra_credential.yaml"
 
+- name: Check for image, get the image info
+  include_tasks: get_image_info.yaml
+
+- name: Get Storage Info
+  include_tasks: get_storage_info.yaml
+
+- name: Check for this VM - {{ cluster_name }}-{{ node_item.name }}
+  uri:
+    url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v3_base }}/vms/list"
+    return_content: yes
+    method: POST
+    status_code: 200
+    body_format: json
+    body: '{"kind":"vm", "filter": "vm_name=={{ cluster_name }}-{{ node_item.name }}"}'
+    force_basic_auth: yes
+    user: "{{ provider.credentials.prism_username }}"
+    password: "{{ provider.credentials.prism_password }}"
+    validate_certs: "{{ provider.credentials.prism_verify_ssl }}"
+  register: nutanix_vm_check
+
+- name: Create VM processes - {{ cluster_name }}-{{ node_item.name }}
+  when: nutanix_vm_check.json.entities | length == 0
+  block:
+
+  - name: Set fact for NICs
+    set_fact:
+      vm_nic_config: "{{ lookup('template', 'ntnx_collection_vm_nic_config.json.j2') }}"
+
+  - name: Set fact for disks
+    set_fact:
+      vm_disk_config: "{{ vm_disk_config | default([]) + [{ 'size_gb' : disk_item.size, 'type' : 'DISK', 'bus': 'SATA', 'storage_container': { 'uuid': nutanix_vm_storage_container_uuid } }] }}"
+    loop: "{{ node_item.vm.disks }}"
+    loop_control:
+      loop_var: disk_item
+
+  - name: Add CDROM to the disks list
+    set_fact:
+      vm_disk_config: "{{ vm_disk_config | default([]) + [{ 'type' : 'CDROM', 'bus': 'IDE', 'clone_image': { 'name': cd_name } }] }}"
+    vars:
+      cd_name: "ocp-ai-{{ cluster_id }}"
+
+  - name: Create VM - {{ cluster_name }}-{{ node_item.name }}
+    nutanix.ncp.ntnx_vms:
+      nutanix_username: "{{ provider.credentials.prism_username }}"
+      nutanix_password: "{{ provider.credentials.prism_password }}"
+      nutanix_host: "{{ provider.credentials.prism_endpoint }}"
+      validate_certs: false
+      state: present
+      name: "{{ cluster_name }}-{{ node_item.name }}"
+      desc: "OpenShift {{ node_item.type }} node"
+      cluster:
+        name: "{{ provider.configuration.prism_cluster_name }}"
+      networks: "{{ vm_nic_config }}"
+      disks: "{{ vm_disk_config }}"
+      #  - type: "DISK"
+      #    size_gb: "{{ node_item.vm.disk_size|int }}"
+      #    bus: "SATA"
+      #    storage_container:
+      #      uuid: "{{ nutanix_vm_storage_container_uuid }}"
+      #  - type: "CDROM"
+      #    bus: "IDE"
+      #    clone_image:
+      #      name: "ocp-ai-{{ cluster_id }}"
+      boot_config:
+        boot_type: LEGACY
+        boot_order:
+          - DISK
+          - CDROM
+      vcpus: "{{ node_item.vm.cpu_sockets|int }}"
+      cores_per_vcpu: "{{ node_item.vm.cpu_cores|int }}"
+      memory_gb: "{{ (node_item.vm.memory|int / 1024) |int }}"
+
+  - name: Reset facts
+    set_fact:
+      vm_nic_config: []
+      vm_disk_config: []

@@ -1,0 +1,55 @@
+---
+
+#===========================================================================
+# Get Image Storage Container Info
+#===========================================================================
+
+- name: Get available Storage Containers
+  uri:
+    url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v2_base }}/storage_containers"
+    return_content: yes
+    method: GET
+    status_code: 200
+    body_format: json
+    body: '{"filter_criteria": "name=={{ provider.configuration.prism_image_storage_container_name }}"}'
+    force_basic_auth: yes
+    user: "{{ provider.credentials.prism_username }}"
+    password: "{{ provider.credentials.prism_password }}"
+    validate_certs: "{{provider.credentials.prism_verify_ssl }}"
+  register: nutanix_image_storage_info
+
+- name: Set Facts - Set Cluster Image Storage Container
+  when: storage_container.name == provider.configuration.prism_image_storage_container_name
+  set_fact:
+    nutanix_image_storage_container_uuid: "{{ storage_container.storage_container_uuid }}"
+  loop: "{{ nutanix_image_storage_info.json.entities }}"
+  loop_control:
+    loop_var: storage_container
+    label: "{{ storage_container.name }}"
+
+#===========================================================================
+# Get VM Storage Container Info
+#===========================================================================
+
+- name: Get available Storage Containers
+  uri:
+    url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v2_base }}/storage_containers"
+    return_content: yes
+    method: GET
+    status_code: 200
+    body_format: json
+    body: '{"filter_criteria": "name=={{ provider.configuration.prism_vm_storage_container_name }}"}'
+    force_basic_auth: yes
+    user: "{{ provider.credentials.prism_username }}"
+    password: "{{ provider.credentials.prism_password }}"
+    validate_certs: "{{provider.credentials.prism_verify_ssl }}"
+  register: nutanix_vm_storage_info
+
+- name: Set Facts - Set Cluster VM Storage Container
+  when: storage_container.name == provider.configuration.prism_vm_storage_container_name
+  set_fact:
+    nutanix_vm_storage_container_uuid: "{{ storage_container.storage_container_uuid }}"
+  loop: "{{ nutanix_vm_storage_info.json.entities }}"
+  loop_control:
+    loop_var: storage_container
+    label: "{{ storage_container.name }}"
