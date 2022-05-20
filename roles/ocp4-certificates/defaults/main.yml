@@ -1,0 +1,7 @@
+---
+# defaults file for ocp4-certificates
+cluster_api_lb_secret_name: api-lb-tls
+cluster_app_lb_secret_name: apps-lb-tls
+
+cluster_api_lb_secret_namespace: openshift-config
+cluster_app_lb_secret_namespace: openshift-ingress

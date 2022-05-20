@@ -1,0 +1,8 @@
+{% for ntp_endpoint in ntp_sources %}
+{{ ntp_endpoint.type }} {{ ntp_endpoint.address }} iburst
+{% endfor %}
+
+driftfile /var/lib/chrony/drift
+makestep 1.0 3
+rtcsync
+logdir /var/log/chrony

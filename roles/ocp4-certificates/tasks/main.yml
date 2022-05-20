@@ -1,0 +1,115 @@
+---
+# tasks file for ocp4-certificates
+- name: Cluster authentication tasks
+  block:
+
+## ===================================================================================================
+## Create the Secrets and ConfigMaps for the cluster certificates
+## ===================================================================================================
+
+  - name: Create ConfigMap for Root Certificate Bundle
+    kubernetes.core.k8s:
+      state: present
+      merge_type:
+      - strategic-merge
+      - merge
+      definition: "{{ lookup('template', 'templates/additionalTrustBundleConfigMap.yaml.j2') | from_yaml }}"
+    when: additionalTrustBundles is defined
+
+
+  - name: Create Secret for API LoadBalancer
+    kubernetes.core.k8s:
+      state: present
+      merge_type:
+      - strategic-merge
+      - merge
+      definition:
+        apiVersion: v1
+        kind: Secret
+        metadata:
+          name: "{{ cluster_api_lb_secret_name }}"
+          namespace: "{{ cluster_api_lb_secret_namespace }}"
+        type: kubernetes.io/tls
+        stringData:
+          "tls.crt": |
+            {{ cluster_api_lb_tls_crt }}
+          "tls.key": |
+            {{ cluster_api_lb_tls_key }}
+    when: cluster_api_lb_tls_crt is defined and cluster_api_lb_tls_key is defined
+
+  - name: Create Secret for Application LoadBalancer
+    kubernetes.core.k8s:
+      state: present
+      merge_type:
+      - strategic-merge
+      - merge
+      definition:
+        apiVersion: v1
+        kind: Secret
+        metadata:
+          name: "{{ cluster_app_lb_secret_name }}"
+          namespace: "{{ cluster_app_lb_secret_namespace }}"
+        type: kubernetes.io/tls
+        stringData:
+          "tls.crt": |
+            {{ cluster_app_lb_tls_crt }}
+          "tls.key": |
+            {{ cluster_app_lb_tls_key }}
+    when: cluster_app_lb_tls_crt is defined and cluster_app_lb_tls_key is defined
+
+## ===================================================================================================
+## Patch the needed certificates into the cluster
+## ===================================================================================================
+
+  - name: Patch the cluster proxy configuration with the new root certificate bundle
+    kubernetes.core.k8s:
+      state: present
+      merge_type:
+      - strategic-merge
+      - merge
+      definition:
+        apiVersion: config.openshift.io/v1
+        kind: Proxy
+        metadata:
+          name: cluster
+        spec:
+          trustedCA:
+            name: root-certificate-bundle
+    when: additionalTrustBundles is defined
+
+  - name: Patch the cluster IngressController Operator
+    kubernetes.core.k8s:
+      state: present
+      merge_type:
+      - strategic-merge
+      - merge
+      definition:
+        apiVersion: operator.openshift.io/v1
+        kind: IngressController
+        metadata:
+          name: default
+          namespace: openshift-ingress-operator
+        spec:
+          defaultCertificate:
+            name: "{{ cluster_app_lb_secret_name }}"
+    when: cluster_app_lb_tls_crt is defined and cluster_app_lb_tls_key is defined
+
+  - name: Patch the cluster APIServer Configuration
+    kubernetes.core.k8s:
+      state: present
+      merge_type:
+      - strategic-merge
+      - merge
+      definition:
+        apiVersion: config.openshift.io/v1
+        kind: APIServer
+        metadata:
+          name: cluster
+        spec:
+          servingCerts:
+            namedCertificates:
+              - servingCertificate:
+                  name: "{{ cluster_api_lb_secret_name }}"
+                names:
+                  - "api.{{ cluster_name }}.{{ cluster_domain }}"
+    when: cluster_api_lb_tls_crt is defined and cluster_api_lb_tls_key is defined
