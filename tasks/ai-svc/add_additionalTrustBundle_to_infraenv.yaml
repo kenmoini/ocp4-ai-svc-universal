@@ -2,7 +2,7 @@
 
 - name: Set override string
   set_fact:
-    ignition_config_override_files: "{{ ignition_config_override_files | default('') }}{{ ',' if ignition_config_override_files is defined and ignition_config_override_files != '' }}{{ '{\"path\": \"/etc/pki/ca-trust/source/anchors/extra_ca.pem\", \"mode\": 420, \"overwrite\": true, \"user\": { \"name\": \"root\"},\"contents\": {\"source\": \"data:text/plain;base64,{{ additionalTrustBundles | b64encode }}\"}}' }}"
+    ignition_config_override_files: "{{ ignition_config_override_files | default('') }}{{ ',' if ignition_config_override_files is defined and ignition_config_override_files != '' }}{{ '{\"path\": \"/etc/pki/ca-trust/source/anchors/extra_ca.pem\", \"mode\": 420, \"overwrite\": true, \"user\": { \"name\": \"root\"},\"contents\": {\"source\": \"data:text/plain;base64,{{ additionalTrustBundle | b64encode }}\"}}' }}"
 
 #- name: debug ignition_config_override_files
 #  debug:
@@ -11,7 +11,7 @@
 - name: Set body data
   set_fact:
     #override_body: "{ \"ignition_config_override\": '{{ ignition_config_override_bundle_string | to_json }}{{ ',' if ignition_config_overrides_resp.json.ignition_config_override != '' }}{{ ignition_config_overrides_resp.json.ignition_config_override }}' }"
-    override_ic_body: "{ \"additionalTrustBundle\": {{ additionalTrustBundles | to_json }} }"
+    override_ic_body: "{ \"additionalTrustBundle\": {{ additionalTrustBundle | to_json }} }"
 
 #- name: Inject extra Root CAs into the Discovery ISO
 #  uri:
