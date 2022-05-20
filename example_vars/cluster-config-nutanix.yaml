@@ -48,9 +48,9 @@ cluster_nodes:
   - name: cp-1
     type: control-plane
     infra:
-      name: labVMWare
+      name: labAHV
       # type: vsphere | nutanix | libvirt
-      type: vsphere
+      type: nutanix
     vm:
       cpu_cores: 4
       cpu_sockets: 1
@@ -71,13 +71,13 @@ cluster_nodes:
             next_hop_address: 192.168.42.1
             next_hop_interface: eth0
             table_id: 254
-        vcenter_network: "VMNetwork"
+        nutanix_network: "LabLAN"
   - name: cp-2
     type: control-plane
     infra:
-      name: labVMWare
+      name: labAHV
       # type: vsphere | nutanix | libvirt
-      type: vsphere
+      type: nutanix
     vm:
       cpu_cores: 4
       cpu_sockets: 1
@@ -98,13 +98,13 @@ cluster_nodes:
             next_hop_address: 192.168.42.1
             next_hop_interface: eth0
             table_id: 254
-        vcenter_network: "VMNetwork"
+        nutanix_network: "LabLAN"
   - name: cp-3
     type: control-plane
     infra:
-      name: labVMWare
+      name: labAHV
       # type: vsphere | nutanix | libvirt
-      type: vsphere
+      type: nutanix
     vm:
       cpu_cores: 4
       cpu_sockets: 1
@@ -125,13 +125,13 @@ cluster_nodes:
             next_hop_address: 192.168.42.1
             next_hop_interface: eth0
             table_id: 254
-        vcenter_network: "VMNetwork"
+        nutanix_network: "LabLAN"
   - name: app-1
     type: application-node
     infra:
-      name: labVMWare
+      name: labAHV
       # type: vsphere | nutanix | libvirt
-      type: vsphere
+      type: nutanix
     vm:
       cpu_cores: 4
       cpu_sockets: 1
@@ -156,13 +156,13 @@ cluster_nodes:
             next_hop_address: 192.168.42.1
             next_hop_interface: eth0
             table_id: 254
-        vcenter_network: "VMNetwork"
+        nutanix_network: "LabLAN"
   - name: app-2
     type: application-node
     infra:
-      name: labVMWare
+      name: labAHV
       # type: vsphere | nutanix | libvirt
-      type: vsphere
+      type: nutanix
     vm:
       cpu_cores: 4
       cpu_sockets: 1
@@ -187,13 +187,13 @@ cluster_nodes:
             next_hop_address: 192.168.42.1
             next_hop_interface: eth0
             table_id: 254
-        vcenter_network: "VMNetwork"
+        nutanix_network: "LabLAN"
   - name: app-3
     type: application-node
     infra:
-      name: labVMWare
+      name: labAHV
       # type: vsphere | nutanix | libvirt
-      type: vsphere
+      type: nutanix
     vm:
       cpu_cores: 4
       cpu_sockets: 1
@@ -224,7 +224,7 @@ cluster_nodes:
             next_hop_address: 192.168.42.1
             next_hop_interface: eth0
             table_id: 254
-        vcenter_network: "VMNetwork"
+        nutanix_network: "LabLAN"
 
 # extra_roles [optional]: name roles to run after cluster provisioning
 #extra_roles:
