@@ -33,5 +33,8 @@
         when: assisted_service_authentication != "none"
         include_tasks: tasks/ai-svc/setup_auth_headers.yaml
 
+      - name: Start the install if needed
+        include_tasks: tasks/ai-svc/start_install.yaml
+
       - name: INCEPTION - Wait for the cluster to be fully installed
         include_tasks: tasks/ai-svc/check_cluster_install_finished.yaml
