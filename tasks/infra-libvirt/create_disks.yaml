@@ -1,6 +1,6 @@
 ---
 
-- name: Set iso name
+- name: Set qcow name
   set_fact:
     qcow_name: "{{ cluster_name }}-{{ node_item.name }}-{{ disk_item.name }}.qcow2"
 
@@ -9,7 +9,13 @@
   set_fact:
     disk_provisioning_type: " -o preallocation=full"
 
+- name: Set command facts
+  set_fact:
+    ls_command: "ls -1 {{ provider.configuration.libvirt_base_iso_path | default('/var/lib/libvirt/images') }}"
+    qcow_command: "qemu-img create{{ disk_provisioning_type | default('') }} -f qcow2 {{ provider.configuration.libvirt_base_iso_path | default('/var/lib/libvirt/images') }}/{{ qcow_name }} {{ disk_item.size }}G"
+
 - name: Remote Libvirt Target 
+  when: provider.credentials.libvirt_transport is defined and provider.credentials.libvirt_transport == 'qemu+ssh'
   block:
     - name: Set user facts
       when: provider.credentials.libvirt_username is defined
@@ -18,18 +24,31 @@
 
     - name: Check for the existing disk via SSH
       shell: |
-        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i {{ provider.credentials.libvirt_ssh_key_path }} {{ user_target | default('') }}{{ provider.credentials.libvirt_endpoint }} ls -1 {{ provider.configuration.libvirt_base_iso_path | default('/var/lib/libvirt/images') }}
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i {{ provider.credentials.libvirt_ssh_key_path }} {{ user_target | default('') }}{{ provider.credentials.libvirt_endpoint }} {{ ls_command }}
       register: disk_check
 
     - name: Create the disk if it does not exist
       when: qcow_name not in disk_check.stdout_lines
       shell: |
-        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i {{ provider.credentials.libvirt_ssh_key_path }} {{ user_target | default('') }}{{ provider.credentials.libvirt_endpoint }} qemu-img create{{ disk_provisioning_type | default('') }} -f qcow2 {{ provider.configuration.libvirt_base_iso_path | default('/var/lib/libvirt/images') }}/{{ qcow_name }} {{ disk_item.size }}G
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i {{ provider.credentials.libvirt_ssh_key_path }} {{ user_target | default('') }}{{ provider.credentials.libvirt_endpoint }} {{ qcow_command }}
+
+- name: Create QCow2 at the target path when connecting with qemu locally
+  when: (provider.credentials.libvirt_transport is defined and provider.credentials.libvirt_transport == 'qemu') or (provider.credentials.libvirt_transport is not defined)
+  block:
+    - name: Check for the existing disk locally
+      ansible.builtin.stat:
+        path: "{{ provider.configuration.libvirt_base_iso_path | default('/var/lib/libvirt/images') }}/{{ qcow_name }}"
+      register: disk_check
+
+    - name: Create the QCow2 disk locally when it does not exist
+      when: not disk_check.stat.exists
+      shell: "{{ qcow_command }}"
 
 - name: Reset facts
   set_fact:
-    disk_check: {}
     iso_name: ""
     qcow_name: ""
+    disk_check: {}
     user_target: ""
+    qcow_command: ""
     disk_provisioning_type: ""

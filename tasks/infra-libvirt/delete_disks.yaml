@@ -5,6 +5,7 @@
     qcow_name: "{{ cluster_name }}-{{ node_item.name }}-{{ disk_item.name }}.qcow2"
 
 - name: Remote Libvirt Target 
+  when: provider.credentials.libvirt_transport is defined and provider.credentials.libvirt_transport == 'qemu+ssh'
   block:
     - name: Set user facts
       when: provider.credentials.libvirt_username is defined
@@ -20,6 +21,14 @@
       when: qcow_name in disk_check.stdout_lines
       shell: |
         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i {{ provider.credentials.libvirt_ssh_key_path }} {{ user_target | default('') }}{{ provider.credentials.libvirt_endpoint }} rm -f {{ provider.configuration.libvirt_base_iso_path | default('/var/lib/libvirt/images') }}/{{ qcow_name }}
+
+- name: Delete QCow2 from target path when connecting with qemu locally
+  when: (provider.credentials.libvirt_transport is defined and provider.credentials.libvirt_transport == 'qemu') or (provider.credentials.libvirt_transport is not defined)
+  block:
+    - name: Check for the existing disk locally
+      file:
+        state: absent
+        path: "{{ provider.configuration.libvirt_base_iso_path | default('/var/lib/libvirt/images') }}/{{ qcow_name }}"
 
 - name: Reset facts
   set_fact:
