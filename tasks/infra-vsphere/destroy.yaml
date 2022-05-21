@@ -22,6 +22,7 @@
     name: "{{ cluster_name }}-{{ node_item.name }}"
     folder: "{{ cluster_name }}"
     state: powered-off
+  ignore_errors: true
   tags:
     - vmware_tasks
     - vmware_destroy_vms
@@ -39,6 +40,7 @@
     name: "{{ cluster_name }}-{{ node_item.name }}"
     folder: "{{ cluster_name }}"
     state: absent
+  ignore_errors: true
   tags:
     - vmware_tasks
     - vmware_destroy_vms
