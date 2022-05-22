@@ -69,6 +69,19 @@ The following tasks performed by the different Playbooks are:
 - Delete the cluster from the AI Svc
 - Delete local generated cluster files
 
+### extras-create-sushy-bmh.yaml
+
+This extra Playbook will create some VMs on a Libvirt or VMWare infrastructure provider that will not be turned on in order to act as virtual Bare Metal Hosts via sushy-tools.
+
+- Perform connectivity tests to infrastructure platforms
+- Create the virtual infrastructure resources on the target infrastructure platforms
+
+```bash
+ansible-playbook -e "@credentials-infrastructure.yaml" \
+  --skip-tags=infra_libvirt_boot_vm,vmware_boot_vm,infra_libvirt_per_provider_setup,vmware_upload_iso \
+  extras-create-sushy-bmh.yaml
+```
+
 ---
 
 ## Prerequisites
