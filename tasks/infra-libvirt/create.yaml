@@ -24,6 +24,16 @@
   set_fact:
     libvirt_uri: "{{ provider.credentials.libvirt_transport | default('qemu') }}://{{ user_target | default('') }}{{ provider.credentials.libvirt_endpoint | default('') }}/system{{ provider.credentials.libvirt_options | default('?no_verify=1&socket=/var/run/libvirt/libvirt-sock') }}{{ ssh_key_option | default('') }}"
 
+- name: Set the discovery_iso_path - {{ node_item.name }}
+  when: cluster_id is defined
+  set_fact:
+    discovery_iso_path: "{{ provider.configuration.libvirt_base_iso_path | default('/var/lib/libvirt/images') }}/ocp_ai-{{ cluster_id }}.iso"
+
+- name: Set the empty discovery_iso_path - {{ node_item.name }}
+  when: cluster_id is not defined
+  set_fact:
+    discovery_iso_path: ""
+
 #===========================================================================
 # Create VM Disks
 #===========================================================================
@@ -33,6 +43,9 @@
   loop: "{{ node_item.vm.disks }}"
   loop_control:
     loop_var: disk_item
+  tags:
+    - infra_libvirt
+    - infra_libvirt_create_disks
 
 #===========================================================================
 # Create & Boot VM
@@ -43,12 +56,18 @@
     command: define
     xml: "{{ lookup('template', 'kvm_libvirt_vm.xml.j2') }}"
     uri: "{{ libvirt_uri }}"
+  tags:
+    - infra_libvirt
+    - infra_libvirt_create_vm
 
 - name: Boot the VM - {{ node_item.name }}
   community.libvirt.virt:
     name: "{{ cluster_name }}-{{ node_item.name }}"
     state: running
     uri: "{{ libvirt_uri }}"
+  tags:
+    - infra_libvirt
+    - infra_libvirt_boot_vm
 
 #===========================================================================
 # Reset facts for next item in the loop

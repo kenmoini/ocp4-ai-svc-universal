@@ -34,6 +34,25 @@
     - vmware_vm_metadata
     - vmware_vm_metadata_networks
 
+- name: Setup VMWare CDROM dictionary - {{ node_item.name }}
+  when: cluster_id is defined
+  set_fact:
+    cdrom:
+    - controller_number: 0
+      unit_number: 0
+      state: present
+      type: iso
+      iso_path: "[{{ provider.configuration.vcenter_datastore }}] ISOs/ocp-ai-{{ cluster_id }}.iso"
+
+- name: Setup empty VMWare CDROM dictionary - {{ node_item.name }}
+  when: cluster_id is not defined
+  set_fact:
+    cdrom:
+    - controller_number: 0
+      unit_number: 0
+      state: present
+      type: none
+
 #===========================================================================
 # Create VM
 #===========================================================================
@@ -60,12 +79,7 @@
       hotadd_memory: yes
       version: "{{ vcenter_hardware_version | int }}"
       nested_virt: "{{ vsphere_nested_virt | default(False) }}"
-    cdrom:
-    - controller_number: 0
-      unit_number: 0
-      state: present
-      type: iso
-      iso_path: "[{{ provider.configuration.vcenter_datastore }}] ISOs/ocp-ai-{{ cluster_id }}.iso"
+    cdrom: "{{ cdrom }}"
     networks: "{{ networks }}"
   tags:
     - vmware_tasks

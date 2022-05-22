@@ -54,7 +54,7 @@
 {% endfor %}
     <disk type='file' device='cdrom'>
       <driver name='qemu' type='raw'/>
-      <source file='{{ provider.configuration.libvirt_base_iso_path | default('/var/lib/libvirt/images') }}/ocp_ai-{{ cluster_id }}.iso' index='1'/>
+      <source file='{{ discovery_iso_path }}' index='1'/>
       <backingStore/>
       <target dev='sda' bus='sata'/>
       <readonly/>
