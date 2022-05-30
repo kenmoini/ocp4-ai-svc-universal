@@ -1,0 +1,20 @@
+---
+#===========================================================================
+# Get the Infrastructure Provider for this host
+#===========================================================================
+
+- name: Get the infrastructure provider for this host
+  include_tasks: "target_infra_credential.yaml"
+
+#===========================================================================
+# Get the Redfish Variables for this host's Infrastructure Provider
+#===========================================================================
+
+- name: Get the infrastructure provider for this host
+  include_tasks: "setup-redfish-vars.yaml"
+
+- name: Query the bare metal host for its current state
+- name: Shutdown the host if it is powered on
+- name: Attach the virtual media
+- name: Set on-demand boot order
+- name: Power on the host

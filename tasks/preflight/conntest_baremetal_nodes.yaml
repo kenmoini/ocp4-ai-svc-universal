@@ -1,0 +1,28 @@
+---
+
+#===========================================================================
+# Get the Infrastructure Provider for this host
+#===========================================================================
+
+- name: Get the infrastructure provider for this host
+  include_tasks: "tasks/infra-baremetal/target_infra_credential.yaml"
+
+#===========================================================================
+# Get the Redfish Variables for this Infrastructure Provider
+#===========================================================================
+
+- name: Get the infrastructure provider for this host
+  include_tasks: "tasks/infra-baremetal/setup-redfish-vars.yaml"
+
+- name: d
+  debug:
+    msg:
+      - "{{ redfish_systems_url }}"
+      - "{{ redfish_managers_url }}"
+      - "{{ redfish_system_url }}"
+      - "{{ redfish_manager_url }}"
+
+#===========================================================================
+# Curl the target Redfish System URL
+#===========================================================================
+

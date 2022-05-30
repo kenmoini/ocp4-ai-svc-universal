@@ -1,0 +1,109 @@
+---
+#===============================================================================
+# Shared variables
+#===============================================================================
+
+- name: Set Redfish base url
+  set_fact:
+    redfish_base_url: "{{ provider.credentials.ipmi_transport }}://{{ provider.credentials.ipmi_endpoint }}:{{ provider.credentials.ipmi_port }}/redfish/v1"
+
+- name: Set Redfish Systems and Manager urls
+  set_fact:
+    redfish_systems_url: "{{ redfish_base_url }}/Systems"
+    redfish_managers_url: "{{ redfish_base_url }}/Managers"
+
+#===============================================================================
+# Dell Hardware
+#===============================================================================
+
+- name: Set the Redfish variables for Dell hardware
+  when: provider.credentials.ipmi_manufacturer == "dell"
+  block:
+    - name: Set the url targets for Dell hardware
+      set_fact:
+        redfish_system: "{{ redfish_systems_url }}/System.Embedded.1"
+        redfish_manager: "{{ redfish_managers_url }}/iDRAC.Embedded.1"
+
+#===============================================================================
+# Supermicro Hardware
+#===============================================================================
+
+- name: Set the Redfish variables for Supermicro
+  when: provider.credentials.ipmi_manufacturer == "supermicro"
+  block:
+    - name: Set the url targets for Supermicro
+      set_fact:
+        redfish_system: "{{ redfish_systems_url }}/1"
+        redfish_manager: "{{ redfish_managers_url }}/1"
+
+#===============================================================================
+# HP Hardware
+#===============================================================================
+
+- name: Set the Redfish variables for HP hardware
+  when: provider.credentials.ipmi_manufacturer == "hp"
+  block:
+    - name: Set the url targets for HP hardware
+      set_fact:
+        redfish_system: "{{ redfish_systems_url }}/1"
+        redfish_manager: "{{ redfish_managers_url }}/1"
+
+#===============================================================================
+# sushy-tools virtual BMH
+#===============================================================================
+
+- name: Set the Redfish variables for a sushi-tools host
+  when: provider.credentials.ipmi_manufacturer == "sushy"
+  block:
+    - name: Get the Members of the Systems list
+      uri:
+        url: "{{ redfish_systems_url }}"
+        return_content: yes
+      register: sushy_systems
+
+#    - name: Get the Members of the Managers list
+#      uri:
+#        url: "{{ redfish_managers_url }}"
+#        return_content: yes
+#      register: sushy_managers
+
+    - name: Get the data for the systems
+      uri:
+        url: "{{ provider.credentials.ipmi_transport }}://{{ provider.credentials.ipmi_endpoint }}:{{ provider.credentials.ipmi_port }}{{ system_item['@odata.id'] }}"
+        return_content: yes
+      loop: "{{ sushy_systems.json.Members }}"
+      loop_control:
+        loop_var: system_item
+        label: "{{ system_item['@odata.id'] }}"
+      register: sushy_system_data
+
+#    - name: Get the data for the managers
+#      uri:
+#        url: "{{ provider.credentials.ipmi_transport }}://{{ provider.credentials.ipmi_endpoint }}:{{ provider.credentials.ipmi_port }}{{ manager_item['@odata.id'] }}"
+#        return_content: yes
+#      loop: "{{ sushy_managers.json.Members }}"
+#      loop_control:
+#        loop_var: manager_item
+#      register: sushy_manager_data
+
+#    - name: d
+#      debug:
+#        msg: "{{ sushy_system_data }}"
+
+    - name: Step through the systems and set the target_system when the names match
+      when: system_item.json.Name == cluster_name + '-' + node_item.name
+      set_fact:
+        target_system: "{{ system_item.json }}"
+        redfish_system: "{{ redfish_systems_url }}/{{ system_item.json.UUID }}"
+        redfish_manager: "{{ redfish_managers_url }}/{{ system_item.json.UUID }}"
+      loop: "{{ sushy_system_data.results }}"
+      loop_control:
+        loop_var: system_item
+        label: "{{ system_item.json.Name }}"
+
+- name: Print facts for the Redfish endpoint
+  debug:
+    msg:
+      - "redfish_base_url: {{ redfish_base_url }}"
+      - "redfish_system: {{ redfish_system }}"
+      - "redfish_manager: {{ redfish_manager }}"
