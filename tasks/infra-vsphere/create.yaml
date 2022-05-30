@@ -25,7 +25,7 @@
 - name: Setup VMWare network dictionary - {{ node_item.name }}
   set_fact:
     networks: "{{ networks | default([]) + [{ 'name' : iface_item.vcenter_network | default(provider.configuration.vcenter_network), 'device_type' : 'vmxnet3', 'mac' : iface_item.mac_address|default('') }] }}"
-  loop: "{{ node_item.interfaces }}"
+  loop: "{{ node_item.networking.interfaces }}"
   loop_control:
     loop_var: iface_item
   tags:
