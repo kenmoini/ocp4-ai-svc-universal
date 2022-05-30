@@ -67,11 +67,24 @@
     # Preflight Infrastructure Connection Tests
     #=========================================================================================================================
 
+    - name: Preflight Check - Per cluster_node Bare Metal Connection Test
+      when: node_item.infra.type == "baremetal"
+      include_tasks: tasks/preflight/conntest_baremetal_nodes.yaml
+      tags:
+        - preflight
+        - conntests
+        - conntest_baremetal
+      loop: "{{ cluster_nodes }}"
+      loop_control:
+        loop_var: node_item
+        label: "{{ node_item.name }}"
+
     - name: Preflight Check - Libvirt Connection Test
       when: provider.type == "libvirt"
       include_tasks: tasks/preflight/conntest_libvirt.yaml
       tags:
         - preflight
+        - conntests
         - conntest_libvirt
       loop: "{{ infrastructure_providers }}"
       loop_control:
@@ -82,6 +95,7 @@
       include_tasks: tasks/preflight/conntest_nutanix.yaml
       tags:
         - preflight
+        - conntests
         - conntest_nutanix
       loop: "{{ infrastructure_providers }}"
       loop_control:
@@ -92,6 +106,7 @@
       include_tasks: tasks/preflight/conntest_vmware.yaml
       tags:
         - preflight
+        - conntests
         - conntest_vmware
       loop: "{{ infrastructure_providers }}"
       loop_control:

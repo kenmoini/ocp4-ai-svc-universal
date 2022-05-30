@@ -28,11 +28,12 @@
           disks:
             - size: 130
               name: boot
-        interfaces:
-          - name: eth0
-            mac_address: 54:52:00:42:69:21
-            # [optional] libvirt_network, if not specified, will use the network defined in the infrastructure provider credentials
-            libvirt_network: "lanBridge"
+        networking:
+          interfaces:
+            - name: eth0
+              mac_address: 54:52:00:42:69:21
+              # [optional] libvirt_network, if not specified, will use the network defined in the infrastructure provider credentials
+              libvirt_network: "lanBridge"
 
       - name: bmh-2
         infra:
@@ -49,11 +50,12 @@
               name: boot
             - size: 130
               name: odf
-        interfaces:
-          - name: eth0
-            mac_address: 54:52:00:42:69:22
-            # [optional] vmware_network, if not specified, will use the network defined in the infrastructure provider credentials
-            vmware_network: "VMNetwork"
+        networking:
+          interfaces:
+            - name: eth0
+              mac_address: 54:52:00:42:69:22
+              # [optional] vmware_network, if not specified, will use the network defined in the infrastructure provider credentials
+              vmware_network: "VMNetwork"
 
 
   tasks:

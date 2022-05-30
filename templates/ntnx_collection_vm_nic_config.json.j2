@@ -1,5 +1,5 @@
 [
-{% for iface in node_item.interfaces %}
+{% for iface in node_item.networking.interfaces %}
 {
   "is_connected": True, "mac_address": "{{ iface.mac_address }}", "subnet": {"name": "{{ iface.nutanix_network | default(provider.configuration.prism_network_name) }}"}
 }{%- if not loop.last %},{% endif %}

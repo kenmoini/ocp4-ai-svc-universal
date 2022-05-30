@@ -122,7 +122,7 @@
       <alias name='virtio-serial0'/>
       <address type='pci' domain='0x0000' bus='0x04' slot='0x00' function='0x0'/>
     </controller>
-{% for iface in node_item.interfaces %}
+{% for iface in node_item.networking.interfaces %}
     <interface type='{{ provider.configuration.libvirt_network.type }}'>
       <mac address='{{ iface.mac_address }}'/>
       <source {{ provider.configuration.libvirt_network.type }}='{{ iface.libvirt_network | default(provider.configuration.libvirt_network.name) }}'/>

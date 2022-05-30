@@ -60,18 +60,19 @@ cluster_nodes:
       disks:
         - size: 130
           name: boot
-    interfaces:
-      - name: eth0
-        mac_address: 54:52:00:42:69:11
-        dhcp: false
-        ipv4:
-          - address: 192.168.42.90
-            prefix: 24
-        routes:
-          - destination: 0.0.0.0/0
-            next_hop_address: 192.168.42.1
-            next_hop_interface: eth0
-            table_id: 254
+    networking:
+      interfaces:
+        - name: eth0
+          mac_address: 54:52:00:42:69:11
+          dhcp: false
+          ipv4:
+            - address: 192.168.42.90
+              prefix: 24
+      routes:
+        - destination: 0.0.0.0/0
+          next_hop_address: 192.168.42.1
+          next_hop_interface: eth0
+          table_id: 254
 
   - name: cp-2
     type: control-plane
@@ -87,18 +88,19 @@ cluster_nodes:
       disks:
         - size: 130
           name: boot
-    interfaces:
-      - name: eth0
-        mac_address: 54:52:00:42:69:12
-        dhcp: false
-        ipv4:
-          - address: 192.168.42.91
-            prefix: 24
-        routes:
-          - destination: 0.0.0.0/0
-            next_hop_address: 192.168.42.1
-            next_hop_interface: eth0
-            table_id: 254
+    networking:
+      interfaces:
+        - name: eth0
+          mac_address: 54:52:00:42:69:12
+          dhcp: false
+          ipv4:
+            - address: 192.168.42.91
+              prefix: 24
+      routes:
+        - destination: 0.0.0.0/0
+          next_hop_address: 192.168.42.1
+          next_hop_interface: eth0
+          table_id: 254
 
   - name: cp-3
     type: control-plane
@@ -114,18 +116,19 @@ cluster_nodes:
       disks:
         - size: 130
           name: boot
-    interfaces:
-      - name: eth0
-        mac_address: 54:52:00:42:69:13
-        dhcp: false
-        ipv4:
-          - address: 192.168.42.92
-            prefix: 24
-        routes:
-          - destination: 0.0.0.0/0
-            next_hop_address: 192.168.42.1
-            next_hop_interface: eth0
-            table_id: 254
+    networking:
+      interfaces:
+        - name: eth0
+          mac_address: 54:52:00:42:69:13
+          dhcp: false
+          ipv4:
+            - address: 192.168.42.92
+              prefix: 24
+      routes:
+        - destination: 0.0.0.0/0
+          next_hop_address: 192.168.42.1
+          next_hop_interface: eth0
+          table_id: 254
 
   - name: app-1
     type: application-node
@@ -143,18 +146,19 @@ cluster_nodes:
           name: boot
         - size: 130
           name: odf
-    interfaces:
-      - name: eth0
-        mac_address: 54:52:00:42:69:14
-        dhcp: false
-        ipv4:
-          - address: 192.168.42.93
-            prefix: 24
-        routes:
-          - destination: 0.0.0.0/0
-            next_hop_address: 192.168.42.1
-            next_hop_interface: eth0
-            table_id: 254
+    networking:
+      interfaces:
+        - name: eth0
+          mac_address: 54:52:00:42:69:14
+          dhcp: false
+          ipv4:
+            - address: 192.168.42.93
+              prefix: 24
+      routes:
+        - destination: 0.0.0.0/0
+          next_hop_address: 192.168.42.1
+          next_hop_interface: eth0
+          table_id: 254
 
   - name: app-2
     type: application-node
@@ -172,18 +176,19 @@ cluster_nodes:
           name: boot
         - size: 130
           name: odf
-    interfaces:
-      - name: eth0
-        mac_address: 54:52:00:42:69:15
-        dhcp: false
-        ipv4:
-          - address: 192.168.42.94
-            prefix: 24
-        routes:
-          - destination: 0.0.0.0/0
-            next_hop_address: 192.168.42.1
-            next_hop_interface: eth0
-            table_id: 254
+    networking:
+      interfaces:
+        - name: eth0
+          mac_address: 54:52:00:42:69:15
+          dhcp: false
+          ipv4:
+            - address: 192.168.42.94
+              prefix: 24
+      routes:
+        - destination: 0.0.0.0/0
+          next_hop_address: 192.168.42.1
+          next_hop_interface: eth0
+          table_id: 254
 
   - name: app-3
     type: application-node
@@ -201,18 +206,19 @@ cluster_nodes:
           name: boot
         - size: 130
           name: odf
-    interfaces:
-      - name: eth0
-        mac_address: 54:52:00:42:69:16
-        dhcp: false
-        ipv4:
-          - address: 192.168.42.95
-            prefix: 24
-        routes:
-          - destination: 0.0.0.0/0
-            next_hop_address: 192.168.42.1
-            next_hop_interface: eth0
-            table_id: 254
+    networking:
+      interfaces:
+        - name: eth0
+          mac_address: 54:52:00:42:69:16
+          dhcp: false
+          ipv4:
+            - address: 192.168.42.95
+              prefix: 24
+      routes:
+        - destination: 0.0.0.0/0
+          next_hop_address: 192.168.42.1
+          next_hop_interface: eth0
+          table_id: 254
 
 # [optional] extra_roles: name of roles to run after cluster provisioning
 #extra_roles:
