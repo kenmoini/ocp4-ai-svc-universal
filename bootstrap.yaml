@@ -13,6 +13,11 @@
       User-Agent: AnsibleAutomation/4.2
     generated_asset_directory: "./generated_assets"
 
+    # Bare Metal Vars
+    deploy_local_http_server: false
+    http_server_port: 7654
+    # ipmi_iso_url: http://raza.kemo.labs:{{ http_server_port }}/ocp_ai.iso
+
   tasks:
     - name: Read in variables
       include_vars:
@@ -319,6 +324,73 @@
         - download_iso
 
     #=========================================================================================================================
+    # Local HTTP Server
+    #=========================================================================================================================
+
+    - name: Start a local HTTP Server to serve the ISO in the background
+      when: deploy_local_http_server|bool
+      include_tasks: tasks/infra-baremetal/start_local_server.yaml
+
+    #=========================================================================================================================
+    # Infrastructure-specific Creation Tasks - Bare Metal
+    #=========================================================================================================================
+
+    - name: Create the list of Bare Metal targeted hosts
+      when: node_item.infra.type == "baremetal"
+      set_fact:
+        baremetal_hosts: "{{ baremetal_hosts | default([]) + [node_item] }}"
+        unique_baremetal_infra_providers: []
+      loop: "{{ cluster_nodes }}"
+      loop_control:
+        loop_var: node_item
+      tags:
+        - infra_baremetal
+        - infra_baremetal_create_hosts_list
+
+    - name: Create the list of unique Bare Metal infrastructure providers
+      when: baremetal_hosts is defined and baremetal_hosts | length > 0
+      include_tasks: tasks/infra-baremetal/get_unique_providers.yaml
+      loop: "{{ baremetal_hosts }}"
+      loop_control:
+        loop_var: node_item
+      tags:
+        - infra_baremetal
+        - infra_baremetal_create_infra_list
+
+    - name: Create the Bare Metal infrastructure
+      when:
+      - baremetal_hosts is defined
+      - baremetal_hosts | length > 0
+      - unique_baremetal_infra_providers | length > 0
+      block:
+        #- name: Perform per Bare Metal Infrastructure Provider set up
+        #  include_tasks: tasks/infra-baremetal/per_provider_setup.yaml
+        #  loop: "{{ unique_baremetal_infra_providers }}"
+        #  loop_control:
+        #    loop_var: provider
+        #    label: "Bare Metal Infrastructure Provider: {{ provider.name }}"
+        #  tags:
+        #    - infra_baremetal_per_provider_setup
+
+        - name: Deploy Bare Metal infrastructure
+          include_tasks: tasks/infra-baremetal/create.yaml
+          loop: "{{ baremetal_hosts }}"
+          loop_control:
+            loop_var: node_item
+            label: "Bare Metal Host: {{ node_item.name }}"
+      tags:
+        - infra_baremetal
+        - infra_baremetal_create_infra
+
+    - name: Wait for other bare metal hosts to be manually added
+      when: baremetal_wait_for_manual_hosts is defined and baremetal_wait_for_manual_hosts|bool
+      pause:
+        prompt: "\nDownload the ISO from the Assisted Installer Service and boot your bare metal hosts.\nIt can also be found locally at {{ generated_asset_directory }}/{{ cluster_id }}/ocp_ai.iso\n\nPress [ENTER] to continue"
+      tags:
+        - infra_baremetal
+        - infra_baremetal_wait_for_other_hosts
+
+    #=========================================================================================================================
     # Infrastructure-specific Creation Tasks - Libvirt
     #=========================================================================================================================
 
@@ -491,6 +563,7 @@
         - ai_svc_set_host_names_roles
 
     - name: Set Network VIPs
+      when: cluster_type != "SNO"
       include_tasks: tasks/ai-svc/set_vips.yaml
       tags:
         - ai_svc
