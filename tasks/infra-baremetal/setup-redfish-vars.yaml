@@ -21,8 +21,9 @@
   block:
     - name: Set the url targets for Dell hardware
       set_fact:
-        redfish_system: "{{ redfish_systems_url }}/System.Embedded.1"
-        redfish_manager: "{{ redfish_managers_url }}/iDRAC.Embedded.1"
+        redfish_system_url: "{{ redfish_systems_url }}/System.Embedded.1"
+        redfish_manager_url: "{{ redfish_managers_url }}/iDRAC.Embedded.1"
+        redfish_media_device: VirtualMedia/CD
 
 #===============================================================================
 # Supermicro Hardware
@@ -33,8 +34,9 @@
   block:
     - name: Set the url targets for Supermicro
       set_fact:
-        redfish_system: "{{ redfish_systems_url }}/1"
-        redfish_manager: "{{ redfish_managers_url }}/1"
+        redfish_system_url: "{{ redfish_systems_url }}/1"
+        redfish_manager_url: "{{ redfish_managers_url }}/1"
+        redfish_media_device: VM1
 
 #===============================================================================
 # HP Hardware
@@ -45,8 +47,9 @@
   block:
     - name: Set the url targets for HP hardware
       set_fact:
-        redfish_system: "{{ redfish_systems_url }}/1"
-        redfish_manager: "{{ redfish_managers_url }}/1"
+        redfish_system_url: "{{ redfish_systems_url }}/1"
+        redfish_manager_url: "{{ redfish_managers_url }}/1"
+        redfish_media_device: VirtualMedia/CD
 
 #===============================================================================
 # sushy-tools virtual BMH
@@ -94,8 +97,9 @@
       when: system_item.json.Name == cluster_name + '-' + node_item.name
       set_fact:
         target_system: "{{ system_item.json }}"
-        redfish_system: "{{ redfish_systems_url }}/{{ system_item.json.UUID }}"
-        redfish_manager: "{{ redfish_managers_url }}/{{ system_item.json.UUID }}"
+        redfish_system_url: "{{ redfish_systems_url }}/{{ system_item.json.UUID }}"
+        redfish_manager_url: "{{ redfish_managers_url }}/{{ system_item.json.UUID }}"
+        redfish_media_device: VirtualMedia/Cd
       loop: "{{ sushy_system_data.results }}"
       loop_control:
         loop_var: system_item
@@ -105,5 +109,6 @@
   debug:
     msg:
       - "redfish_base_url: {{ redfish_base_url }}"
-      - "redfish_system: {{ redfish_system }}"
-      - "redfish_manager: {{ redfish_manager }}"
+      - "redfish_system_url: {{ redfish_system_url }}"
+      - "redfish_manager_url: {{ redfish_manager_url }}"
+      - "redfish_media_device: {{ redfish_media_device }}"

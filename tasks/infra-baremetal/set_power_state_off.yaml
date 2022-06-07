@@ -1,0 +1,28 @@
+---
+
+- name: Check the Redfish System Power State
+  uri:
+    url: "{{ redfish_system_url }}"
+    return_content: yes
+    user: "{{ provider.credentials.ipmi_username | default(omit) }}"
+    password: "{{ provider.credentials.ipmi_password | default(omit) }}"
+    status_code: [200, 201, 202, 204]
+    validate_certs: "{{ provider.credentials.ipmi_verify_ssl | default(false) }}"
+  register: redfish_system_power_state
+
+- name: Debug the System state
+  debug:
+    msg: "{{ redfish_system_power_state }}"
+
+- name: Power Off the host if it is powered on
+  when: redfish_system_power_state.json.PowerState == "On"
+  uri:
+    url: "{{ redfish_system_url }}/Actions/ComputerSystem.Reset"
+    return_content: yes
+    user: "{{ provider.credentials.ipmi_username | default(omit) }}"
+    password: "{{ provider.credentials.ipmi_password | default(omit) }}"
+    status_code: [200, 201, 202, 204]
+    validate_certs: "{{ provider.credentials.ipmi_verify_ssl | default(false) }}"
+    method: POST
+    body: '{"ResetType":"ForceOff"}'
+    body_format: json

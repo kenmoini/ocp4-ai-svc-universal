@@ -1,27 +1,28 @@
 ---
-- name: Create local directory for web server
+
+- name: Delete the server file
   file:
-    state: directory
-    path: "{{ generated_asset_directory }}/{{ cluster_id }}/tmp_server"
+    path: "{{ generated_asset_directory }}/{{ cluster_id }}/server.py"
+    state: absent
 
 - name: Create web server python script
   lineinfile:
     create: yes
-    dest: "{{ generated_asset_directory }}/{{ cluster_id }}/tmp_server/server.py"
+    dest: "{{ generated_asset_directory }}/{{ cluster_id }}/server.py"
     mode: 0755
     line: |
       import os
       from http.server import HTTPServer, CGIHTTPRequestHandler
-      Make sure the server is created at current directory
+      # Make sure the server is created at current directory
       os.chdir('.')
-      Create server object listening the port {{ http_server_port }}
-      server_object = HTTPServer(server_address=('', {{ http_server_port }}), RequestHandlerClass=CGIHTTPRequestHandler)
-      Start the web server
+      # Create server object listening the port {{ http_server_port | default('7654') }}
+      server_object = HTTPServer(server_address=('', {{ http_server_port | default('7654') }}), RequestHandlerClass=CGIHTTPRequestHandler)
+      # Start the web server
       server_object.serve_forever()
 
 - name: Scan any process using this port
   shell: |
-    lsof -n -i :{{ http_server_port }} | grep LISTEN | cut -f 2 -d " "
+    lsof -n -i :{{ http_server_port | default('7654') }} | grep LISTEN | cut -f 2 -d " "
   register: port_scan
   become: yes
 
@@ -32,7 +33,7 @@
 
 - name: Execute python script
   shell: |
-    cd {{ generated_asset_directory }}/{{ cluster_id }}/tmp_server
+    cd {{ generated_asset_directory }}/{{ cluster_id }}
     python3 server.py &> /dev/null &
     echo $!
   register: python_script_out

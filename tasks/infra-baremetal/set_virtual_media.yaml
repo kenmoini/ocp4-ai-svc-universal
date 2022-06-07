@@ -1,0 +1,63 @@
+---
+
+- name: Check the Redfish Manager Virtual CD
+  uri:
+    url: "{{ redfish_manager_url }}/{{ redfish_media_device }}"
+    return_content: yes
+    user: "{{ provider.credentials.ipmi_username | default(omit) }}"
+    password: "{{ provider.credentials.ipmi_password | default(omit) }}"
+    status_code: [200, 201, 202, 204]
+    validate_certs: "{{ provider.credentials.ipmi_verify_ssl | default(false) }}"
+  register: redfish_manager_virtual_cd
+
+#- name: Debug the Virtual CD state
+#  debug:
+#    msg: "{{ redfish_manager_virtual_cd }}"
+
+#- name: Debug the ipmi_iso_url
+#  debug:
+#    msg: "{{ ipmi_iso_url }}"
+
+- name: Set the Redfish Virtual CD to the intended URL
+  uri:
+    url: "{{ redfish_manager_url }}/{{ redfish_media_device }}/Actions/VirtualMedia.InsertMedia"
+    user: "{{ provider.credentials.ipmi_username | default(omit) }}"
+    password: "{{ provider.credentials.ipmi_password | default(omit) }}"
+    validate_certs: "{{ provider.credentials.ipmi_verify_ssl | default(false) }}"
+    method: POST
+    status_code: [200, 201, 202, 204]
+    body: '{"Image": "{{ ipmi_iso_url }}", "Inserted": true}'
+    body_format: json
+
+- name: Check the Redfish Manager Virtual CD
+  uri:
+    url: "{{ redfish_manager_url }}/{{ redfish_media_device }}"
+    return_content: yes
+    user: "{{ provider.credentials.ipmi_username | default(omit) }}"
+    password: "{{ provider.credentials.ipmi_password | default(omit) }}"
+    status_code: [200, 201, 202, 204]
+    validate_certs: "{{ provider.credentials.ipmi_verify_ssl | default(false) }}"
+  register: redfish_manager_virtual_cd_check
+
+#- name: Debug the Virtual CD state
+#  debug:
+#    msg: "{{ redfish_manager_virtual_cd }}"
+
+#- name: Debug the Virtual CD state
+#  debug:
+#    msg: "ISO Connected: {{ redfish_manager_virtual_cd.json.Inserted }}"
+
+#===============================================================================
+# Set the Boot Order
+#===============================================================================
+
+- name: Set the boot order to the intended virtual CD
+  uri:
+    url: "{{ redfish_system_url }}"
+    user: "{{ provider.credentials.ipmi_username | default(omit) }}"
+    password: "{{ provider.credentials.ipmi_password | default(omit) }}"
+    validate_certs: "{{ provider.credentials.ipmi_verify_ssl | default(false) }}"
+    method: PATCH
+    status_code: [200, 201, 202, 204]
+    body: '{"Boot": {"BootSourceOverrideTarget": "{{ redfish_media_device }}", "BootSourceOverrideEnabled": "Continuous"}}'
+    body_format: json
