@@ -26,3 +26,17 @@
 # Curl the target Redfish System URL
 #===========================================================================
 
+- name: Do a connection test to the target Redfish System URL
+  uri:
+    url: "{{ redfish_system_url }}"
+    return_content: yes
+    user: "{{ provider.credentials.ipmi_username | default(omit) }}"
+    password: "{{ provider.credentials.ipmi_password | default(omit) }}"
+    status_code: [200, 201, 202, 204]
+    validate_certs: "{{ provider.credentials.ipmi_verify_ssl | default(false) }}"
+  register: redfish_system_connection_test
+
+- name: Fail if the Redfish System UUID is not found
+  when: redfish_system_connection_test.json.UUID is undefined
+  fail:
+    msg: "UUID Not Found! {{ redfish_system_connection_test }}"
