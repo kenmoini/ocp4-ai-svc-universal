@@ -64,12 +64,6 @@
         return_content: yes
       register: sushy_systems
 
-#    - name: Get the Members of the Managers list
-#      uri:
-#        url: "{{ redfish_managers_url }}"
-#        return_content: yes
-#      register: sushy_managers
-
     - name: Get the data for the systems
       uri:
         url: "{{ provider.credentials.ipmi_transport }}://{{ provider.credentials.ipmi_endpoint }}:{{ provider.credentials.ipmi_port }}{{ system_item['@odata.id'] }}"
@@ -79,19 +73,6 @@
         loop_var: system_item
         label: "{{ system_item['@odata.id'] }}"
       register: sushy_system_data
-
-#    - name: Get the data for the managers
-#      uri:
-#        url: "{{ provider.credentials.ipmi_transport }}://{{ provider.credentials.ipmi_endpoint }}:{{ provider.credentials.ipmi_port }}{{ manager_item['@odata.id'] }}"
-#        return_content: yes
-#      loop: "{{ sushy_managers.json.Members }}"
-#      loop_control:
-#        loop_var: manager_item
-#      register: sushy_manager_data
-
-#    - name: d
-#      debug:
-#        msg: "{{ sushy_system_data }}"
 
     - name: Step through the systems and set the target_system when the names match
       when: system_item.json.Name == cluster_name + '-' + node_item.name

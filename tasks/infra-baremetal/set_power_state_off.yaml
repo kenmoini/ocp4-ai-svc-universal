@@ -10,9 +10,9 @@
     validate_certs: "{{ provider.credentials.ipmi_verify_ssl | default(false) }}"
   register: redfish_system_power_state
 
-- name: Debug the System state
-  debug:
-    msg: "{{ redfish_system_power_state }}"
+#- name: Debug the System state
+#  debug:
+#    msg: "{{ redfish_system_power_state }}"
 
 - name: Power Off the host if it is powered on
   when: redfish_system_power_state.json.PowerState == "On"
