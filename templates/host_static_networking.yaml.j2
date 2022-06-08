@@ -23,12 +23,19 @@ interfaces:
     - ip: {{ ipv4.address }}
       prefix-length: {{ ipv4.prefix }}
 {% endfor %}
+{% if iface.dhcp is defined %}
     dhcp: {{ iface.dhcp }}
+{% endif %}
     enabled: true
 {% endif %}
   name: {{ iface.name }}
-  state: up
-  type: ethernet
+  state: {{ iface.state | default('up') }}
+  type: {{ iface.type | default('ethernet') }}
+{% if iface.vlan is defined %}
+  vlan:
+    base-iface: {{ iface.vlan.base_iface }}
+    id: {{ iface.vlan.id }}
+{% endif %}
 {% if ((ocp_node.networking.routes is defined) and (ocp_node.networking.routes|length>0)) %}
 routes:
   config:
