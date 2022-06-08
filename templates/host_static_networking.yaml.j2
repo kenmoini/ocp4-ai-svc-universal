@@ -16,8 +16,13 @@ dns-resolver:
 {% endif %}
 interfaces:
 {% for iface in ocp_node.networking.interfaces -%}
+{% if iface.type != 'parent' %}
+- name: {{ iface.name }}
+  type: {{ iface.type | default('ethernet') }}
+  state: {{ iface.state | default('up') }}
+{% endif %}
 {% if ((iface.ipv4 is defined) and (iface.ipv4|length>0)) %}
-- ipv4:
+  ipv4:
     address:
 {% for ipv4 in iface.ipv4 %}
     - ip: {{ ipv4.address }}
@@ -28,9 +33,6 @@ interfaces:
 {% endif %}
     enabled: true
 {% endif %}
-  name: {{ iface.name }}
-  state: {{ iface.state | default('up') }}
-  type: {{ iface.type | default('ethernet') }}
 {% if iface.vlan is defined %}
   vlan:
     base-iface: {{ iface.vlan.base_iface }}

@@ -1,6 +1,6 @@
 [
 {% for iface in ocp_node.networking.interfaces -%}
-{% if mac_address is defined -%}
+{% if iface.mac_address is defined -%}
   {
     "mac_address": "{{ iface.mac_address }}",
     "logical_nic_name": "{{ iface.name }}"
