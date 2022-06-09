@@ -31,9 +31,32 @@ interfaces:
 {% endfor %}{# end ipv4 in iface.ipv4 #}
 {% if iface.dhcp is defined %}
     dhcp: {{ iface.dhcp }}
+{% if iface.dhcp|bool %}
+    auto-dns: true
+    auto-gateway: true
+    auto-routes: true
+{% endif %}{# end if iface.dhcp|bool #}
 {% endif %}{# end if iface.dhcp #}
     enabled: true
 {% endif %}{# end if iface.ipv4|length #}
+{% if ((iface.ipv6 is defined) and (iface.ipv6|length>0)) %}
+  ipv6:
+    address:
+{% for ipv6 in iface.ipv6 %}
+    - ip: {{ ipv6.address }}
+      prefix-length: {{ ipv6.prefix }}
+{% endfor %}{# end ipv6 in iface.ipv6 #}
+{% if iface.dhcp is defined %}
+    dhcp: {{ iface.dhcp }}
+{% if iface.dhcp|bool %}
+    autoconf: true
+    auto-dns: true
+    auto-gateway: true
+    auto-routes: true
+{% endif %}{# end if iface.dhcp|bool #}
+{% endif %}{# end if iface.dhcp #}
+    enabled: true
+{% endif %}{# end if iface.ipv6|length #}
 {% if iface.vlan is defined %}
   vlan:
     base-iface: {{ iface.vlan.base_iface }}
