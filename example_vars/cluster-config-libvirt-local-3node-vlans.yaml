@@ -68,6 +68,8 @@ cluster_nodes:
         - name: enp1s0
           mac_address: 54:52:00:42:69:11
           type: parent
+          # [optional] libvirt_network, if not specified, will use the network defined in the infrastructure provider credentials
+          #libvirt_network: "VMNetwork"
         - name: enp1s0.38
           type: vlan
           state: up
@@ -78,8 +80,6 @@ cluster_nodes:
           ipv4:
             - address: 192.168.38.90
               prefix: 24
-          # [optional] libvirt_network, if not specified, will use the network defined in the infrastructure provider credentials
-          #libvirt_network: "VMNetwork"
       routes:
         - destination: 0.0.0.0/0
           next_hop_address: 192.168.38.1
@@ -104,6 +104,8 @@ cluster_nodes:
         - name: enp1s0
           mac_address: 54:52:00:42:69:12
           type: parent
+          # [optional] libvirt_network, if not specified, will use the network defined in the infrastructure provider credentials
+          #libvirt_network: "VMNetwork"
         - name: enp1s0.38
           type: vlan
           state: up
@@ -114,8 +116,6 @@ cluster_nodes:
           ipv4:
             - address: 192.168.38.91
               prefix: 24
-          # [optional] libvirt_network, if not specified, will use the network defined in the infrastructure provider credentials
-          #libvirt_network: "VMNetwork"
       routes:
         - destination: 0.0.0.0/0
           next_hop_address: 192.168.38.1
@@ -140,6 +140,8 @@ cluster_nodes:
         - name: enp1s0
           mac_address: 54:52:00:42:69:13
           type: parent
+          # [optional] libvirt_network, if not specified, will use the network defined in the infrastructure provider credentials
+          #libvirt_network: "VMNetwork"
         - name: enp1s0.38
           type: vlan
           state: up
@@ -150,8 +152,6 @@ cluster_nodes:
           ipv4:
             - address: 192.168.38.92
               prefix: 24
-          # [optional] libvirt_network, if not specified, will use the network defined in the infrastructure provider credentials
-          #libvirt_network: "VMNetwork"
       routes:
         - destination: 0.0.0.0/0
           next_hop_address: 192.168.38.1
