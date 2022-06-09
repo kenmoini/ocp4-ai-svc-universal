@@ -5,39 +5,40 @@ dns-resolver:
     server:
 {% for dns_server in cluster_node_network_static_dns_servers %}
     - {{ dns_server }}
-{% endfor %}
-{% endif %}
+{% endfor %}{# end dns_server in cluster_node_network_static_dns_servers #}
+{% endif %}{# end if cluster_node_network_static_dns_servers #}
 {% if ((cluster_node_network_static_dns_search_domains is defined) and (cluster_node_network_static_dns_search_domains|length>0)) %}
     search:
 {% for dns_search in cluster_node_network_static_dns_search_domains %}
     - {{ dns_search }}
-{% endfor %}
-{% endif %}
-{% endif %}
+{% endfor %}{# end dns_search in cluster_node_network_static_dns_search_domains #}
+{% endif %}{# end if cluster_node_network_static_dns_search_domains #}
+{% endif %}{# end if cluster_node_network_static_dns_servers or cluster_node_network_static_dns_search_domains #}
 interfaces:
 {% for iface in ocp_node.networking.interfaces -%}
 {% if iface.type != 'parent' %}
 - name: {{ iface.name }}
   type: {{ iface.type | default('ethernet') }}
   state: {{ iface.state | default('up') }}
-{% endif %}
+{% endif %}{# end iface.type != 'parent' #}
 {% if ((iface.ipv4 is defined) and (iface.ipv4|length>0)) %}
   ipv4:
     address:
 {% for ipv4 in iface.ipv4 %}
     - ip: {{ ipv4.address }}
       prefix-length: {{ ipv4.prefix }}
-{% endfor %}
+{% endfor %}{# end ipv4 in iface.ipv4 #}
 {% if iface.dhcp is defined %}
     dhcp: {{ iface.dhcp }}
-{% endif %}
+{% endif %}{# end if iface.dhcp #}
     enabled: true
-{% endif %}
+{% endif %}{# end if iface.ipv4|length #}
 {% if iface.vlan is defined %}
   vlan:
     base-iface: {{ iface.vlan.base_iface }}
     id: {{ iface.vlan.id }}
-{% endif %}
+{% endif %}{# end if iface.vlan #}
+{% endfor %}{# end for iface in ocp_node.networking.interfaces #}
 {% if ((ocp_node.networking.routes is defined) and (ocp_node.networking.routes|length>0)) %}
 routes:
   config:
@@ -46,6 +47,5 @@ routes:
     next-hop-address: {{ route.next_hop_address }}
     next-hop-interface: {{ route.next_hop_interface }}
     table-id: {{ route.table_id }}
-{% endfor %}
-{% endif %}
-{% endfor %}
+{% endfor %}{# end for route in ocp_node.networking.routes #}
+{% endif %}{# end if ocp_node.networking.routes|length #}
