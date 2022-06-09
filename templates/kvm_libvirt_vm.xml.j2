@@ -123,12 +123,14 @@
       <address type='pci' domain='0x0000' bus='0x04' slot='0x00' function='0x0'/>
     </controller>
 {% for iface in node_item.networking.interfaces %}
+{% if iface.mac_address is defined %}
     <interface type='{{ provider.configuration.libvirt_network.type }}'>
       <mac address='{{ iface.mac_address }}'/>
       <source {{ provider.configuration.libvirt_network.type }}='{{ iface.libvirt_network | default(provider.configuration.libvirt_network.name) }}'/>
       <model type='{{ provider.configuration.libvirt_network.model | default('virtio') }}'/>
       <alias name='{{ iface.name }}'/>
     </interface>
+{% endif %}
 {% endfor %}
     <serial type='pty'>
       <target type='isa-serial' port='0'>

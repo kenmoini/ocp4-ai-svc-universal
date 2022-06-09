@@ -23,6 +23,7 @@
     - vmware_vm_metadata_disks
 
 - name: Setup VMWare network dictionary - {{ node_item.name }}
+  when: iface_item.mac_address is defined
   set_fact:
     networks: "{{ networks | default([]) + [{ 'name' : iface_item.vcenter_network | default(provider.configuration.vcenter_network), 'device_type' : 'vmxnet3', 'mac' : iface_item.mac_address|default('') }] }}"
   loop: "{{ node_item.networking.interfaces }}"
