@@ -16,9 +16,10 @@ dns-resolver:
 {% endif %}{# end if cluster_node_network_static_dns_servers or cluster_node_network_static_dns_search_domains #}
 interfaces:
 {% for iface in ocp_node.networking.interfaces -%}
-{% if iface.type != 'parent' %}
+{% set interfaceType = iface.type | default('ethernet') %}
+{% if interfaceType != 'parent' %}
 - name: {{ iface.name }}
-  type: {{ iface.type | default('ethernet') }}
+  type: {{ interfaceType }}
   state: {{ iface.state | default('up') }}
 {% endif %}{# end iface.type != 'parent' #}
 {% if ((iface.ipv4 is defined) and (iface.ipv4|length>0)) %}
