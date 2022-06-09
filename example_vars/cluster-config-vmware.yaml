@@ -28,19 +28,19 @@ cluster_domain: kemo.labs
 
 ################################################## Cluster Networking
 # cluster_api_vip: an IP or "auto"
-cluster_api_vip: 192.168.42.88
+cluster_api_vip: 192.168.38.88
 # cluster_apps_vip: an IP or "auto"
-cluster_apps_vip: 192.168.42.89
+cluster_apps_vip: 192.168.38.89
 # cluster_node_cidr: A CIDR definition or "auto"
-cluster_node_cidr: 192.168.42.0/24
+cluster_node_cidr: 192.168.38.0/24
 
 ################################################## Cluster Node IPAM
 # cluster_node_network_ipam: dhcp or static
 cluster_node_network_ipam: static
 
 cluster_node_network_static_dns_servers:
-  - 192.168.42.9
-  - 192.168.42.10
+  - 192.168.38.9
+  - 192.168.38.10
 
 cluster_node_network_static_dns_search_domains:
   - kemo.labs
@@ -49,7 +49,7 @@ cluster_nodes:
   - name: cp-1
     type: control-plane
     infra:
-      name: labAHV
+      name: labVMWare
       # type: vsphere | nutanix | libvirt
       type: vsphere
     vm:
@@ -64,21 +64,28 @@ cluster_nodes:
       interfaces:
         - name: eth0
           mac_address: 54:52:00:42:69:11
+          type: parent
+        - name: eth0.38
+          type: vlan
+          state: up
           dhcp: false
+          vlan:
+            base_iface: eth0
+            id: 38
           ipv4:
-            - address: 192.168.42.90
+            - address: 192.168.38.90
               prefix: 24
           # [optional] vcenter_network, if not specified, will use the network defined in the infrastructure provider credentials
-          vcenter_network: "VMNetwork"
+          #vcenter_network: "VMNetwork"
       routes:
         - destination: 0.0.0.0/0
-          next_hop_address: 192.168.42.1
-          next_hop_interface: eth0
+          next_hop_address: 192.168.38.1
+          next_hop_interface: eth0.38
           table_id: 254
   - name: cp-2
     type: control-plane
     infra:
-      name: labAHV
+      name: labVMWare
       # type: vsphere | nutanix | libvirt
       type: vsphere
     vm:
@@ -93,21 +100,28 @@ cluster_nodes:
       interfaces:
         - name: eth0
           mac_address: 54:52:00:42:69:12
+          type: parent
+        - name: eth0.38
+          type: vlan
+          state: up
           dhcp: false
+          vlan:
+            base_iface: eth0
+            id: 38
           ipv4:
-            - address: 192.168.42.91
+            - address: 192.168.38.91
               prefix: 24
           # [optional] vcenter_network, if not specified, will use the network defined in the infrastructure provider credentials
-          vcenter_network: "VMNetwork"
+          #vcenter_network: "VMNetwork"
       routes:
         - destination: 0.0.0.0/0
-          next_hop_address: 192.168.42.1
-          next_hop_interface: eth0
+          next_hop_address: 192.168.38.1
+          next_hop_interface: eth0.38
           table_id: 254
   - name: cp-3
     type: control-plane
     infra:
-      name: labAHV
+      name: labVMWare
       # type: vsphere | nutanix | libvirt
       type: vsphere
     vm:
@@ -122,21 +136,28 @@ cluster_nodes:
       interfaces:
         - name: eth0
           mac_address: 54:52:00:42:69:13
+          type: parent
+        - name: eth0.38
+          type: vlan
+          state: up
           dhcp: false
+          vlan:
+            base_iface: eth0
+            id: 38
           ipv4:
-            - address: 192.168.42.92
+            - address: 192.168.38.92
               prefix: 24
           # [optional] vcenter_network, if not specified, will use the network defined in the infrastructure provider credentials
-          vcenter_network: "VMNetwork"
+          #vcenter_network: "VMNetwork"
       routes:
         - destination: 0.0.0.0/0
-          next_hop_address: 192.168.42.1
-          next_hop_interface: eth0
+          next_hop_address: 192.168.38.1
+          next_hop_interface: eth0.38
           table_id: 254
   - name: app-1
     type: application-node
     infra:
-      name: labAHV
+      name: labVMWare
       # type: vsphere | nutanix | libvirt
       type: vsphere
     vm:
@@ -155,21 +176,28 @@ cluster_nodes:
       interfaces:
         - name: eth0
           mac_address: 54:52:00:42:69:14
+          type: parent
+        - name: eth0.38
+          type: vlan
+          state: up
           dhcp: false
+          vlan:
+            base_iface: eth0
+            id: 38
           ipv4:
-            - address: 192.168.42.93
+            - address: 192.168.38.93
               prefix: 24
           # [optional] vcenter_network, if not specified, will use the network defined in the infrastructure provider credentials
-          vcenter_network: "VMNetwork"
+          #vcenter_network: "VMNetwork"
       routes:
         - destination: 0.0.0.0/0
-          next_hop_address: 192.168.42.1
-          next_hop_interface: eth0
+          next_hop_address: 192.168.38.1
+          next_hop_interface: eth0.38
           table_id: 254
   - name: app-2
     type: application-node
     infra:
-      name: labAHV
+      name: labVMWare
       # type: vsphere | nutanix | libvirt
       type: vsphere
     vm:
@@ -188,21 +216,28 @@ cluster_nodes:
       interfaces:
         - name: eth0
           mac_address: 54:52:00:42:69:15
+          type: parent
+        - name: eth0.38
+          type: vlan
+          state: up
           dhcp: false
+          vlan:
+            base_iface: eth0
+            id: 38
           ipv4:
-            - address: 192.168.42.94
+            - address: 192.168.38.94
               prefix: 24
           # [optional] vcenter_network, if not specified, will use the network defined in the infrastructure provider credentials
-          vcenter_network: "VMNetwork"
+          #vcenter_network: "VMNetwork"
       routes:
         - destination: 0.0.0.0/0
-          next_hop_address: 192.168.42.1
-          next_hop_interface: eth0
+          next_hop_address: 192.168.38.1
+          next_hop_interface: eth0.38
           table_id: 254
   - name: app-3
     type: application-node
     infra:
-      name: labAHV
+      name: labVMWare
       # type: vsphere | nutanix | libvirt
       type: vsphere
     vm:
@@ -221,16 +256,23 @@ cluster_nodes:
       interfaces:
         - name: eth0
           mac_address: 54:52:00:42:69:16
+          type: parent
+        - name: eth0.38
+          type: vlan
+          state: up
           dhcp: false
+          vlan:
+            base_iface: eth0
+            id: 38
           ipv4:
-            - address: 192.168.42.95
+            - address: 192.168.38.95
               prefix: 24
           # [optional] vcenter_network, if not specified, will use the network defined in the infrastructure provider credentials
-          vcenter_network: "VMNetwork"
+          #vcenter_network: "VMNetwork"
       routes:
         - destination: 0.0.0.0/0
-          next_hop_address: 192.168.42.1
-          next_hop_interface: eth0
+          next_hop_address: 192.168.38.1
+          next_hop_interface: eth0.38
           table_id: 254
 
 ################################################## Extra Post-Provisioning Roles
