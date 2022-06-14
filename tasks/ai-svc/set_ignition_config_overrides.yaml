@@ -4,8 +4,14 @@
 #    msg: "{{ ignition_config_override_files }}"
 
 - name: Set as override string
+  when: passwd_ico_object is defined
   set_fact:
-    ignition_config_override_bundle_string: "{\"ignition\": {\"version\": \"3.1.0\"}, \"storage\": {\"files\": [ {{ ignition_config_override_files }} ] } }"
+    ignition_config_override_bundle_string: "{\"ignition\": {\"version\": \"3.1.0\"}, \"passwd\": {{ passwd_ico_object.passwd | to_json }}, \"storage\": {\"files\": [ {{ ignition_config_override_files | default('') }} ] } }"
+
+- name: Set as override string
+  when: passwd_ico_object is not defined
+  set_fact:
+    ignition_config_override_bundle_string: "{\"ignition\": {\"version\": \"3.1.0\"}, \"storage\": {\"files\": [ {{ ignition_config_override_files | default('') }} ] } }"
 
 #- name: Print combined override string
 #  debug:
@@ -13,7 +19,7 @@
 
 - name: Set the patch data
   set_fact:
-    override_ic_body: "{ \"ignition_config_override\": '{{ ignition_config_override_bundle_string | to_json }}' }"
+    override_ic_body: "{ \"ignition_config_override\": '{{ ignition_config_override_bundle_string }}' }"
 
 #- name: Print override body
 #  debug:

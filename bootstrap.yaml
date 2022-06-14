@@ -284,8 +284,14 @@
           tags:
             - ai_svc_add_ntp_config
 
+        - name: Set the core user password
+          when: core_user_password is defined
+          include_tasks: tasks/ai-svc/set_core_user_pass_as_ico.yaml
+          tags:
+            - ai_svc_set_core_user_password
+
         - name: AI Service - Add Ignition Config Overrides
-          when: ignition_config_override_files is defined and ignition_config_override_files | length > 0
+          when: (passwd_ico_object is defined) or (ignition_config_override_files is defined and ignition_config_override_files | length > 0)
           include_tasks: tasks/ai-svc/set_ignition_config_overrides.yaml
           tags:
             - ai_svc_set_ignition_config_overrides
@@ -295,18 +301,17 @@
           tags:
             - ai_svc_configure_iso_params
 
-        - name: Set the core user password
-          when: core_user_password is defined
-          block:
-            - name: Reconfigure the Discovery ISO Ignition with the core user password
-              include_tasks: tasks/ai-svc/set_core_user_password.yaml
-
-            - name: AI Service - Reconfigure ISO Parameters
-              include_tasks: tasks/ai-svc/configure_iso_params.yaml
-              tags:
-                - ai_svc_configure_iso_params
-          tags:
-            - ai_svc_set_core_user_password
+        #- name: Set the core user password
+        #  when: core_user_password is defined
+        #  block:
+        #    - name: Reconfigure the Discovery ISO Ignition with the core user password
+        #      include_tasks: tasks/ai-svc/set_core_user_password.yaml
+        #    - name: AI Service - Reconfigure ISO Parameters
+        #      include_tasks: tasks/ai-svc/configure_iso_params.yaml
+        #      tags:
+        #        - ai_svc_configure_iso_params
+        #  tags:
+        #    - ai_svc_set_core_user_password
 
       tags:
         - ai_svc
