@@ -87,21 +87,47 @@
     - vmware_create_vms
     - vmware_configure_vm_hardware
 
-- name: Update VM options on the template
-  command: |
-    export GOVC_URL=https://{{hostname}}/sdk
-    export GOVC_USERNAME={{ username }}
-    export GOVC_PASSWORD={{ password }}
-    govc ls /datacenter/vm/{{ cluster_name }}
+- name: Set diskUUID configuration for the VM
+  community.vmware.vmware_guest:
+    hostname: '{{ provider.credentials.vcenter_hostname }}'
+    username: '{{ provider.credentials.vcenter_username }}'
+    password: '{{ provider.credentials.vcenter_password }}'
+    validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
+    datacenter: "{{ provider.configuration.vcenter_datacenter }}"
+    datastore: "{{ provider.configuration.vcenter_datastore }}"
+    cluster: "{{ provider.configuration.vcenter_cluster }}"
+    name: "{{ cluster_name }}-{{ node_item.name }}"
+    folder: "{{ cluster_name }}"
+    resource_pool: "{{ node_item.vm.resource_pool | default(omit) }}"
+    advanced_settings:
+      - key: disk.EnableUUID
+        value: "TRUE"
+    wait_for_customization: true
   tags:
     - vmware_tasks
     - vmware_create_vms
     - vmware_configure_vm_hardware
 
+- name: Get the VM Information
+  community.vmware.vmware_guest_info:
+    hostname: '{{ provider.credentials.vcenter_hostname }}'
+    username: '{{ provider.credentials.vcenter_username }}'
+    password: '{{ provider.credentials.vcenter_password }}'
+    validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
+    datacenter: "{{ provider.configuration.vcenter_datacenter }}"
+  register: vm_guest_info
+  tags:
+    - vmware_tasks
+    - vmware_create_vms
+    - vmware_configure_vm_hardware
 
-# govc vm.change -e="disk.enableUUID=1" -vm='VM Path'
-- name: Testing for govc vm.change -e="disk.enableUUID=1" -vm='VM Path'
-  ansible.builtin.meta: end_host
+- name: debug vm_guest_info
+  debug:
+    msg: "{{ vm_guest_info }}"
+  tags:
+    - vmware_tasks
+    - vmware_create_vms
+    - vmware_configure_vm_hardware
 
 - name: Power On VM - {{ node_item.name }}
   community.vmware.vmware_guest:
