@@ -87,6 +87,22 @@
     - vmware_create_vms
     - vmware_configure_vm_hardware
 
+- name: Update VM options on the template
+  command: |
+    export GOVC_URL=https://{{hostname}}/sdk
+    export GOVC_USERNAME={{ username }}
+    export GOVC_PASSWORD={{ password }}
+    govc ls /datacenter/vm/{{ cluster_name }}
+  tags:
+    - vmware_tasks
+    - vmware_create_vms
+    - vmware_configure_vm_hardware
+
+
+# govc vm.change -e="disk.enableUUID=1" -vm='VM Path'
+- name: Testing for govc vm.change -e="disk.enableUUID=1" -vm='VM Path'
+  ansible.builtin.meta: end_host
+
 - name: Power On VM - {{ node_item.name }}
   community.vmware.vmware_guest:
     hostname: '{{ provider.credentials.vcenter_hostname }}'

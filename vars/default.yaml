@@ -18,6 +18,7 @@ discovery_iso_type: full-iso
 
 ######################### vSphere - General Variables
 vcenter_hardware_version: 15
+govc_version: v0.29.0
 vsphere_nested_virt: false
 
 ######################### Nutanix - General Variables
