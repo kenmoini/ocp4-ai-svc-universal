@@ -16,7 +16,7 @@
 
     - name: Unarchive govc
       unarchive:
-        src: "{{ generated_asset_directory }}/downloads/govc.gz"
+        src: "{{ generated_asset_directory }}/bin/govc.gz"
         dest: "{{ generated_asset_directory }}/bin/"
         mode: 0755
         exclude:
