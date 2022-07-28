@@ -16,7 +16,7 @@
     - name: Download the tar package and extract
       when: local_govc_check.stat.exists == False
       ansible.builtin.unarchive:
-        src:  "https://github.com/vmware/govmomi/releases/download/{{ govc_version }}/govc_Linux_x86_64.tar.gz"
+        src:  "https://github.com/vmware/govmomi/releases/latest/download/govc_govc_Linux_x86_64.tar.gz"
         dest: "{{ generated_asset_directory }}/bin/"
         remote_src: yes
 
