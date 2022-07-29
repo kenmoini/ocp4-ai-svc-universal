@@ -115,6 +115,7 @@
     password: '{{ provider.credentials.vcenter_password }}'
     validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
     datacenter: "{{ provider.configuration.vcenter_datacenter }}"
+    name: "{{ cluster_name }}-{{ node_item.name }}"
   register: vm_guest_info
   tags:
     - vmware_tasks
