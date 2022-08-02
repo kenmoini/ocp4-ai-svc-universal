@@ -13,7 +13,7 @@
   "network_type": "{{ ocp_network_type}}",
   "schedulable_masters": {{ schedulable_masters | default('false') }},
   "platform": {
-{% if 'vsphere' == type  %}
+{% if 'vsphere' == provider_type  %}
     "type": "vsphere"
 {% else %}
     "type": "baremetal"
