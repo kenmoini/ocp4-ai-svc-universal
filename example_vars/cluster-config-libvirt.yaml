@@ -23,8 +23,9 @@ cluster_version: "4.10"
 
 # cluster_name and cluster_domain will form the cluster base endpoint, eg cluster_name.cluster_domain
 # Ensure the DNS A records for {api,api-int,*.apps}.cluster_name.cluster_domain exist
-cluster_name: vsphere-ocp-ha
+cluster_name: libvirt-ocp-ha
 cluster_domain: kemo.labs
+provider_type: libvirt
 
 ################################################## Cluster Networking
 # cluster_api_vip: an IP or "auto"
