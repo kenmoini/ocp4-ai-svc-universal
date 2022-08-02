@@ -13,7 +13,11 @@
   "network_type": "{{ ocp_network_type}}",
   "schedulable_masters": {{ schedulable_masters | default('false') }},
   "platform": {
+{% if 'vsphere' in provider.type %}
+    "type": "vsphere"
+{% else %}
     "type": "baremetal"
+{% endif %}
   },
   "ssh_authorized_key": "{{ ssh_public_key }}",
   "ssh_public_key": "{{ ssh_public_key }}",
