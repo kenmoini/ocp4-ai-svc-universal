@@ -330,6 +330,54 @@
           tags:
             - check_for_local_iso
 
+        - name: Waiting for OpenShift ISO to be available
+          ansible.builtin.uri:
+            headers: "{{ compiled_uri_headers }}"
+            url: "{{ infraenv_download_url }}"
+            follow_redirects: none
+            method: GET
+          register: _result
+          ignore_errors: true
+
+        - name: AI Service - Check for existing infraenvs
+          uri:
+            headers: "{{ compiled_uri_headers }}"
+            url: "{{ assisted_service_endpoint }}/infra-envs"
+            return_content: yes
+            method: GET
+          register: read_infraenvs
+          when: _result.status == 409
+          tags:
+            - ai_svc
+            - ai_svc_query_infraenvs
+        
+        - name: Set facts if cluster exists
+          when: (cluster_item.base_dns_domain is defined) and ((cluster_item.base_dns_domain == cluster_domain) and (cluster_item.name == cluster_name) and (_result.status == 409))
+          set_fact:
+            cluster_id: "{{ cluster_item.id }}"
+            cluster_status: "{{ cluster_item.status }}"
+          loop: "{{ read_clusters.json }}"
+          loop_control:
+            loop_var: cluster_item
+            label: "Cluster ID: {{ cluster_item.id }}"
+
+          tags:
+            - ai_svc
+            - ai_svc_set_cluster
+
+        - name: Set facts if infraenv exists
+          when: (infraenv_item.cluster_id is defined) and (infraenv_item.cluster_id == cluster_id) and (infraenv_item.name == cluster_name) and (_result.status == 409)
+          set_fact:
+            infraenv_id: "{{ infraenv_item.id }}"
+            infraenv_download_url: "{{ infraenv_item.download_url }}"
+          loop: "{{ read_infraenvs.json }}"
+          loop_control:
+            loop_var: infraenv_item
+            label: "InfraEnv ID: {{ infraenv_item.id }}"
+          tags:
+            - ai_svc
+            - ai_svc_set_infraenv
+
         - name: Pull OpenShift ISO if needed
           when: not iso_check.stat.exists
           get_url:
