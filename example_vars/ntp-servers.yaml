@@ -8,6 +8,6 @@
 
 ntp_sources:
   - type: server
-    address: 192.168.51.1
-  - type: pool
-    address: 0.rhel.pool.ntp.org
+    address: 192.168.42.14
+  #- type: pool
+  #  address: 0.rhel.pool.ntp.org
