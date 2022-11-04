@@ -87,6 +87,27 @@
     - vmware_create_vms
     - vmware_configure_vm_hardware
 
+- name: Set diskUUID configuration for the VM
+  community.vmware.vmware_guest:
+    hostname: '{{ provider.credentials.vcenter_hostname }}'
+    username: '{{ provider.credentials.vcenter_username }}'
+    password: '{{ provider.credentials.vcenter_password }}'
+    validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
+    datacenter: "{{ provider.configuration.vcenter_datacenter }}"
+    datastore: "{{ provider.configuration.vcenter_datastore }}"
+    cluster: "{{ provider.configuration.vcenter_cluster }}"
+    name: "{{ cluster_name }}-{{ node_item.name }}"
+    folder: "{{ cluster_name }}"
+    resource_pool: "{{ node_item.vm.resource_pool | default(omit) }}"
+    advanced_settings:
+      - key: disk.EnableUUID
+        value: "TRUE"
+    wait_for_customization: true
+  tags:
+    - vmware_tasks
+    - vmware_create_vms
+    - vmware_configure_vm_hardware
+
 - name: Power On VM - {{ node_item.name }}
   community.vmware.vmware_guest:
     hostname: '{{ provider.credentials.vcenter_hostname }}'
