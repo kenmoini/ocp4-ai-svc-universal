@@ -27,10 +27,10 @@ This set of resources handles an idempotent way to deploy OpenShift via the Assi
 - Libvirt/KVM, tested with RHEL 8.5
 - Nutanix AHV, tested with Nutanix CE
 - VMWare, tested with vSphere 7+
+- Bare Metal, tested with Dell and Sushy-tools - automation for HP and Supermicro also available
 
 ### Upcoming Infrastructure Platforms
 
-- Bare Metal
 - HyperV
 - OpenStack
 
@@ -155,7 +155,7 @@ python3 -m pip install --upgrade -r requirements.txt
 In order to run this Playbook you'll need to have the needed Ansible Collections already installed - you can do so easily by running the following command:
 
 ```bash
-ansible-galaxy collection install -r requirements.yml
+ansible-galaxy collection install -r collections/requirements.yml
 ```
 
 ### Modify the Variables files
