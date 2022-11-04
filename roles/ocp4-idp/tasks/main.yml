@@ -1,0 +1,8 @@
+---
+# tasks file for ocp4-idp
+
+- name: Loop through the idp_providers
+  include_tasks: loop.yml
+  loop: "{{ idp_providers }}"
+  loop_control:
+    loop_var: provider

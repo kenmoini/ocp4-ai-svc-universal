@@ -1,0 +1,31 @@
+kind: LDAPSyncConfig
+apiVersion: v1
+url: "{{ provider.url }}"
+insecure: {{ provider.insecure | default(false) }}
+bindDN: "{{ provider.bindDN }}"
+bindPassword: 
+  file: "/etc/secrets/bindPassword"
+ca: /etc/ldap-ca/ca.crt
+groupUIDNameMapping:
+{% for group in provider.group_sync.groupUIDNameMappings %}
+  "{{ group.ldapGroup }}": {{ group.openshiftGroup }}
+{% endfor %}
+rfc2307:
+  groupsQuery:
+    baseDN: "{{ provider.group_sync.groupBaseDN }}"
+    scope: sub
+    derefAliases: never
+    pageSize: 0
+    filter: "{{ provider.group_sync.groupFilter }}"
+  groupUIDAttribute: dn 
+  groupNameAttributes: [ cn ] 
+  groupMembershipAttributes: [ member ]
+  usersQuery:
+    baseDN: "{{ provider.group_sync.userBaseDN }}"
+    scope: sub
+    derefAliases: never
+    pageSize: 0
+  userUIDAttribute: dn
+  userNameAttributes: [ uid ]
+  tolerateMemberNotFoundErrors: true
+  tolerateMemberOutOfScopeErrors: true
