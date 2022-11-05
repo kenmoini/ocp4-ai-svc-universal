@@ -888,6 +888,15 @@
       loop_control:
         loop_var: node_item
 
+    - name: Log into the cluster
+      shell:
+        cmd: "oc login {{ cluster_api_url }} --password=\"{{ cluster_kubeadmin_password }}\" --username=\"{{ cluster_kubeadmin_username }}\" --insecure-skip-tls-verify={{ cluster_skip_verify_tls }}"
+      no_log: true
+      register: cluster_auth_status
+      until: (cluster_auth_status.rc == 0)
+      retries: 120
+      delay: 20
+
     - name: Set infrastructure node configuration
       when: detected_infra_nodes|bool
       include_tasks:
