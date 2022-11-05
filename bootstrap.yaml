@@ -887,6 +887,9 @@
       loop: "{{ cluster_nodes }}"
       loop_control:
         loop_var: node_item
+      tags:
+        - post_deploy
+        - infra_configuration
 
     - name: Log into the cluster
       shell:
@@ -896,6 +899,9 @@
       until: (cluster_auth_status.rc == 0)
       retries: 120
       delay: 20
+      tags:
+        - post_deploy
+        - infra_configuration
 
     - name: Set infrastructure node configuration
       when: detected_infra_nodes|bool
