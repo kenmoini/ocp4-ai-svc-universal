@@ -10,7 +10,7 @@
 {% if iface.mac_address is defined %}
 {% if iface.mac_address in ( h_inventory | json_query('interfaces[*].mac_address')) and (node_set.flag == False) %}
     "hostname": "{{ node.name }}",
-    "role": "{% if node.type == "application-node" %}worker{% endif %}{% if node.type == "control-plane" %}master{% endif %}{% if node.type == "sno" %}sno{% endif %}"
+    "role": "{% if node.type in ["application-node", "infra-node"] %}worker{% endif %}{% if node.type == "control-plane" %}master{% endif %}{% if node.type == "sno" %}sno{% endif %}"
 {% if node_set.update({'flag':True}) %}{% endif %}
 {% endif %}
 {% endif %}

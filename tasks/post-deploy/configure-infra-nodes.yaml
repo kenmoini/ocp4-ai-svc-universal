@@ -1,0 +1,62 @@
+---
+- name: Add the infra node label for the Infrastructure Nodes
+  when: node_item.type in ["infra-node", "infra"]
+  kubernetes.core.k8s:
+    kind: Node
+    api_version: v1
+    name: "{{ node_item.name }}"
+    merge_type:
+    - strategic-merge
+    - merge
+    definition:
+      kind: Node
+      apiVersion: v1
+      metadata:
+        labels:
+          node-role.kubernetes.io/infra: ""
+  register: k8s_run
+  until: k8s_run is not failed
+  delay: 10
+  retries: 3
+  loop: "{{ cluster_nodes }}"
+  loop_control:
+    loop_var: node_item
+
+- name: Taint nodes - "{{ node_item.name }}"
+  when: node_item.type in ["infra-node", "infra"]
+  kubernetes.core.k8s_taint:
+    state: present
+    name: "{{ node_item.name }}"
+    taints:
+    - effect: NoExecute
+      key: "node-role.kubernetes.io/infra"
+      value: "reserved"
+    - effect: NoSchedule
+      key: "node-role.kubernetes.io/infra"
+      value: "reserved"
+  loop: "{{ cluster_nodes }}"
+  loop_control:
+    loop_var: node_item
+  register: k8s_run
+  until: k8s_run is not failed
+  delay: 10
+  retries: 3
+
+- name: Create the MachineConfigPool for the infra nodes
+  kubernetes.core.k8s:
+    state: present
+    merge_type:
+    - strategic-merge
+    - merge
+    definition:
+      apiVersion: machineconfiguration.openshift.io/v1
+      kind: MachineConfigPool
+      metadata:
+        name: infra
+      spec:
+        machineConfigSelector:
+          matchExpressions:
+            - {key: machineconfiguration.openshift.io/role, operator: In, values: [worker,infra]}
+        nodeSelector:
+          matchLabels:
+            node-role.kubernetes.io/infra: ""

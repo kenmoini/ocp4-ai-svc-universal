@@ -12,6 +12,7 @@
     compiled_uri_headers:
       User-Agent: AnsibleAutomation/4.2
     generated_asset_directory: "./generated_assets"
+    detected_infra_nodes: false
 
     # Bare Metal Vars
     deploy_local_http_server: false
@@ -318,6 +319,8 @@
             file: tasks/ai-svc/preconfig_extra_manifests.yaml
             apply:
               tags:
+                - ai_svc
+                - ai_configure_cluster
                 - ai_svc_inject_extra_manifests
           tags:
             - ai_svc_inject_extra_manifests
@@ -327,6 +330,8 @@
             file: tasks/ai-svc/preconfig_networking.yaml
             apply:
               tags:
+                - ai_svc
+                - ai_configure_cluster
                 - ai_svc_preconfig_networking
           tags:
             - ai_svc_preconfig_networking
@@ -337,6 +342,8 @@
             file: tasks/networking_cilium.yaml
             apply:
               tags:
+                - ai_svc
+                - ai_configure_cluster
                 - ai_svc_inject_cilium_manifests
           tags:
             - ai_svc_inject_cilium_manifests
@@ -347,6 +354,8 @@
             file: tasks/networking_calico.yaml
             apply:
               tags:
+                - ai_svc
+                - ai_configure_cluster
                 - ai_svc_inject_calico_manifests
           tags:
             - ai_svc_inject_calico_manifests
@@ -357,6 +366,8 @@
             file: tasks/ai-svc/add_additionalTrustBundle_to_infraenv.yaml
             apply:
               tags:
+                - ai_svc
+                - ai_configure_cluster
                 - ai_svc_add_additionalTrustBundle_to_infraenv
           tags:
             - ai_svc_add_additionalTrustBundle_to_infraenv
@@ -367,6 +378,8 @@
             file: tasks/ai-svc/add_proxy_config.yaml
             apply:
               tags:
+                - ai_svc
+                - ai_configure_cluster
                 - ai_svc_add_proxy_config
           tags:
             - ai_svc_add_proxy_config
@@ -377,6 +390,8 @@
             file: tasks/ai-svc/add_ntp_config.yaml
             apply:
               tags:
+                - ai_svc
+                - ai_configure_cluster
                 - ai_svc_add_ntp_config
           tags:
             - ai_svc_add_ntp_config
@@ -387,6 +402,8 @@
             file: tasks/ai-svc/set_core_user_pass_as_ico.yaml
             apply:
               tags:
+                - ai_svc
+                - ai_configure_cluster
                 - ai_svc_set_core_user_password
           tags:
             - ai_svc_set_core_user_password
@@ -398,6 +415,8 @@
             file: tasks/ai-svc/set_ignition_config_overrides.yaml
             apply:
               tags:
+                - ai_svc
+                - ai_configure_cluster
                 - ai_svc_set_ignition_config_overrides
           tags:
             - ai_svc_set_ignition_config_overrides
@@ -407,6 +426,8 @@
             file: tasks/ai-svc/configure_iso_params.yaml
             apply:
               tags:
+                - ai_svc
+                - ai_configure_cluster
                 - ai_svc_configure_iso_params
           tags:
             - ai_svc_configure_iso_params
@@ -859,12 +880,32 @@
     # OpenShift Cluster - Post-Deployment Tasks
     #=========================================================================================================================
 
-    - name: Post-cluster deployment extra role driven workloads
+    - name: Check to see if there are any infra nodes defined
+      when: node_item.type in ["infra-node", "infra"]
+      set_fact:
+        detected_infra_nodes: true
+      loop: "{{ cluster_nodes }}"
+      loop_control:
+        loop_var: node_item
+
+    - name: Set infrastructure node configuration
+      when: detected_infra_nodes|bool
       include_tasks:
-        file: tasks/post_deploy_extra_roles.yaml
+        file: tasks/post-deploy/configure-infra-nodes.yaml
+        apply:
+          tags:
+            - post_deploy
+            - infra_configuration
+      tags:
+        - post_deploy
+        - infra_configuration
+
+    - name: Post-cluster deployment extra role driven workloads
+      when: extra_roles is defined and extra_roles | length > 0
+      include_tasks:
+        file: tasks/post-deploy/extra_roles.yaml
         apply:
           tags:
             - post_deploy
       tags:
         - post_deploy
-      when: extra_roles is defined and extra_roles | length > 0
