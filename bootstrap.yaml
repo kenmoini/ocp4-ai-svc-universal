@@ -12,6 +12,7 @@
     compiled_uri_headers:
       User-Agent: AnsibleAutomation/4.2
     generated_asset_directory: "./generated_assets"
+    detected_infra_nodes: false
 
     # Bare Metal Vars
     deploy_local_http_server: false
@@ -25,15 +26,23 @@
         extensions:
           - 'yaml'
           - 'yml'
+      tags:
+        - always
 
     #=========================================================================================================================
     # Preflight
     #=========================================================================================================================
 
     - name: Initial Preflight Checks
-      include_tasks: tasks/preflight/main.yaml
+      include_tasks:
+        file: tasks/preflight/main.yaml
+        apply:
+          tags:
+            - preflight
+            - always
       tags:
         - preflight
+        - always
 
     - name: Create generation directories
       ansible.builtin.file:
@@ -50,20 +59,35 @@
         - create_directories
 
     - name: Preflight Check - Check for OpenShift binaries
-      include_tasks: tasks/preflight/check_ocp_binaries.yaml
+      include_tasks:
+        file: tasks/preflight/check_ocp_binaries.yaml
+        apply:
+          tags:
+            - preflight
+            - binary_checks
       tags:
         - preflight
         - binary_checks
 
     - name: Preflight Check, AI Service - Set up Authentication Headers if needed
       when: assisted_service_authentication != "none"
-      include_tasks: tasks/ai-svc/setup_auth_headers.yaml
+      include_tasks:
+        file: tasks/ai-svc/setup_auth_headers.yaml
+        apply:
+          tags:
+            - preflight
+            - ai_svc_setup_headers
       tags:
         - preflight
         - ai_svc_setup_headers
 
     - name: Preflight Check, AI Service - Version Checks
-      include_tasks: tasks/ai-svc/query_openshift_versions.yaml
+      include_tasks:
+        file: tasks/ai-svc/query_openshift_versions.yaml
+        apply:
+          tags:
+            - preflight
+            - ai_svc_query_versions
       tags:
         - preflight
         - ai_svc_query_versions
@@ -74,7 +98,13 @@
 
     - name: Preflight Check - Per cluster_node Bare Metal Connection Test
       when: node_item.infra.type == "baremetal"
-      include_tasks: tasks/preflight/conntest_baremetal_nodes.yaml
+      include_tasks:
+        file: tasks/preflight/conntest_baremetal_nodes.yaml
+        apply:
+          tags:
+            - preflight
+            - conntests
+            - conntest_baremetal
       tags:
         - preflight
         - conntests
@@ -86,7 +116,13 @@
 
     - name: Preflight Check - Libvirt Connection Test
       when: provider.type == "libvirt"
-      include_tasks: tasks/preflight/conntest_libvirt.yaml
+      include_tasks:
+        file: tasks/preflight/conntest_libvirt.yaml
+        apply:
+          tags:
+            - preflight
+            - conntests
+            - conntest_libvirt
       tags:
         - preflight
         - conntests
@@ -97,7 +133,13 @@
 
     - name: Preflight Check - Nutanix Connection Test
       when: provider.type == "nutanix"
-      include_tasks: tasks/preflight/conntest_nutanix.yaml
+      include_tasks:
+        file: tasks/preflight/conntest_nutanix.yaml
+        apply:
+          tags:
+            - preflight
+            - conntests
+            - conntest_nutanix
       tags:
         - preflight
         - conntests
@@ -108,7 +150,13 @@
 
     - name: Preflight Check - VMWare Connection Test
       when: provider.type == "vsphere"
-      include_tasks: tasks/preflight/conntest_vmware.yaml
+      include_tasks:
+        file: tasks/preflight/conntest_vmware.yaml
+        apply:
+          tags:
+            - preflight
+            - conntests
+            - conntest_vmware
       tags:
         - preflight
         - conntests
@@ -130,6 +178,7 @@
       register: read_clusters
       tags:
         - ai_svc
+        - ai_svc_check_cluster
         - ai_svc_query_clusters
 
     - name: AI Service - Check for existing infraenvs
@@ -141,6 +190,7 @@
       register: read_infraenvs
       tags:
         - ai_svc
+        - ai_svc_check_cluster
         - ai_svc_query_infraenvs
     
     - name: Set facts if cluster exists
@@ -154,6 +204,7 @@
         label: "Cluster ID: {{ cluster_item.id }}"
       tags:
         - ai_svc
+        - ai_svc_check_cluster
         - ai_svc_set_cluster
 
     - name: Set facts if infraenv exists
@@ -167,6 +218,7 @@
         label: "InfraEnv ID: {{ infraenv_item.id }}"
       tags:
         - ai_svc
+        - ai_svc_check_cluster
         - ai_svc_set_infraenv
 
     #=========================================================================================================================
@@ -181,12 +233,21 @@
             deployment_name: "{{ lookup('password', '/dev/null chars=ascii_lowercase,digits length=8') }}"
 
         - name: SSH Key Generation & Reading
-          include_tasks: tasks/ssh_keys.yaml
+          include_tasks:
+            file: tasks/ssh_keys.yaml
+            apply:
+              tags:
+                - ssh_keys
           tags:
             - ssh_keys
 
         - name: AI Service - Create the base cluster deployment definition
-          include_tasks: tasks/ai-svc/create_cluster.yaml
+          include_tasks:
+            file: tasks/ai-svc/create_cluster.yaml
+            apply:
+              tags:
+                - ai_svc
+                - ai_svc_create_cluster
           tags:
             - ai_svc
             - ai_svc_create_cluster
@@ -219,7 +280,11 @@
 
 
     - name: SSH Key Migration & Reread
-      include_tasks: tasks/ssh_keys.yaml
+      include_tasks:
+        file: tasks/ssh_keys.yaml
+        apply:
+          tags:
+            - ssh_keys
       tags:
         - ssh_keys
 
@@ -231,7 +296,12 @@
       when: infraenv_id == ""
       block:
         - name: Create the infraenv deployment definition
-          include_tasks: tasks/ai-svc/create_infraenv.yaml
+          include_tasks:
+            file: tasks/ai-svc/create_infraenv.yaml
+            apply:
+              tags:
+                - ai_svc
+                - ai_svc_create_infraenv
       tags:
         - ai_svc
         - ai_svc_create_infraenv
@@ -245,59 +315,120 @@
       block:
         - name: AI Service - Inject extra manifests
           when: injected_manifests is defined
-          include_tasks: tasks/ai-svc/preconfig_extra_manifests.yaml
+          include_tasks:
+            file: tasks/ai-svc/preconfig_extra_manifests.yaml
+            apply:
+              tags:
+                - ai_svc
+                - ai_configure_cluster
+                - ai_svc_inject_extra_manifests
           tags:
             - ai_svc_inject_extra_manifests
 
         - name: AI Service - Patch in Cluster Preconfiguration for Networking
-          include_tasks: tasks/ai-svc/preconfig_networking.yaml
+          include_tasks:
+            file: tasks/ai-svc/preconfig_networking.yaml
+            apply:
+              tags:
+                - ai_svc
+                - ai_configure_cluster
+                - ai_svc_preconfig_networking
           tags:
             - ai_svc_preconfig_networking
 
         - name: AI Service - Inject Cilium Networking Cluster Manifests
           when: cluster_network_type == "Cilium"
-          include_tasks: tasks/networking_cilium.yaml
+          include_tasks:
+            file: tasks/networking_cilium.yaml
+            apply:
+              tags:
+                - ai_svc
+                - ai_configure_cluster
+                - ai_svc_inject_cilium_manifests
           tags:
             - ai_svc_inject_cilium_manifests
 
         - name: AI Service - Inject Calico Networking Cluster Manifests
           when: cluster_network_type == "Calico"
-          include_tasks: tasks/networking_calico.yaml
+          include_tasks:
+            file: tasks/networking_calico.yaml
+            apply:
+              tags:
+                - ai_svc
+                - ai_configure_cluster
+                - ai_svc_inject_calico_manifests
           tags:
             - ai_svc_inject_calico_manifests
 
         - name: AI Service - Add Additional Root CAs to the Discovery ISO
           when: additionalTrustBundle is defined
-          include_tasks: tasks/ai-svc/add_additionalTrustBundle_to_infraenv.yaml
+          include_tasks:
+            file: tasks/ai-svc/add_additionalTrustBundle_to_infraenv.yaml
+            apply:
+              tags:
+                - ai_svc
+                - ai_configure_cluster
+                - ai_svc_add_additionalTrustBundle_to_infraenv
           tags:
             - ai_svc_add_additionalTrustBundle_to_infraenv
 
         - name: AI Service - Patch the proxy configuration
           when: cluster_proxy is defined
-          include_tasks: tasks/ai-svc/add_proxy_config.yaml
+          include_tasks:
+            file: tasks/ai-svc/add_proxy_config.yaml
+            apply:
+              tags:
+                - ai_svc
+                - ai_configure_cluster
+                - ai_svc_add_proxy_config
           tags:
             - ai_svc_add_proxy_config
 
         - name: AI Service - Patch the NTP configuration
           when: ntp_sources is defined
-          include_tasks: tasks/ai-svc/add_ntp_config.yaml
+          include_tasks:
+            file: tasks/ai-svc/add_ntp_config.yaml
+            apply:
+              tags:
+                - ai_svc
+                - ai_configure_cluster
+                - ai_svc_add_ntp_config
           tags:
             - ai_svc_add_ntp_config
 
         - name: Set the core user password
           when: core_user_password is defined
-          include_tasks: tasks/ai-svc/set_core_user_pass_as_ico.yaml
+          include_tasks:
+            file: tasks/ai-svc/set_core_user_pass_as_ico.yaml
+            apply:
+              tags:
+                - ai_svc
+                - ai_configure_cluster
+                - ai_svc_set_core_user_password
           tags:
             - ai_svc_set_core_user_password
 
         - name: AI Service - Add Ignition Config Overrides
-          when: (passwd_ico_object is defined) or (ignition_config_override_files is defined and ignition_config_override_files | length > 0)
-          include_tasks: tasks/ai-svc/set_ignition_config_overrides.yaml
+          when: (passwd_ico_object is defined) or (ignition_config_override_files is defined)
+          #when: (passwd_ico_object is defined) or (ignition_config_override_files is defined and ignition_config_override_files | length > 0)
+          include_tasks:
+            file: tasks/ai-svc/set_ignition_config_overrides.yaml
+            apply:
+              tags:
+                - ai_svc
+                - ai_configure_cluster
+                - ai_svc_set_ignition_config_overrides
           tags:
             - ai_svc_set_ignition_config_overrides
 
         - name: AI Service - Reconfigure ISO Parameters
-          include_tasks: tasks/ai-svc/configure_iso_params.yaml
+          include_tasks:
+            file: tasks/ai-svc/configure_iso_params.yaml
+            apply:
+              tags:
+                - ai_svc
+                - ai_configure_cluster
+                - ai_svc_configure_iso_params
           tags:
             - ai_svc_configure_iso_params
 
@@ -305,9 +436,19 @@
         #  when: core_user_password is defined
         #  block:
         #    - name: Reconfigure the Discovery ISO Ignition with the core user password
-        #      include_tasks: tasks/ai-svc/set_core_user_password.yaml
+        #      include_tasks:
+        #        file: tasks/ai-svc/set_core_user_password.yaml
+        #        apply:
+        #          tags:
+        #            - ai_svc_set_core_user_password
+        #
         #    - name: AI Service - Reconfigure ISO Parameters
-        #      include_tasks: tasks/ai-svc/configure_iso_params.yaml
+        #      include_tasks:
+        #        file: tasks/ai-svc/configure_iso_params.yaml
+        #        apply:
+        #          tags:
+        #            - ai_svc_configure_iso_params
+        #            - ai_svc_set_core_user_password
         #      tags:
         #        - ai_svc_configure_iso_params
         #  tags:
@@ -384,6 +525,10 @@
             headers: "{{ compiled_uri_headers }}"
             url: "{{ infraenv_download_url }}"
             dest: "{{ generated_asset_directory }}/{{ cluster_id }}/ocp_ai.iso"
+          register: pull_result
+          until: pull_result.status_code is defined and pull_result.status_code in [201, 200, 302, 304]
+          retries: 10
+          delay: 10
           tags:
             - ai_svc
             - ai_svc_download_iso
@@ -396,7 +541,13 @@
 
     - name: Start a local HTTP Server to serve the ISO in the background
       when: deploy_local_http_server|bool
-      include_tasks: tasks/infra-baremetal/start_local_server.yaml
+      include_tasks:
+        file: tasks/infra-baremetal/start_local_server.yaml
+        apply:
+          tags:
+            - start_local_server
+      tags:
+        - start_local_server
 
     #=========================================================================================================================
     # Infrastructure-specific Creation Tasks - Bare Metal
@@ -416,7 +567,12 @@
 
     - name: Create the list of unique Bare Metal infrastructure providers
       when: baremetal_hosts is defined and baremetal_hosts | length > 0
-      include_tasks: tasks/infra-baremetal/get_unique_providers.yaml
+      include_tasks:
+        file: tasks/infra-baremetal/get_unique_providers.yaml
+        apply:
+          tags:
+            - infra_baremetal
+            - infra_baremetal_create_infra_list
       loop: "{{ baremetal_hosts }}"
       loop_control:
         loop_var: node_item
@@ -440,7 +596,12 @@
         #    - infra_baremetal_per_provider_setup
 
         - name: Deploy Bare Metal infrastructure
-          include_tasks: tasks/infra-baremetal/create.yaml
+          include_tasks:
+            file: tasks/infra-baremetal/create.yaml
+            apply:
+              tags:
+                - infra_baremetal
+                - infra_baremetal_create_infra
           loop: "{{ baremetal_hosts }}"
           loop_control:
             loop_var: node_item
@@ -475,7 +636,12 @@
 
     - name: Create the list of unique Libvirt infrastructure providers
       when: libvirt_hosts is defined and libvirt_hosts | length > 0
-      include_tasks: tasks/infra-libvirt/get_unique_providers.yaml
+      include_tasks:
+        file: tasks/infra-libvirt/get_unique_providers.yaml
+        apply:
+          tags:
+            - infra_libvirt
+            - infra_libvirt_create_infra_list
       loop: "{{ libvirt_hosts }}"
       loop_control:
         loop_var: node_item
@@ -490,7 +656,13 @@
       - unique_libvirt_infra_providers | length > 0
       block:
         - name: Perform per Libvirt Infrastructure Provider set up
-          include_tasks: tasks/infra-libvirt/per_provider_setup.yaml
+          include_tasks:
+            file: tasks/infra-libvirt/per_provider_setup.yaml
+            apply:
+              tags:
+                - infra_libvirt
+                - infra_libvirt_create_infra
+                - infra_libvirt_per_provider_setup
           loop: "{{ unique_libvirt_infra_providers }}"
           loop_control:
             loop_var: provider
@@ -499,7 +671,12 @@
             - infra_libvirt_per_provider_setup
 
         - name: Deploy Libvirt infrastructure
-          include_tasks: tasks/infra-libvirt/create.yaml
+          include_tasks:
+            file: tasks/infra-libvirt/create.yaml
+            apply:
+              tags:
+                - infra_libvirt
+                - infra_libvirt_create_infra
           loop: "{{ libvirt_hosts }}"
           loop_control:
             loop_var: node_item
@@ -526,7 +703,12 @@
 
     - name: Create the list of unique Nutanix infrastructure providers
       when: nutanix_hosts is defined and nutanix_hosts | length > 0
-      include_tasks: tasks/infra-nutanix/get_unique_providers.yaml
+      include_tasks:
+        file: tasks/infra-nutanix/get_unique_providers.yaml
+        apply:
+          tags:
+            - infra_nutanix
+            - infra_nutanix_create_infra_list
       loop: "{{ nutanix_hosts }}"
       loop_control:
         loop_var: node_item
@@ -541,7 +723,13 @@
       - unique_nutanix_infra_providers | length > 0
       block:
         - name: Perform per Nutanix Infrastructure Provider set up
-          include_tasks: tasks/infra-nutanix/per_provider_setup.yaml
+          include_tasks:
+            file: tasks/infra-nutanix/per_provider_setup.yaml
+            apply:
+              tags:
+                - infra_nutanix
+                - infra_nutanix_create_infra
+                - infra_nutanix_per_provider_setup
           loop: "{{ unique_nutanix_infra_providers }}"
           loop_control:
             loop_var: provider
@@ -550,7 +738,12 @@
             - infra_nutanix_per_provider_setup
 
         - name: Deploy Nutanix infrastructure
-          include_tasks: tasks/infra-nutanix/create.yaml
+          include_tasks:
+            file: tasks/infra-nutanix/create.yaml
+            apply:
+              tags:
+                - infra_nutanix
+                - infra_nutanix_create_infra
           loop: "{{ nutanix_hosts }}"
           loop_control:
             loop_var: node_item
@@ -577,7 +770,12 @@
 
     - name: Create the list of unique vSphere infrastructure providers
       when: vsphere_hosts is defined and vsphere_hosts | length > 0
-      include_tasks: tasks/infra-vsphere/get_unique_providers.yaml
+      include_tasks:
+        file: tasks/infra-vsphere/get_unique_providers.yaml
+        apply:
+          tags:
+            - infra_vsphere
+            - infra_vsphere_create_infra_list
       loop: "{{ vsphere_hosts }}"
       loop_control:
         loop_var: node_item
@@ -592,7 +790,13 @@
       - unique_vsphere_infra_providers | length > 0
       block:
         - name: Perform per vSphere Infrastructure Provider set up
-          include_tasks: tasks/infra-vsphere/per_provider_setup.yaml
+          include_tasks:
+            file: tasks/infra-vsphere/per_provider_setup.yaml
+            apply:
+              tags:
+                - infra_vsphere
+                - infra_vsphere_create_infra
+                - infra_vsphere_per_provider_setup
           loop: "{{ unique_vsphere_infra_providers }}"
           loop_control:
             loop_var: provider
@@ -601,7 +805,13 @@
             - infra_vsphere_per_provider_setup
 
         - name: Deploy vSphere infrastructure
-          include_tasks: tasks/infra-vsphere/create.yaml
+          include_tasks:
+            file: tasks/infra-vsphere/create.yaml
+            apply:
+              tags:
+                - infra_vsphere
+                - infra_vsphere_create_infra
+                - infra_vsphere_deploy_infra
           loop: "{{ vsphere_hosts }}"
           loop_control:
             loop_var: node_item
@@ -617,13 +827,34 @@
     #=========================================================================================================================
 
     - name: Wait for hosts to report into the Assisted Installer service
-      include_tasks: tasks/ai-svc/check_for_hosts.yaml
+      include_tasks:
+        file: tasks/ai-svc/check_for_hosts.yaml
+        apply:
+          tags:
+            - ai_svc
+            - ai_svc_wait_for_hosts
       tags:
         - ai_svc
         - ai_svc_wait_for_hosts
 
+    - name: Set Host Ignition Configs
+      include_tasks:
+        file: tasks/ai-svc/set_host_pointer_ignition.yaml
+        apply:
+          tags:
+            - ai_svc
+            - ai_svc_set_host_pointer_ignition
+      tags:
+        - ai_svc
+        - ai_svc_set_host_pointer_ignition
+
     - name: Set Host Names and Roles for Standard HA OpenShift Cluster
-      include_tasks: tasks/ai-svc/set_host_names_roles.yaml
+      include_tasks:
+        file: tasks/ai-svc/set_host_names_roles.yaml
+        apply:
+          tags:
+            - ai_svc
+            - ai_svc_set_host_names_roles
       #when: cluster_type == "Standard"
       tags:
         - ai_svc
@@ -631,7 +862,12 @@
 
     - name: Set Network VIPs
       when: cluster_type != "SNO"
-      include_tasks: tasks/ai-svc/set_vips.yaml
+      include_tasks:
+        file: tasks/ai-svc/set_vips.yaml
+        apply:
+          tags:
+            - ai_svc
+            - ai_svc_set_vips
       tags:
         - ai_svc
         - ai_svc_set_vips
@@ -641,13 +877,23 @@
     #=========================================================================================================================
 
     - name: Check to make sure the hosts are ready and the cluster can be installed
-      include_tasks: tasks/ai-svc/check_install_ready.yaml
+      include_tasks:
+        file: tasks/ai-svc/check_install_ready.yaml
+        apply:
+          tags:
+            - ai_svc
+            - ai_svc_check_install_ready
       tags:
         - ai_svc
         - ai_svc_check_install_ready
 
     - name: Start the Cluster installation
-      include_tasks: tasks/ai-svc/start_install.yaml
+      include_tasks:
+        file: tasks/ai-svc/start_install.yaml
+        apply:
+          tags:
+            - ai_svc
+            - ai_svc_start_install
       tags:
         - ai_svc
         - ai_svc_start_install
@@ -657,13 +903,23 @@
     #=========================================================================================================================
 
     - name: Wait for the cluster to be fully installed
-      include_tasks: tasks/ai-svc/check_cluster_install_finished.yaml
+      include_tasks:
+        file: tasks/ai-svc/check_cluster_install_finished.yaml
+        apply:
+          tags:
+            - ai_svc
+            - ai_svc_wait_for_cluster_install
       tags:
         - ai_svc
         - ai_svc_wait_for_cluster_install
 
     - name: Pull cluster credentials
-      include_tasks: tasks/ai-svc/query_cluster_credentials.yaml
+      include_tasks:
+        file: tasks/ai-svc/query_cluster_credentials.yaml
+        apply:
+          tags:
+            - ai_svc
+            - ai_svc_pull_cluster_credentials
       tags:
         - ai_svc
         - ai_svc_pull_cluster_credentials
@@ -672,8 +928,47 @@
     # OpenShift Cluster - Post-Deployment Tasks
     #=========================================================================================================================
 
-    - name: Post-cluster deployment extra role driven workloads
-      include_tasks: tasks/post_deploy_extra_roles.yaml
+    - name: Check to see if there are any infra nodes defined
+      when: node_item.type in ["infra-node", "infra"]
+      set_fact:
+        detected_infra_nodes: true
+      loop: "{{ cluster_nodes }}"
+      loop_control:
+        loop_var: node_item
       tags:
         - post_deploy
+        - infra_configuration
+
+    - name: Log into the cluster
+      shell:
+        cmd: "oc login {{ cluster_api_url }} --password=\"{{ cluster_kubeadmin_password }}\" --username=\"{{ cluster_kubeadmin_username }}\" --insecure-skip-tls-verify={{ cluster_skip_verify_tls }}"
+      no_log: true
+      register: cluster_auth_status
+      until: (cluster_auth_status.rc == 0)
+      retries: 120
+      delay: 20
+      tags:
+        - post_deploy
+        - infra_configuration
+
+    - name: Set infrastructure node configuration
+      when: detected_infra_nodes|bool
+      include_tasks:
+        file: tasks/post-deploy/configure-infra-nodes.yaml
+        apply:
+          tags:
+            - post_deploy
+            - infra_configuration
+      tags:
+        - post_deploy
+        - infra_configuration
+
+    - name: Post-cluster deployment extra role driven workloads
       when: extra_roles is defined and extra_roles | length > 0
+      include_tasks:
+        file: tasks/post-deploy/extra_roles.yaml
+        apply:
+          tags:
+            - post_deploy
+      tags:
+        - post_deploy
