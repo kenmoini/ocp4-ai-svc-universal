@@ -82,7 +82,7 @@ cluster_node_network_static_dns_search_domains:
 
 cluster_nodes:
   - name: cp-1 # must be unique and dns compliant
-    # type: control-plane | application-node | converged | sno
+    # type: control-plane | application-node | converged | sno | infra-node
     type: control-plane
     # infra is the name/type pair that matchs a infrastructure_providers variable entry
     infra:

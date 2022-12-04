@@ -27,10 +27,10 @@ This set of resources handles an idempotent way to deploy OpenShift via the Assi
 - Libvirt/KVM, tested with RHEL 8.5
 - Nutanix AHV, tested with Nutanix CE
 - VMWare, tested with vSphere 7+
+- Bare Metal, tested with Dell and Sushy-tools - automation for HP and Supermicro also available
 
 ### Upcoming Infrastructure Platforms
 
-- Bare Metal
 - HyperV
 - OpenStack
 

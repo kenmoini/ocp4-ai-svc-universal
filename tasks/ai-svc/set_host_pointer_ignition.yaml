@@ -1,0 +1,39 @@
+---
+
+- name: Get the list of hosts from the InfraEnv
+  uri:
+    headers: "{{ compiled_uri_headers }}"
+    url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}/hosts"
+    return_content: yes
+    method: GET
+    status_code: 200
+    body_format: json
+  register: get_hosts_resp
+
+- name: Template for good measure
+  template:
+    src: ignition-config-override-files.json.j2
+    dest: "{{ generated_asset_directory }}/{{ cluster_id }}/pointer-ico-files.json"
+  vars:
+    ignition_version: "3.2.0"
+
+- name: Set the patch data
+  set_fact:
+    override_ic_body: "{ \"config\": '{{ lookup(\"template\", \"ignition-config-override-files.json.j2\") | to_json }}' }"
+    #override_ic_body: "{ \"ignition_config_override\": '{{ ignition_config_override_bundle_string | to_json }}' }"
+  vars:
+    ignition_version: "3.2.0"
+
+- name: Patch the ignition_config_override_bundle_string into the per-host Pointer ignition override
+  uri:
+    headers: "{{ compiled_uri_headers }}"
+    url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}/hosts/{{ host_item.id }}/ignition"
+    return_content: yes
+    method: PATCH
+    body:  '{{ override_ic_body }}'
+    status_code: 201
+    body_format: json
+  loop: "{{ get_hosts_resp.json }}"
+  loop_control:
+    loop_var: host_item
+    label: "{{ host_item.id }}"

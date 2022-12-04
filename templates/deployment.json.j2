@@ -7,7 +7,7 @@
   "cluster_network_cidr": "{{ cluster_network_cidr }}",
   "cluster_network_host_prefix": {{ cluster_network_host_prefix }},
   "service_network_cidr": "{{ cluster_service_cidr }}",
-  "user_managed_networking": {{ ((cluster_api_vip == 'auto') and (cluster_apps_vip == 'auto')) | ternary('false', 'true') }},
+  "user_managed_networking": {{ cluster_user_managed_networking | default('false') }},
   "vip_dhcp_allocation": {{ ((cluster_api_vip == 'auto') and (cluster_apps_vip == 'auto')) | ternary('true', 'false') }},
   "high_availability_mode": "{{ (cluster_type == 'Standard') | ternary('Full', 'None') }}",
   "network_type": "{{ ocp_network_type}}",

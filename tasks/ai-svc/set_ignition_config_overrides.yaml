@@ -1,7 +1,7 @@
 
-#- name: Print currently set ignition_config_override_files
-#  debug:
-#    msg: "{{ ignition_config_override_files }}"
+- name: Print currently set ignition_config_override_files
+  debug:
+    msg: "{{ ignition_config_override_files }}"
 
 - name: Set as override string
   when: passwd_ico_object is defined
@@ -17,9 +17,23 @@
 #  debug:
 #    msg: "{{ ignition_config_override_bundle_string }}"
 
+- name: Template for good measure
+  template:
+    src: ignition-config-override-files.json.j2
+    dest: "{{ generated_asset_directory }}/{{ cluster_id }}/ico-files.json"
+  vars:
+    ignition_version: "3.1.0"
+
 - name: Set the patch data
   set_fact:
-    override_ic_body: "{ \"ignition_config_override\": '{{ ignition_config_override_bundle_string }}' }"
+    override_ic_body: "{ \"ignition_config_override\": '{{ lookup(\"template\", \"ignition-config-override-files.json.j2\") | to_json }}', \"config\": '{{ lookup(\"template\", \"ignition-config-override-files.json.j2\") | to_json }}' }"
+    #override_ic_body: "{ \"ignition_config_override\": '{{ ignition_config_override_bundle_string | to_json }}' }"
+  vars:
+    ignition_version: "3.1.0"
+
+#- name: Set the patch data
+#  set_fact:
+#    override_ic_body: "{ 'ignition_config_override': '{{ ignition_config_override_bundle_string | to_json }}' }"
 
 #- name: Print override body
 #  debug:

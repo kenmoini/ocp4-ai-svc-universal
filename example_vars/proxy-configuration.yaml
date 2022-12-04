@@ -5,9 +5,9 @@
 #######################################################################################################################
 # optional: if you need to use an outbound proxy for the cluster
 cluster_proxy:
-  httpProxy: http://192.168.51.1:3128/
-  httpsProxy: http://192.168.51.1:3128/
+  httpProxy: http://192.168.42.31:3128/
+  httpsProxy: http://192.168.42.31:3128/
   noProxy:
-  - 192.168.51.0/24
-  - api-int.core-ocp.lab.kemo.network
-  - api.core-ocp.lab.kemo.network
+  - 192.168.0.0/16
+  - .kemo.network
+  - .kemo.labs
