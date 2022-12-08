@@ -9,18 +9,36 @@
     body_format: json
   register: ocp_versions
 
-- name: Explode the set OpenShift version
+- name: Explode the set OpenShift version and set the set_version_ex fact
   set_fact:
     set_version_ex: "{{ cluster_version.split('.') }}"
 
-- name: Set facts
+- name: Set facts for ai_svc_versions
   set_fact:
     ai_svc_versions: "{{ (ocp_versions.json).keys()|list|community.general.version_sort }}"
 
-- name: Set the desired cluster version if it is x.y.z and in the available versions from OAS
-  when: cluster_version|string in ai_svc_versions and set_version_ex|length == 3
+- name: Set facts for ai_svc_display_versions
   set_fact:
-    desired_cluster_version: "{{ cluster_version|string }}"
+    ai_svc_display_versions: "{{ ai_svc_display_versions | default([]) + [version_item.display_name] }}"
+  loop: "{{ (ocp_versions.json).values() }}"
+  loop_control:
+    loop_var: version_item
+
+- name: Set the desired cluster version if it is x.y.z and in the available versions from OAS
+  when: cluster_version|string in ai_svc_display_versions and set_version_ex|length == 3
+  # when: set_version_ex|length == 3
+  block:
+  - name: Set the Display Name fact
+    set_fact:
+      desired_cluster_version_name: "{{ cluster_version|string }}"
+
+  - name: Set the desired cluster version if it is x.y.z and in the available versions from OAS
+    set_fact:
+      desired_cluster_version: "{{ version_item.key }}"
+    loop: "{{ (ocp_versions.json) | dict2items }}"
+    loop_control:
+      loop_var: version_item
+    when: version_item.value.display_name == desired_cluster_version_name|string
 
 - name: Get the versions that match the x.y pattern
   when: set_version_ex|length == 2 and cluster_version|string in version_item
@@ -35,28 +53,42 @@
   set_fact:
     desired_cluster_version: "{{ matched_versions|community.general.version_sort|last }}"
 
-# - name: d
-  # debug:
-    # msg:
-    # - "Desired cluster version: {{ desired_cluster_version }}"
-    # - "Matched versions: {{ matched_versions|community.general.version_sort }}"
-    # - "{{ ai_svc_versions }}"
-    # - "{{ ai_svc_version }}"
-    # - "{{ cluster_full_version }}"
+- name: d
+  debug:
+    msg:
+    - "Desired cluster version: {{ desired_cluster_version }}"
+    #- "Matched versions: {{ matched_versions | community.general.version_sort }}"
+    - "ai_svc_versions: {{ ai_svc_versions }}"
+    - "ai_svc_display_versions: {{ ai_svc_display_versions }}"
+    - "desired_cluster_version_name: {{ desired_cluster_version_name }}"
+    - "desired_cluster_version: {{ desired_cluster_version }}"
 
 - name: Assert that the desired version is supported by the AI Service
   assert:
     that:
       - desired_cluster_version|string in ai_svc_versions
-    fail_msg: "desired_cluster_version '{{ desired_cluster_version|string }}' from cluster_version '{{ cluster_version }}' is not serviced by this Assisted Installer Service!  Supported versions: {{ ai_svc_versions }}"
+    fail_msg: |
+      desired_cluster_version '{{ desired_cluster_version|string }}' from cluster_version '{{ cluster_version }}' is not serviced by this Assisted Installer Service!
+      Supported versions:
+      {{ ai_svc_versions }}
     success_msg: "desired_cluster_version '{{ desired_cluster_version|string }}' from cluster_version '{{ cluster_version }}' is serviced by this Assisted Installer Service!"
+
+- name: Assert that the desired version display name is supported by the AI Service
+  assert:
+    that:
+      - desired_cluster_version_name|string in ai_svc_display_versions
+    fail_msg: |
+      desired_cluster_version_name '{{ desired_cluster_version_name|string }}' from cluster_version '{{ cluster_version }}' is not serviced by this Assisted Installer Service!
+      Supported versions:
+      {{ ai_svc_display_versions }}
+    success_msg: "desired_cluster_version_name '{{ desired_cluster_version_name|string }}' from cluster_version '{{ cluster_version }}' is serviced by this Assisted Installer Service!"
 
 - name: Assert that SNO mode is supported by the desired version
   when: cluster_type == "SNO"
   assert:
     that:
       - cluster_version is version('4.8', '>=')
-    fail_msg: "desired_cluster_version '{{ desired_cluster_version|string }}' from cluster_version '{{ cluster_version }}' is not able to deploy as a Single Node OpenShift cluster - only available in 4.8+"
+    fail_msg: desired_cluster_version '{{ desired_cluster_version|string }}' from cluster_version '{{ cluster_version }}' is not able to deploy as a Single Node OpenShift cluster - only available in 4.8+"
     success_msg: "desired_cluster_version '{{ desired_cluster_version|string }}' from cluster_version '{{ cluster_version }}' is able to deploy as a Single Node OpenShift cluster!"
 
 - name: Set supporting facts now that we have the intended version
