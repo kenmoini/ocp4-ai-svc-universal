@@ -4,6 +4,12 @@
   connection: local
   gather_facts: false
 
+  module_defaults:
+    kubernetes.core.k8s:
+      validate_certs: false
+    kubernetes.core.k8s_info:
+      validate_certs: false
+
   vars:
     cluster_id: ""
     infraenv_id: ""
@@ -834,9 +840,11 @@
         apply:
           tags:
             - ai_svc
+            - ai_svc_post_infra
             - ai_svc_wait_for_hosts
       tags:
         - ai_svc
+        - ai_svc_post_infra
         - ai_svc_wait_for_hosts
 
     - name: Set Host Ignition Configs
@@ -845,9 +853,11 @@
         apply:
           tags:
             - ai_svc
+            - ai_svc_post_infra
             - ai_svc_set_host_pointer_ignition
       tags:
         - ai_svc
+        - ai_svc_post_infra
         - ai_svc_set_host_pointer_ignition
 
     - name: Set Host Names and Roles for Standard HA OpenShift Cluster
@@ -856,10 +866,12 @@
         apply:
           tags:
             - ai_svc
+            - ai_svc_post_infra
             - ai_svc_set_host_names_roles
       #when: cluster_type == "Standard"
       tags:
         - ai_svc
+        - ai_svc_post_infra
         - ai_svc_set_host_names_roles
 
     - name: Set Network VIPs
@@ -869,9 +881,11 @@
         apply:
           tags:
             - ai_svc
+            - ai_svc_post_infra
             - ai_svc_set_vips
       tags:
         - ai_svc
+        - ai_svc_post_infra
         - ai_svc_set_vips
 
     #=========================================================================================================================
@@ -884,9 +898,11 @@
         apply:
           tags:
             - ai_svc
+            - ai_svc_post_infra
             - ai_svc_check_install_ready
       tags:
         - ai_svc
+        - ai_svc_post_infra
         - ai_svc_check_install_ready
 
     - name: Start the Cluster installation
@@ -895,9 +911,11 @@
         apply:
           tags:
             - ai_svc
+            - ai_svc_post_infra
             - ai_svc_start_install
       tags:
         - ai_svc
+        - ai_svc_post_infra
         - ai_svc_start_install
 
     #=========================================================================================================================
@@ -910,9 +928,11 @@
         apply:
           tags:
             - ai_svc
+            - ai_svc_post_infra
             - ai_svc_wait_for_cluster_install
       tags:
         - ai_svc
+        - ai_svc_post_infra
         - ai_svc_wait_for_cluster_install
 
     - name: Pull cluster credentials
@@ -943,15 +963,18 @@
 
     - name: Log into the cluster
       shell:
-        cmd: "oc login {{ cluster_api_url }} --password=\"{{ cluster_kubeadmin_password }}\" --username=\"{{ cluster_kubeadmin_username }}\" --insecure-skip-tls-verify={{ cluster_skip_verify_tls }}"
-      no_log: true
+        cmd: "oc login {{ cluster_api_url }} --password=\"{{ cluster_kubeadmin_password }}\" --username=\"{{ cluster_kubeadmin_username }}\" --insecure-skip-tls-verify={{ cluster_skip_verify_tls | default(false) }}"
       register: cluster_auth_status
       until: (cluster_auth_status.rc == 0)
+      no_log: false
       retries: 120
       delay: 20
       tags:
         - post_deploy
-        - infra_configuration
+
+    - name: d
+      debug:
+        msg: "{{ cluster_auth_status }}"
 
     - name: Set infrastructure node configuration
       when: detected_infra_nodes|bool
