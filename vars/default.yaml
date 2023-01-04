@@ -6,7 +6,7 @@ cluster_network_cidr: 10.128.0.0/14
 cluster_network_host_prefix: 23
 cluster_service_cidr: 172.30.0.0/16
 
-cluster_skip_verify_tls: true
+#cluster_skip_verify_tls: true
 
 generated_asset_directory: ./.generated
 
