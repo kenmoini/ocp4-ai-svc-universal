@@ -110,7 +110,7 @@ There are a few Ansible Tasks that use the `command` module to execute commands 
 ```bash
 ## Create a binary directory if needed
 sudo mkdir -p /usr/local/bin
-sudo echo 'export PATH="/usr/local/bin:$PATH"' > /etc/profile.d/usrlibbin.sh
+echo 'export PATH="/usr/local/bin:$PATH"' | sudo tee /etc/profile.d/usrlibbin.sh
 sudo chmod a+x /etc/profile.d/usrlibbin.sh
 source /etc/profile.d/usrlibbin.sh
 
