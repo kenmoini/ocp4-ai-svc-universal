@@ -5,7 +5,7 @@
   gather_facts: false
 
   vars:
-    generated_asset_directory: "./generated_assets"
+    generated_asset_directory: "./generated"
 
     ### BMH CONFIGURATION ###
 

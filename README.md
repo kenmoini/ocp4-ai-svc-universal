@@ -24,7 +24,7 @@ This set of resources handles an idempotent way to deploy OpenShift via the Assi
 
 ### Supported Infrastructure Platforms
 
-- Libvirt/KVM, tested with RHEL 8.5
+- Libvirt/KVM, tested with RHEL 8.5 and RHEL 9.1
 - Nutanix AHV, tested with Nutanix CE
 - VMWare, tested with vSphere 7+
 - Bare Metal, tested with Dell and Sushy-tools - automation for HP and Supermicro also available
@@ -110,7 +110,7 @@ There are a few Ansible Tasks that use the `command` module to execute commands 
 ```bash
 ## Create a binary directory if needed
 sudo mkdir -p /usr/local/bin
-sudo echo 'export PATH="/usr/local/bin:$PATH"' > /etc/profile.d/usrlibbin.sh
+echo 'export PATH="/usr/local/bin:$PATH"' | sudo tee /etc/profile.d/usrlibbin.sh
 sudo chmod a+x /etc/profile.d/usrlibbin.sh
 source /etc/profile.d/usrlibbin.sh
 

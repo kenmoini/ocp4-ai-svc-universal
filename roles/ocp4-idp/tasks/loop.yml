@@ -4,6 +4,50 @@
   block:
 
 ## ===================================================================================================
+## Google OAuth Identity Provider
+## ===================================================================================================
+
+  - name: Set up Google OAuth IdP
+    when: provider.type == 'Google'
+    block:
+
+      - name: Create a Secret for the Client Secret
+        kubernetes.core.k8s:
+          state: present
+          merge_type:
+          - strategic-merge
+          - merge
+          definition:
+            apiVersion: v1
+            kind: Secret
+            metadata:
+              name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-google-oauth-client-secret"
+              namespace: openshift-config
+            type: Opaque
+            stringData:
+              clientSecret: "{{ provider.clientSecret }}"
+
+      ## =============================================================================================
+      ## Google OAuth Identity Provider
+      ## =============================================================================================
+
+      - name: Set fact for this identity provider
+        set_fact:
+          idp_item:
+            - name: "{{ provider.name }}"
+              type: Google
+              mappingMethod: "{{ provider.mappingMethod | default('claim') }}"
+              google:
+                clientID: "{{ provider.clientID }}"
+                clientSecret:
+                  name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-google-oauth-client-secret"
+                hostedDomain: "{{ provider.hostedDomain | default(omit) }}"
+
+      - name: Add this IdP to the collection
+        set_fact:
+          idp_collection: "{{ idp_collection + idp_item }}"
+
+## ===================================================================================================
 ## AD/LDAP Identity Provider
 ## ===================================================================================================
 
@@ -48,287 +92,132 @@
       ## LDAP Identity Provider
       ## =============================================================================================
 
-      - name: Add the IDP object to the cluster - LDAP
+      - name: Set fact for this identity provider
         when: provider.type == "LDAP"
-        kubernetes.core.k8s:
-          state: present
-          merge_type:
-          - strategic-merge
-          - merge
-          definition:
-            apiVersion: config.openshift.io/v1
-            kind: OAuth
-            metadata:
-              name: cluster
-            spec:
-              identityProviders:
-              - name: "{{ provider.name }}"
-                type: LDAP
-                mappingMethod: "{{ provider.mappingMethod | default('claim') }}"
-                ldap:
-                  attributes:
-                    id:
-                    - dn
-                    email:
-                    - mail
-                    name:
-                    - cn
-                    preferredUsername:
-                    - uid
-                  bindDN: "{{ provider.bindDN }}"
-                  bindPassword:
-                    name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-bind-password"
-                  insecure: "{{ provider.insecure | default(false) }}"
-                  ca:
-                    name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-ca"
-                  url: "{{ provider.url }}/{{ provider.url_filter }}"
+        set_fact:
+          idp_item:
+            - name: "{{ provider.name }}"
+              type: LDAP
+              mappingMethod: "{{ provider.mappingMethod | default('claim') }}"
+              ldap:
+                attributes:
+                  id:
+                  - dn
+                  email:
+                  - mail
+                  name:
+                  - cn
+                  preferredUsername:
+                  - uid
+                bindDN: "{{ provider.bindDN }}"
+                bindPassword:
+                  name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-bind-password"
+                insecure: "{{ provider.insecure | default(false) }}"
+                ca:
+                  name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-ca"
+                url: "{{ provider.url }}/{{ provider.url_filter }}"
+
+
+      #- name: Add the IDP object to the cluster - LDAP
+      #  when: provider.type == "LDAP"
+      #  kubernetes.core.k8s:
+      #    state: present
+      #    merge_type:
+      #    - strategic-merge
+      #    - merge
+      #    definition:
+      #      apiVersion: config.openshift.io/v1
+      #      kind: OAuth
+      #      metadata:
+      #        name: cluster
+      #      spec:
+      #        identityProviders:
+      #        - name: "{{ provider.name }}"
+      #          type: LDAP
+      #          mappingMethod: "{{ provider.mappingMethod | default('claim') }}"
+      #          ldap:
+      #            attributes:
+      #              id:
+      #              - dn
+      #              email:
+      #              - mail
+      #              name:
+      #              - cn
+      #              preferredUsername:
+      #              - uid
+      #            bindDN: "{{ provider.bindDN }}"
+      #            bindPassword:
+      #              name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-bind-password"
+      #            insecure: "{{ provider.insecure | default(false) }}"
+      #            ca:
+      #              name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-ca"
+      #            url: "{{ provider.url }}/{{ provider.url_filter }}"
 
       ## =============================================================================================
       ## ActiveDirectory Identity Provider
+      ## More info here: https://examples.openshift.pub/cluster-configuration/authentication/activedirectory-ldap/
       ## =============================================================================================
 
-      # More info here: https://examples.openshift.pub/cluster-configuration/authentication/activedirectory-ldap/
-      - name: Add the IDP object to the cluster - ActiveDirectory
+      - name: Set fact for this identity provider
         when: provider.type == "ActiveDirectory"
-        kubernetes.core.k8s:
-          state: present
-          merge_type:
-          - strategic-merge
-          - merge
-          definition:
-            apiVersion: config.openshift.io/v1
-            kind: OAuth
-            metadata:
-              name: cluster
-            spec:
-              identityProviders:
-              - name: "{{ provider.name }}"
-                type: LDAP
-                mappingMethod: "{{ provider.mappingMethod | default('claim') }}"
-                ldap:
-                  attributes:
-                    id:
-                    - sAMAccountName
-                    email:
-                    - mail
-                    name:
-                    - cn
-                    preferredUsername:
-                    - sAMAccountName
-                  bindDN: "{{ provider.bindDN }}"
-                  bindPassword:
-                    name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-bind-password"
-                  insecure: false
-                  ca:
-                    name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-ca"
-                  url: "{{ provider.url }}/{{ provider.url_filter }}"
+        set_fact:
+          idp_item:
+            - name: "{{ provider.name }}"
+              type: LDAP
+              mappingMethod: "{{ provider.mappingMethod | default('claim') }}"
+              ldap:
+                attributes:
+                  id:
+                  - sAMAccountName
+                  email:
+                  - mail
+                  name:
+                  - cn
+                  preferredUsername:
+                  - sAMAccountName
+                bindDN: "{{ provider.bindDN }}"
+                bindPassword:
+                  name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-bind-password"
+                insecure: false
+                ca:
+                  name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-ca"
+                url: "{{ provider.url }}/{{ provider.url_filter }}"
 
-      ## =============================================================================================
-      ## LDAP Sync Job
-      ## =============================================================================================
+      #- name: Add the IDP object to the cluster - ActiveDirectory
+      #  when: provider.type == "ActiveDirectory"
+      #  kubernetes.core.k8s:
+      #    state: present
+      #    merge_type:
+      #    - strategic-merge
+      #    - merge
+      #    definition:
+      #      apiVersion: config.openshift.io/v1
+      #      kind: OAuth
+      #      metadata:
+      #        name: cluster
+      #      spec:
+      #        identityProviders:
+      #        - name: "{{ provider.name }}"
+      #          type: LDAP
+      #          mappingMethod: "{{ provider.mappingMethod | default('claim') }}"
+      #          ldap:
+      #            attributes:
+      #              id:
+      #              - sAMAccountName
+      #              email:
+      #              - mail
+      #              name:
+      #              - cn
+      #              preferredUsername:
+      #              - sAMAccountName
+      #            bindDN: "{{ provider.bindDN }}"
+      #            bindPassword:
+      #              name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-bind-password"
+      #            insecure: false
+      #            ca:
+      #              name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-ca"
+      #            url: "{{ provider.url }}/{{ provider.url_filter }}"
 
-      - name: Create the LDAP Sync Job
-        when: provider.group_sync is defined
-        block:
-          - name: Create a ServiceAccount for the LDAP Sync Job
-            kubernetes.core.k8s:
-              state: present
-              merge_type:
-              - strategic-merge
-              - merge
-              definition:
-                kind: ServiceAccount
-                apiVersion: v1
-                metadata:
-                  name: ldap-group-syncer
-                  namespace: openshift-config
-
-          - name: Create the ClusterRole
-            kubernetes.core.k8s:
-              state: present
-              merge_type:
-              - strategic-merge
-              - merge
-              definition:
-                apiVersion: rbac.authorization.k8s.io/v1
-                kind: ClusterRole
-                metadata:
-                  name: ldap-group-syncer
-                  namespace: openshift-config
-                rules:
-                  - apiGroups:
-                      - ''
-                      - user.openshift.io
-                    resources:
-                      - groups
-                    verbs:
-                      - get
-                      - list
-                      - create
-                      - update
-
-          - name: Create the ClusterRoleBinding
-            kubernetes.core.k8s:
-              state: present
-              merge_type:
-              - strategic-merge
-              - merge
-              definition:
-                apiVersion: rbac.authorization.k8s.io/v1
-                kind: ClusterRoleBinding
-                metadata:
-                  name: ldap-group-syncer
-                roleRef:
-                  apiGroup: rbac.authorization.k8s.io
-                  kind: ClusterRole
-                  name: ldap-group-syncer
-                subjects:
-                  - kind: ServiceAccount
-                    name: ldap-group-syncer
-                    namespace: openshift-config
-
-          - name: Create the ConfigMap to house the LDAPSync yaml - LDAP
-            when: provider.type == "LDAP"
-            kubernetes.core.k8s:
-              state: present
-              merge_type:
-              - strategic-merge
-              - merge
-              definition:
-                kind: ConfigMap
-                apiVersion: v1
-                metadata:
-                  name: ldap-group-syncer
-                  namespace: openshift-config
-                data:
-                  sync.yaml: |
-                    {{ lookup('template', 'ldap-sync.yaml.j2') }}
-
-          - name: Create the CronJob to run the Sync, set it to run immediately
-            kubernetes.core.k8s:
-              state: present
-              merge_type:
-              - strategic-merge
-              - merge
-              definition:
-                kind: CronJob
-                apiVersion: batch/v1
-                metadata:
-                  name: ldap-group-syncer
-                  namespace: openshift-config
-                spec:
-                  schedule: "* * * * *"
-                  concurrencyPolicy: Forbid
-                  jobTemplate:
-                    spec:
-                      backoffLimit: 0
-                      ttlSecondsAfterFinished: 1800
-                      template:
-                        spec:
-                          containers:
-                            - name: ldap-group-sync
-                              image: "registry.redhat.io/openshift4/ose-cli:latest"
-                              command:
-                                - "/bin/bash"
-                                - "-c"
-                                - "oc adm groups sync --sync-config=/etc/config/sync.yaml --confirm"
-                              volumeMounts:
-                                - mountPath: "/etc/config"
-                                  name: "ldap-sync-volume"
-                                - mountPath: "/etc/secrets"
-                                  name: "ldap-bind-password"
-                                - mountPath: "/etc/ldap-ca"
-                                  name: "ldap-ca"
-                          volumes:
-                            - name: "ldap-sync-volume"
-                              configMap:
-                                name: "ldap-group-syncer"
-                            - name: "ldap-bind-password"
-                              secret:
-                                secretName: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-bind-password"
-                            - name: "ldap-ca"
-                              configMap:
-                                name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-ca"
-                          restartPolicy: "Never"
-                          terminationGracePeriodSeconds: 30
-                          activeDeadlineSeconds: 500
-                          dnsPolicy: "ClusterFirst"
-                          serviceAccountName: "ldap-group-syncer"
-
-          - name: Pause for 90 seconds to allow the LDAP Sync Job to run
-            pause:
-              seconds: 90
-
-          - name: Set the CronJob to run the Sync to a 30min sync
-            kubernetes.core.k8s:
-              state: present
-              merge_type:
-              - strategic-merge
-              - merge
-              definition:
-                kind: CronJob
-                apiVersion: batch/v1
-                metadata:
-                  name: ldap-group-syncer
-                  namespace: openshift-config
-                spec:
-                  schedule: "*/30 * * * *"
-                  concurrencyPolicy: Forbid
-                  jobTemplate:
-                    spec:
-                      backoffLimit: 0
-                      ttlSecondsAfterFinished: 1800
-                      template:
-                        spec:
-                          containers:
-                            - name: ldap-group-sync
-                              image: "registry.redhat.io/openshift4/ose-cli:latest"
-                              command:
-                                - "/bin/bash"
-                                - "-c"
-                                - "oc adm groups sync --sync-config=/etc/config/sync.yaml --confirm"
-                              volumeMounts:
-                                - mountPath: "/etc/config"
-                                  name: "ldap-sync-volume"
-                                - mountPath: "/etc/secrets"
-                                  name: "ldap-bind-password"
-                                - mountPath: "/etc/ldap-ca"
-                                  name: "ldap-ca"
-                          volumes:
-                            - name: "ldap-sync-volume"
-                              configMap:
-                                name: "ldap-group-syncer"
-                            - name: "ldap-bind-password"
-                              secret:
-                                secretName: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-bind-password"
-                            - name: "ldap-ca"
-                              configMap:
-                                name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-ca"
-                          restartPolicy: "Never"
-                          terminationGracePeriodSeconds: 30
-                          activeDeadlineSeconds: 500
-                          dnsPolicy: "ClusterFirst"
-                          serviceAccountName: "ldap-group-syncer"
-
-          - name: Create the ClusterRoleBinding for the Group Syncs
-            kubernetes.core.k8s:
-              state: present
-              merge_type:
-              - strategic-merge
-              - merge
-              definition:
-                apiVersion: rbac.authorization.k8s.io/v1
-                kind: ClusterRoleBinding
-                metadata:
-                  name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-group-sync"
-                roleRef:
-                  apiGroup: rbac.authorization.k8s.io
-                  kind: ClusterRole
-                  name: "{{ crb.crb }}"
-                subjects:
-                  - kind: Group
-                    name: "{{ crb.group }}"
-                    apiGroup: rbac.authorization.k8s.io
-            loop: "{{ provider.group_sync.group_crbs }}"
-            loop_control:
-              loop_var: crb
+      - name: Add this IdP to the collection
+        set_fact:
+          idp_collection: "{{ idp_collection + idp_item }}"
