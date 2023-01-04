@@ -24,7 +24,7 @@ This set of resources handles an idempotent way to deploy OpenShift via the Assi
 
 ### Supported Infrastructure Platforms
 
-- Libvirt/KVM, tested with RHEL 8.5
+- Libvirt/KVM, tested with RHEL 8.5 and RHEL 9.1
 - Nutanix AHV, tested with Nutanix CE
 - VMWare, tested with vSphere 7+
 - Bare Metal, tested with Dell and Sushy-tools - automation for HP and Supermicro also available
