@@ -1,0 +1,21 @@
+---
+- name: Set the wrapped fact
+  set_fact:
+    wrapped_fact: "{{ install_config_overrides | to_json }}"
+    installconfigfilepath: "{{ generated_asset_directory }}/{{ cluster_id }}/install-config-overrides"
+
+- name: Take the compiled install-config overrides and write them to a file
+  copy:
+    content: '{{ wrapped_fact | to_json }}'
+    dest: "{{ installconfigfilepath }}"
+
+- name: Inject install-config overrides into the cluster
+  uri:
+    headers: "{{ compiled_uri_headers }}"
+    url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/install-config"
+    return_content: yes
+    method: PATCH
+    body:  '{{ lookup("file", installconfigfilepath) }}'
+    status_code: 201
+    body_format: json
+  register: additionalBundleIC_resp

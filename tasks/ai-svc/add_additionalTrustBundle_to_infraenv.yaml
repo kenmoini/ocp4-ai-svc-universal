@@ -1,5 +1,14 @@
 ---
 
+- name: Set override struct
+  set_fact:
+    install_config_override_atb:
+      additionalTrustBundle: "{{ additionalTrustBundle }}"
+
+- name: Add the override struct to the install_config_overrides var
+  set_fact:
+    install_config_overrides: "{{ install_config_overrides | combine(install_config_override_atb) }}"
+
 - name: Set override string
   set_fact:
     ignition_config_override_files: "{{ ignition_config_override_files | default('') }}{{ ',' if ignition_config_override_files is defined and ignition_config_override_files != '' }}{{ '{\"path\": \"/etc/pki/ca-trust/source/anchors/extra_ca.pem\", \"mode\": 420, \"overwrite\": true, \"user\": { \"name\": \"root\"},\"contents\": {\"source\": \"data:text/plain;base64,{{ additionalTrustBundle | b64encode }}\"}}' }}"
@@ -11,7 +20,15 @@
 - name: Set body data
   set_fact:
     #override_body: "{ \"ignition_config_override\": '{{ ignition_config_override_bundle_string | to_json }}{{ ',' if ignition_config_overrides_resp.json.ignition_config_override != '' }}{{ ignition_config_overrides_resp.json.ignition_config_override }}' }"
-    override_ic_body: "{ \"additionalTrustBundle\": {{ additionalTrustBundle | to_json }} }"
+    override_ic_body: "{ \"additionalTrustBundle\": \"{{ additionalTrustBundle }}\" }"
+
+#- name: Debug override_ic_body
+#  debug:
+#    msg: "{{ override_ic_body }}"
+#
+#- name: Debug override_ic_body
+#  debug:
+#    msg: '{{ override_ic_body | to_json }}'
 
 #- name: Inject extra Root CAs into the Discovery ISO
 #  uri:
@@ -28,13 +45,29 @@
 #  debug:
 #    msg: "{{ additionalBundle_resp }}"
 
-- name: Inject extra Root CAs into the install-config.yaml
-  uri:
-    headers: "{{ compiled_uri_headers }}"
-    url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/install-config"
-    return_content: yes
-    method: PATCH
-    body:  '{{ override_ic_body | to_json }}'
-    status_code: 201
-    body_format: json
-  register: additionalBundleIC_resp
+#- name: Get current install-config
+#  uri:
+#    headers: "{{ compiled_uri_headers }}"
+#    url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/install-config"
+#    return_content: yes
+#    method: GET
+#  register: getIC_res
+#
+#- name: Debug getIC_res
+#  debug:
+#    msg: "{{ getIC_res }}"
+#
+#- name: Debug compiled_uri_headers
+#  debug:
+#    msg: "{{ compiled_uri_headers }}"
+
+#- name: Inject extra Root CAs into the install-config.yaml
+#  uri:
+#    headers: "{{ compiled_uri_headers }}"
+#    url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/install-config"
+#    return_content: yes
+#    method: PATCH
+#    body:  '{{ override_ic_body }}'
+#    status_code: 201
+#    body_format: json
+#  register: additionalBundleIC_resp

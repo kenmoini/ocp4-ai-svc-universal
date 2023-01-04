@@ -32,6 +32,18 @@
     override_ic_body: "{ \"proxy\": {{ proxy_ic_conf | to_json }}  }"
     #override_proxy_body: "{ \"ignition_config_override\": '{{ ignition_config_override_bundle_string | to_json }}' }"
 
+- name: Set override struct
+  set_fact:
+    install_config_override_proxy:
+      proxy:
+        httpProxy: "{{ cluster_proxy.httpProxy|default('') }}"
+        httpsProxy: "{{ cluster_proxy.httpsProxy|default('') }}"
+        noProxy: "{{ cluster_no_proxy|default('') }}"
+
+- name: Add the override struct to the install_config_overrides var
+  set_fact:
+    install_config_overrides: "{{ install_config_overrides | combine(install_config_override_proxy) }}"
+
 #- name: Inject extra Proxy Env Variables into the Discovery ISO
 #  uri:
 #    headers: "{{ compiled_uri_headers }}"
@@ -69,16 +81,16 @@
     body_format: json
   register: proxyInfraEnv_resp
 
-- name: Inject the Proxy config into the install-config
-  uri:
-    headers: "{{ compiled_uri_headers }}"
-    url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/install-config"
-    return_content: yes
-    method: PATCH
-    body:  '{{ override_ic_body | to_json }}'
-    status_code: 201
-    body_format: json
-  register: proxyIC_resp
+#- name: Inject the Proxy config into the install-config
+#  uri:
+#    headers: "{{ compiled_uri_headers }}"
+#    url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/install-config"
+#    return_content: yes
+#    method: PATCH
+#    body:  '{{ override_ic_body | to_json }}'
+#    status_code: 201
+#    body_format: json
+#  register: proxyIC_resp
 
 #- name: Get the install-config
 #  uri:
