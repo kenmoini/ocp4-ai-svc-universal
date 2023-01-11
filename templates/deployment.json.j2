@@ -20,7 +20,7 @@
     "type": "vsphere"
 {% elif 'nutanix' == provider_type %}
     "type": "baremetal"
-{% elif 'libvirt' == provider_type %}
+{% elif 'libvirt' == provider_type and 'Standard' == cluster_type  %}
     "type": "baremetal"
 {% elif 'SNO' == cluster_type %}
     "type": "none"
