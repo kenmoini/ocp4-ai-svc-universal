@@ -124,9 +124,9 @@
     </controller>
 {% for iface in node_item.networking.interfaces %}
 {% if iface.mac_address is defined %}
-    <interface type='{{ provider.configuration.libvirt_network.type }}'>
+    <interface type='{{ provider.configuration.libvirt_network.type | default('network') }}'>
       <mac address='{{ iface.mac_address }}'/>
-      <source {{ provider.configuration.libvirt_network.type }}='{{ iface.libvirt_network | default(provider.configuration.libvirt_network.name) }}'/>
+      <source {{ provider.configuration.libvirt_network.type | default('network') }}='{{ iface.libvirt_network | default(provider.configuration.libvirt_network.name) }}'/>
       <model type='{{ provider.configuration.libvirt_network.model | default('virtio') }}'/>
       <alias name='{{ iface.name }}'/>
     </interface>
