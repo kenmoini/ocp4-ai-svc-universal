@@ -1,5 +1,4 @@
 ---
-
 - name: Query vCenter for a connectivity test
   community.vmware.vmware_datacenter_info:
     hostname: '{{ provider.credentials.vcenter_hostname }}'

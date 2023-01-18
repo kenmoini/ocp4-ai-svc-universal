@@ -108,6 +108,28 @@
     - vmware_create_vms
     - vmware_configure_vm_hardware
 
+- name: Get the VM Information
+  community.vmware.vmware_guest_info:
+    hostname: '{{ provider.credentials.vcenter_hostname }}'
+    username: '{{ provider.credentials.vcenter_username }}'
+    password: '{{ provider.credentials.vcenter_password }}'
+    validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
+    datacenter: "{{ provider.configuration.vcenter_datacenter }}"
+    name: "{{ cluster_name }}-{{ node_item.name }}"
+  register: vm_guest_info
+  tags:
+    - vmware_tasks
+    - vmware_create_vms
+    - vmware_configure_vm_hardware
+
+- name: debug vm_guest_info
+  debug:
+    msg: "{{ vm_guest_info }}"
+  tags:
+    - vmware_tasks
+    - vmware_create_vms
+    - vmware_configure_vm_hardware
+
 - name: Power On VM - {{ node_item.name }}
   community.vmware.vmware_guest:
     hostname: '{{ provider.credentials.vcenter_hostname }}'

@@ -163,10 +163,14 @@ ansible-galaxy collection install -r collections/requirements.yml
 - Copy `example_vars/cluster-config.yaml` to the working directory, ideally with a prefix of the cluster name - modify as needed.
 
 ```bash
-cp example_vars/cluster-config.yaml CLUSTER_NAME.cluster-config.yaml
+ls example_vars/cluster-config-*
+cp example_vars/cluster-config-selected.yaml CLUSTER_NAME.cluster-config.yaml
 ```
 
 - Copy the other relevant files from `example_vars/` to `vars/` to auto-load them - or the working directory to manually include them - and modify as you see fit, such as those for infrastructure credentials.
+```
+cp example_vars/credentials-infrastructure.yaml  credentials-infrastructure.yaml
+```
 
 ### Running the Playbook
 
