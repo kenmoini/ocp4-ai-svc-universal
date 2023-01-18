@@ -36,9 +36,9 @@
       tags:
         - always
 
-    #=========================================================================================================================
+    # =========================================================================================================================
     # Preflight
-    #=========================================================================================================================
+    # =========================================================================================================================
 
     - name: Initial Preflight Checks
       ansible.builtin.include_tasks:
@@ -99,9 +99,9 @@
         - preflight
         - ai_svc_query_versions
 
-    #=========================================================================================================================
+    # =========================================================================================================================
     # Preflight Infrastructure Connection Tests
-    #=========================================================================================================================
+    # =========================================================================================================================
 
     - name: Preflight Check - Per cluster_node Bare Metal Connection Test
       when: node_item.infra.type == "baremetal"
@@ -172,15 +172,15 @@
       loop_control:
         loop_var: provider
 
-    #=========================================================================================================================
+    # =========================================================================================================================
     # Cluster and InfraEnv checks
-    #=========================================================================================================================
+    # =========================================================================================================================
 
     - name: AI Service - Check for existing cluster
       ansible.builtin.uri:
         headers: "{{ compiled_uri_headers }}"
         url: "{{ assisted_service_endpoint }}/clusters"
-        return_content: yes
+        return_content: true
         method: GET
       register: read_clusters
       tags:
@@ -192,14 +192,14 @@
       ansible.builtin.uri:
         headers: "{{ compiled_uri_headers }}"
         url: "{{ assisted_service_endpoint }}/infra-envs"
-        return_content: yes
+        return_content: true
         method: GET
       register: read_infraenvs
       tags:
         - ai_svc
         - ai_svc_check_cluster
         - ai_svc_query_infraenvs
-    
+
     - name: Set facts if cluster exists
       when: (cluster_item.base_dns_domain is defined) and ((cluster_item.base_dns_domain == cluster_domain) and (cluster_item.name == cluster_name))
       ansible.builtin.set_fact:
@@ -228,9 +228,9 @@
         - ai_svc_check_cluster
         - ai_svc_set_infraenv
 
-    #=========================================================================================================================
+    # =========================================================================================================================
     # Cluster Definition
-    #=========================================================================================================================
+    # =========================================================================================================================
 
     - name: Create Cluster if it does not already exist
       when: cluster_id == ""
@@ -259,9 +259,9 @@
             - ai_svc
             - ai_svc_create_cluster
 
-    #=========================================================================================================================
+    # =========================================================================================================================
     # Move resources from temporary deployment_id to cluster_id paths
-    #=========================================================================================================================
+    # =========================================================================================================================
 
     - name: Set Cluster Configuration
       when: deployment_name != ""
@@ -295,12 +295,15 @@
       tags:
         - ssh_keys
 
-    #=========================================================================================================================
+    # =========================================================================================================================
     # Create InfraEnv
-    #=========================================================================================================================
+    # =========================================================================================================================
 
     - name: AI Service - Create the infraenv if it does not already exist
       when: infraenv_id == ""
+      tags:
+        - ai_svc
+        - ai_svc_create_infraenv
       block:
         - name: Create the infraenv deployment definition
           ansible.builtin.include_tasks:
@@ -309,13 +312,10 @@
               tags:
                 - ai_svc
                 - ai_svc_create_infraenv
-      tags:
-        - ai_svc
-        - ai_svc_create_infraenv
 
-    #=========================================================================================================================
+    # =========================================================================================================================
     # Perform additional Assisted Installer Configuration steps
-    #=========================================================================================================================
+    # =========================================================================================================================
 
     - name: Do cluster configuration things
       when: cluster_status in ["insufficient", "ready", "pending-for-input", "adding-hosts"]
@@ -391,6 +391,18 @@
           tags:
             - ai_svc_add_proxy_config
 
+        - name: AI Service - Patch the Mirror Registry configuration
+          when: imageContentSources is defined
+          ansible.builtin.include_tasks:
+            file: tasks/ai-svc/configure_mirror_registry.yaml
+            apply:
+              tags:
+                - ai_svc
+                - ai_configure_cluster
+                - ai_svc_configure_mirror_registry
+          tags:
+            - ai_svc_configure_mirror_registry
+
         - name: AI Service - Patch the NTP configuration
           when: ntp_sources is defined
           ansible.builtin.include_tasks:
@@ -429,7 +441,7 @@
 
         - name: AI Service - Add Ignition Config Overrides
           when: (passwd_ico_object is defined) or (ignition_config_override_files is defined)
-          #when: (passwd_ico_object is defined) or (ignition_config_override_files is defined and ignition_config_override_files | length > 0)
+          # when: (passwd_ico_object is defined) or (ignition_config_override_files is defined and ignition_config_override_files | length > 0)
           ansible.builtin.include_tasks:
             file: tasks/ai-svc/set_ignition_config_overrides.yaml
             apply:
@@ -477,9 +489,9 @@
         - ai_svc
         - ai_configure_cluster
 
-    #=========================================================================================================================
+    # =========================================================================================================================
     # Downloading of the Discovery ISO
-    #=========================================================================================================================
+    # =========================================================================================================================
 
     - name: Download ISO if needed
       block:
@@ -496,7 +508,7 @@
           block:
 
             - name: Pull OpenShift ISO if needed
-              get_url:
+              ansible.builtin.get_url:
                 headers: "{{ compiled_uri_headers }}"
                 url: "{{ infraenv_download_url }}"
                 dest: "{{ generated_asset_directory }}/{{ cluster_id }}/ocp_ai.iso"
@@ -510,25 +522,25 @@
 
           rescue:
             - name: Pull info again
-              uri:
+              ansible.builtin.uri:
                 headers: "{{ compiled_uri_headers }}"
                 url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}"
-                return_content: yes
+                return_content: true
                 method: GET
                 status_code: 200
                 body_format: json
               register: cluster_install_statuscheck
               failed_when: false
-            
+
             - name: Resync auth headers
               when: cluster_install_statuscheck.status == 401
               block:
                 - name: Set up Authentication Headers if needed
                   when: assisted_service_authentication != "none"
-                  include_tasks: tasks/ai-svc/setup_auth_headers.yaml
+                  ansible.builtin.include_tasks: tasks/ai-svc/setup_auth_headers.yaml
 
                 - name: Pull OpenShift ISO if needed
-                  get_url:
+                  ansible.builtin.get_url:
                     headers: "{{ compiled_uri_headers }}"
                     url: "{{ infraenv_download_url }}"
                     dest: "{{ generated_asset_directory }}/{{ cluster_id }}/ocp_ai.iso"
@@ -543,12 +555,12 @@
       tags:
         - download_iso
 
-    #=========================================================================================================================
+    # =========================================================================================================================
     # Local HTTP Server
-    #=========================================================================================================================
+    # =========================================================================================================================
 
     - name: Start a local HTTP Server to serve the ISO in the background
-      when: deploy_local_http_server|bool
+      when: deploy_local_http_server | bool
       ansible.builtin.include_tasks:
         file: tasks/infra-baremetal/start_local_server.yaml
         apply:
@@ -557,13 +569,13 @@
       tags:
         - start_local_server
 
-    #=========================================================================================================================
+    # =========================================================================================================================
     # Infrastructure-specific Creation Tasks - Bare Metal
-    #=========================================================================================================================
+    # =========================================================================================================================
 
     - name: Create the list of Bare Metal targeted hosts
       when: node_item.infra.type == "baremetal"
-      set_fact:
+      ansible.builtin.set_fact:
         baremetal_hosts: "{{ baremetal_hosts | default([]) + [node_item] }}"
         unique_baremetal_infra_providers: []
       loop: "{{ cluster_nodes }}"
@@ -590,9 +602,12 @@
 
     - name: Create the Bare Metal infrastructure
       when:
-      - baremetal_hosts is defined
-      - baremetal_hosts | length > 0
-      - unique_baremetal_infra_providers | length > 0
+        - baremetal_hosts is defined
+        - baremetal_hosts | length > 0
+        - unique_baremetal_infra_providers | length > 0
+      tags:
+        - infra_baremetal
+        - infra_baremetal_create_infra
       block:
         #- name: Perform per Bare Metal Infrastructure Provider set up
         #  ansible.builtin.include_tasks: tasks/infra-baremetal/per_provider_setup.yaml
@@ -614,25 +629,22 @@
           loop_control:
             loop_var: node_item
             label: "Bare Metal Host: {{ node_item.name }}"
-      tags:
-        - infra_baremetal
-        - infra_baremetal_create_infra
 
     - name: Wait for other bare metal hosts to be manually added
       when: baremetal_wait_for_manual_hosts is defined and baremetal_wait_for_manual_hosts|bool
-      pause:
+      ansible.builtin.pause:
         prompt: "\nDownload the ISO from the Assisted Installer Service and boot your bare metal hosts.\nIt can also be found locally at {{ generated_asset_directory }}/{{ cluster_id }}/ocp_ai.iso\n\nPress [ENTER] to continue"
       tags:
         - infra_baremetal
         - infra_baremetal_wait_for_other_hosts
 
-    #=========================================================================================================================
+    # =========================================================================================================================
     # Infrastructure-specific Creation Tasks - Libvirt
-    #=========================================================================================================================
+    # =========================================================================================================================
 
     - name: Create the list of Libvirt targeted hosts
       when: node_item.infra.type == "libvirt"
-      set_fact:
+      ansible.builtin.set_fact:
         libvirt_hosts: "{{ libvirt_hosts | default([]) + [node_item] }}"
         unique_libvirt_infra_providers: []
       loop: "{{ cluster_nodes }}"
@@ -659,9 +671,9 @@
 
     - name: Create the Libvirt infrastructure
       when:
-      - libvirt_hosts is defined
-      - libvirt_hosts | length > 0
-      - unique_libvirt_infra_providers | length > 0
+        - libvirt_hosts is defined
+        - libvirt_hosts | length > 0
+        - unique_libvirt_infra_providers | length > 0
       block:
         - name: Perform per Libvirt Infrastructure Provider set up
           ansible.builtin.include_tasks:
@@ -693,13 +705,13 @@
         - infra_libvirt
         - infra_libvirt_create_infra
 
-    #=========================================================================================================================
+    # =========================================================================================================================
     # Infrastructure-specific Creation Tasks - Nutanix
-    #=========================================================================================================================
+    # =========================================================================================================================
 
     - name: Create the list of Nutanix targeted hosts
       when: node_item.infra.type == "nutanix"
-      set_fact:
+      ansible.builtin.set_fact:
         nutanix_hosts: "{{ nutanix_hosts | default([]) + [node_item] }}"
         unique_nutanix_infra_providers: []
       loop: "{{ cluster_nodes }}"
@@ -726,9 +738,9 @@
 
     - name: Create the Nutanix infrastructure
       when:
-      - nutanix_hosts is defined
-      - nutanix_hosts | length > 0
-      - unique_nutanix_infra_providers | length > 0
+        - nutanix_hosts is defined
+        - nutanix_hosts | length > 0
+        - unique_nutanix_infra_providers | length > 0
       block:
         - name: Perform per Nutanix Infrastructure Provider set up
           ansible.builtin.include_tasks:
@@ -760,13 +772,13 @@
         - infra_nutanix
         - infra_nutanix_create_infra
 
-    #=========================================================================================================================
+    # =========================================================================================================================
     # Infrastructure-specific Creation Tasks - vSphere
-    #=========================================================================================================================
+    # =========================================================================================================================
 
     - name: Create the list of vSphere targeted hosts
       when: node_item.infra.type == "vsphere"
-      set_fact:
+      ansible.builtin.set_fact:
         vsphere_hosts: "{{ vsphere_hosts | default([]) + [node_item] }}"
         unique_vsphere_infra_providers: []
       loop: "{{ cluster_nodes }}"
@@ -793,9 +805,9 @@
 
     - name: Create the vSphere infrastructure
       when:
-      - vsphere_hosts is defined
-      - vsphere_hosts | length > 0
-      - unique_vsphere_infra_providers | length > 0
+        - vsphere_hosts is defined
+        - vsphere_hosts | length > 0
+        - unique_vsphere_infra_providers | length > 0
       block:
         - name: Perform per vSphere Infrastructure Provider set up
           ansible.builtin.include_tasks:
@@ -830,9 +842,9 @@
         - infra_vsphere
         - infra_vsphere_create_infra
 
-    #=========================================================================================================================
+    # =========================================================================================================================
     # AI Service - Configure Cluster
-    #=========================================================================================================================
+    # =========================================================================================================================
 
     - name: Wait for hosts to report into the Assisted Installer service
       ansible.builtin.include_tasks:
@@ -868,7 +880,7 @@
             - ai_svc
             - ai_svc_post_infra
             - ai_svc_set_host_names_roles
-      #when: cluster_type == "Standard"
+      # when: cluster_type == "Standard"
       tags:
         - ai_svc
         - ai_svc_post_infra
@@ -888,9 +900,9 @@
         - ai_svc_post_infra
         - ai_svc_set_vips
 
-    #=========================================================================================================================
+    # =========================================================================================================================
     # AI Service - Start Cluster Install
-    #=========================================================================================================================
+    # =========================================================================================================================
 
     - name: Check to make sure the hosts are ready and the cluster can be installed
       ansible.builtin.include_tasks:
@@ -918,9 +930,9 @@
         - ai_svc_post_infra
         - ai_svc_start_install
 
-    #=========================================================================================================================
+    # =========================================================================================================================
     # AI Service - Wait for Installation to complete
-    #=========================================================================================================================
+    # =========================================================================================================================
 
     - name: Wait for the cluster to be fully installed
       ansible.builtin.include_tasks:
@@ -946,13 +958,13 @@
         - ai_svc
         - ai_svc_pull_cluster_credentials
 
-    #=========================================================================================================================
+    # =========================================================================================================================
     # OpenShift Cluster - Post-Deployment Tasks
-    #=========================================================================================================================
+    # =========================================================================================================================
 
     - name: Check to see if there are any infra nodes defined
       when: node_item.type in ["infra-node", "infra"]
-      set_fact:
+      ansible.builtin.set_fact:
         detected_infra_nodes: true
       loop: "{{ cluster_nodes }}"
       loop_control:
@@ -962,8 +974,8 @@
         - infra_configuration
 
     - name: Log into the cluster
-      shell:
-        cmd: "oc login {{ cluster_api_url }} --password=\"{{ cluster_kubeadmin_password }}\" --username=\"{{ cluster_kubeadmin_username }}\" --insecure-skip-tls-verify={{ cluster_skip_verify_tls | default(false) }}"
+      ansible.builtin.shell:
+        cmd: "oc login {{ cluster_api_url }} --password=\"{{ cluster_kubeadmin_password }}\" --username=\"{{ cluster_kubeadmin_username }}\" --insecure-skip-tls-verify=true"
       register: cluster_auth_status
       until: (cluster_auth_status.rc == 0)
       no_log: false
@@ -973,11 +985,11 @@
         - post_deploy
 
     - name: d
-      debug:
+      ansible.builtin.debug:
         msg: "{{ cluster_auth_status }}"
 
     - name: Set infrastructure node configuration
-      when: detected_infra_nodes|bool
+      when: detected_infra_nodes | bool
       ansible.builtin.include_tasks:
         file: tasks/post-deploy/configure-infra-nodes.yaml
         apply:

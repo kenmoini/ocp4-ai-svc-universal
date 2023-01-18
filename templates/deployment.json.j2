@@ -10,10 +10,10 @@
   "user_managed_networking": {{ cluster_user_managed_networking | default('false') }},
   "vip_dhcp_allocation": {{ ((cluster_api_vip == 'auto') and (cluster_apps_vip == 'auto')) | ternary('true', 'false') }},
   "high_availability_mode": "{{ (cluster_type == 'Standard') | ternary('Full', 'None') }}",
-  "network_type": "{{ ocp_network_type}}",
+  "network_type": "{{ ocp_network_type }}",
   "schedulable_masters": {{ schedulable_masters | default('false') }},
   "platform": {
-    "type": "baremetal"
+    "type": "{{ cluster_platform_type | default ('baremetal') }}"
   },
   "ssh_authorized_key": "{{ ssh_public_key }}",
   "ssh_public_key": "{{ ssh_public_key }}",

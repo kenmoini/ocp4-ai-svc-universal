@@ -3,7 +3,7 @@
   block:
   - name: Log into the cluster
     shell:
-      cmd: "oc login {{ cluster_api_url }} --password=\"{{ cluster_kubeadmin_password }}\" --username=\"{{ cluster_kubeadmin_username }}\" --insecure-skip-tls-verify={{ cluster_skip_verify_tls | default(false) }}"
+      cmd: "oc login {{ cluster_api_url }} --password=\"{{ cluster_kubeadmin_password }}\" --username=\"{{ cluster_kubeadmin_username }}\" --insecure-skip-tls-verify=true"
     no_log: true
     register: cluster_auth_status
     until: (cluster_auth_status.rc == 0)
