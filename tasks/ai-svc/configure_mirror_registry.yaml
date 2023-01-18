@@ -1,0 +1,14 @@
+---
+- name: Template out the registries.conf file
+  ansible.builtin.template:
+    src: registries.conf.j2
+    dest: "{{ generated_asset_directory }}/{{ cluster_id }}/registries.conf"
+
+- name: Set override struct
+  set_fact:
+    install_config_override_mirror:
+      imageContentSources: "{{ imageContentSources }}"
+
+- name: Add the override struct to the install_config_overrides var
+  set_fact:
+    install_config_overrides: "{{ install_config_overrides | combine(install_config_override_mirror) }}"
