@@ -158,6 +158,8 @@ In order to run this Playbook you'll need to have the needed Ansible Collections
 ansible-galaxy collection install -r collections/requirements.yml
 ```
 
+> **Note**: If you're planning on using the Nutanix infrastructure deployment options, you'll need to also manually run `ansible-galaxy collection install nutanix.ncp` to install the Nutanix collection due to how it hard codes pip modules and the conflicts it causes during the generation of an Execution Environment.
+
 ### Modify the Variables files
 
 - Copy `example_vars/cluster-config.yaml` to the working directory, ideally with a prefix of the cluster name - modify as needed.
