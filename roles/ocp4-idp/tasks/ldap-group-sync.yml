@@ -66,8 +66,7 @@
               name: ldap-group-syncer
               namespace: openshift-config
 
-    - name: Create the ConfigMap to house the LDAPSync yaml - LDAP
-      when: provider.type == "LDAP"
+    - name: Create the ConfigMap to house the LDAPSync yaml - LDAP or ActiveDirectory
       kubernetes.core.k8s:
         kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
         state: present
