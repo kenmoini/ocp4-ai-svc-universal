@@ -2,6 +2,7 @@
 - name: Run old fasioned oc CLI commands
   block:
   - name: Log into the cluster
+    when: cluster_kubeadmin_password is defined
     shell:
       cmd: "oc login {{ cluster_api_url }} --password=\"{{ cluster_kubeadmin_password }}\" --username=\"{{ cluster_kubeadmin_username }}\" --insecure-skip-tls-verify={{ cluster_skip_verify_tls | default(false) }}"
     no_log: true
@@ -18,10 +19,10 @@
       loop_var: role_name
     when: extra_roles is defined
 
-  always:
-  - name: Log out of the cluster
-    shell:
-      cmd: oc logout
+  #always:
+  #- name: Log out of the cluster
+  #  shell:
+  #    cmd: oc logout
 
   tags:
   - extra_roles

@@ -2,6 +2,7 @@
 # tasks file for ocp4-matrix-login
 - name: Apply the Login Screen HTML Template
   k8s:
+    kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     state: present
     definition:
       apiVersion: v1
@@ -15,6 +16,7 @@
 
 - name: Patch the OAuth Config
   k8s:
+    kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     definition:
       apiVersion: config.openshift.io/v1
       kind: OAuth

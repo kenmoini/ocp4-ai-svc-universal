@@ -4,6 +4,7 @@
 - name: Add the infra node label for the Infrastructure Nodes
   when: node_item.type in ["infra-node", "infra"]
   kubernetes.core.k8s:
+    kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     kind: Node
     api_version: v1
     name: "{{ node_item.name }}"
@@ -27,6 +28,7 @@
 - name: Taint nodes - {{ node_item.name }}
   when: node_item.type in ["infra-node", "infra"]
   kubernetes.core.k8s_taint:
+    kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     state: present
     name: "{{ node_item.name }}"
     taints:
@@ -46,6 +48,7 @@
 
 - name: Create the MachineConfigPool for the infra nodes
   kubernetes.core.k8s:
+    kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     state: present
     merge_type:
     - strategic-merge
@@ -65,6 +68,7 @@
 
 - name: Set the default Ingress Controller to run on the Infra Nodes
   kubernetes.core.k8s:
+    kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     state: present
     merge_type:
     - strategic-merge
@@ -90,6 +94,7 @@
 
 - name: Set the cluster monitoring to run on the Infra Nodes
   kubernetes.core.k8s:
+    kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     state: present
     merge_type:
     - strategic-merge

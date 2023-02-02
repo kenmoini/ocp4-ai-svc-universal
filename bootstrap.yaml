@@ -960,9 +960,24 @@
         - post_deploy
         - infra_configuration
 
-    - name: Log into the cluster
-      shell:
+    - name: Log into the cluster with a Kubeadmin password
+      when: cluster_kubeadmin_password is defined
+      ansible.builtin.shell:
         cmd: "oc login {{ cluster_api_url }} --password=\"{{ cluster_kubeadmin_password }}\" --username=\"{{ cluster_kubeadmin_username }}\" --insecure-skip-tls-verify={{ cluster_skip_verify_tls | default(false) }}"
+      register: cluster_auth_status
+      until: (cluster_auth_status.rc == 0)
+      no_log: false
+      retries: 120
+      delay: 20
+      tags:
+        - post_deploy
+
+    - name: Log into the cluster
+      when: cluster_kubeadmin_password is not defined
+      ansible.builtin.shell:
+        cmd: "oc whoami"
+      environment:
+        KUBECONFIG: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
       register: cluster_auth_status
       until: (cluster_auth_status.rc == 0)
       no_log: false

@@ -5,6 +5,7 @@
   block:
   - name: Create the MachineConfig for the Control Nodes NTP chrony Configuration
     kubernetes.core.k8s:
+      kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
       state: present
       merge_type:
       - strategic-merge
@@ -37,6 +38,7 @@
 
   - name: Create the MachineConfig for the Application Nodes NTP chrony Configuration
     kubernetes.core.k8s:
+      kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
       state: present
       merge_type:
       - strategic-merge
