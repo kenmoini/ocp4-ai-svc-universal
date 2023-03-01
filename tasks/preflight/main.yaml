@@ -51,5 +51,5 @@
 
 - name: Set the client secret
   ansible.builtin.set_fact:
-    pull_secret: "{{ pullSecretSlurp['content'] | b64decode | trim }}"
+    pull_secret: "{{ pullSecretSlurp['content'] | b64decode | trim | to_json }}"
   when: pull_secret is undefined
