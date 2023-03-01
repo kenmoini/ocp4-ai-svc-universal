@@ -56,5 +56,5 @@
       
   - name: Set the SSH Key from a file
     ansible.builtin.set_fact:
-      ssh_public_key: "{{ sshKeySlurp['content'] | b64decode }}"
+      ssh_public_key: "{{ sshKeySlurp['content'] | b64decode | trim }}"
 
