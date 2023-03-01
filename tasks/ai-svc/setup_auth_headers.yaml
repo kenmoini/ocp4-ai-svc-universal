@@ -11,20 +11,20 @@
     set_fact:
       compiled_uri_headers: "{{ compiled_uri_headers | combine(tmp_auth_header_fact) }}"
 
-- name: Fetch the Bearer Token
-  when: rh_api_offline_token is undefined
-  ansible.builtin.slurp:
-    src: "{{ rh_api_offline_token_path }}"
-  register: offlineTokenSlurp
-    
-- name: Set the Bearer Token from a file
-  when: rh_api_offline_token is undefined
-  ansible.builtin.set_fact:
-    assisted_service_authentication_api_bearer_token: "{{ offlineTokenSlurp['content'] | b64decode }}"
-
 - name: Set up Bearer Token authentication
   when: assisted_service_authentication == "bearer-token"
   block:
+  - name: Fetch the Bearer Token
+    when: rh_api_offline_token is undefined
+    ansible.builtin.slurp:
+      src: "{{ rh_api_offline_token_path }}"
+    register: offlineTokenSlurp
+      
+  - name: Set the Bearer Token from a file
+    when: rh_api_offline_token is undefined
+    ansible.builtin.set_fact:
+      assisted_service_authentication_api_bearer_token: "{{ offlineTokenSlurp['content'] | b64decode }}"
+  
   - name: Log into RH SSO API
     when: assisted_service_fqdn == "api.openshift.com"
     uri:
