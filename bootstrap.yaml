@@ -1,7 +1,6 @@
 ---
 - name: Create an Assisted Installer provisioned OpenShift Cluster on Libvirt/KVM
-  hosts: localhost
-  connection: local
+  hosts: all
   gather_facts: false
 
   module_defaults:
