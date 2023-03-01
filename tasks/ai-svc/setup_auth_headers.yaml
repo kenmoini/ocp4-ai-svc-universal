@@ -12,13 +12,13 @@
       compiled_uri_headers: "{{ compiled_uri_headers | combine(tmp_auth_header_fact) }}"
 
 - name: Fetch the Bearer Token
-  when: assisted_service_authentication_api_bearer_token is undefined AND rh_api_offline_token_path is defined
+  when: (assisted_service_authentication_api_bearer_token is undefined) AND (rh_api_offline_token_path is defined)
   ansible.builtin.slurp:
     src: "{{ rh_api_offline_token_path }}"
   register: offlineTokenSlurp
     
 - name: Set the Bearer Token from a file
-  when: assisted_service_authentication_api_bearer_token is undefined AND rh_api_offline_token_path is defined
+  when: (assisted_service_authentication_api_bearer_token is undefined) AND (rh_api_offline_token_path is defined)
   ansible.builtin.set_fact:
     assisted_service_authentication_api_bearer_token: "{{ offlineTokenSlurp['content'] | b64decode }}"
 
