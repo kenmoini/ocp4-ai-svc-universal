@@ -10,7 +10,7 @@
     url: "{{ assisted_service_endpoint }}/infra-envs/"
     return_content: yes
     method: POST
-    body: "{{ lookup('file',generated_asset_directory+'/'+cluster_id+'/infraenv.json') }}"
+    body: "{{ lookup('ansible.builtin.template', 'templates/infraenv.json.j2') }}"
     status_code: 201
     body_format: json
   register: create_infraenv
