@@ -42,7 +42,7 @@
 
     - name: Set template fact
       set_fact:
-        v2_host_roles_names_map: "{{ lookup('file', generated_asset_directory +'/'+ cluster_id +'/v2_host_roles_names_map.json') }}"
+        v2_host_roles_names_map: "{{ lookup('ansible.builtin.template', 'templates/v2_host_roles_names_map.json.j2') }}"
 
     - name: Set the hostnames of the nodes
       uri:
