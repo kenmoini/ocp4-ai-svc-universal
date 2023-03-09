@@ -3,7 +3,7 @@
 This set of resources handles an idempotent way to deploy OpenShift via the Assisted Installer Service to any number of infrastructure platforms.
 
 
-![Ansible Lint](https://github.com/Red-Hat-SE-RTO/ocp4-ai-svc-universal/actions/workflows/ansible-lint.yml/badge.svg)
+![Ansible Lint](https://github.com/Red-Hat-SE-RTO/ocp4-ai-svc-universal/actions/workflows/ansible-lint.yml/badge.svg) - [DETAILS](https://github.com/Red-Hat-SE-RTO/ocp4-ai-svc-universal/actions/workflows/ansible-lint.yml)
 
 ## Features
 
