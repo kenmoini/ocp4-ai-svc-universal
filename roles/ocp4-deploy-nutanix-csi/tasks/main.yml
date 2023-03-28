@@ -3,6 +3,7 @@
 
 - name: Get Cluster Version
   k8s_info:
+    kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     api_version: config.openshift.io/v1
     kind: ClusterVersion
     name: version
@@ -14,6 +15,7 @@
 
 - name: Query the nutanixcsioperator PackageManifest for the latest version of the Nutanix Operator
   k8s_info:
+    kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     api_version: packages.operators.coreos.com/v1
     kind: PackageManifest
     name: nutanixcsioperator
@@ -30,6 +32,7 @@
 
 - name: Create {{ operator_namespace }} namespace
   k8s:
+    kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     state: present
     kind: Namespace
     api_version: v1
@@ -53,6 +56,7 @@
 
 - name: Query the {{ operator_namespace }} namespace for OperatorGroups
   k8s_info:
+    kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     api_version: operators.coreos.com/v1
     kind: OperatorGroup
     namespace: "{{ operator_namespace }}"
@@ -60,6 +64,7 @@
 
 - name: Create Operator OperatorGroup
   k8s:
+    kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     state: present
     apply: yes
     definition: "{{ lookup('template', template_file ) | from_yaml }}"
@@ -74,6 +79,7 @@
 
 - name: Create Operator subscription
   k8s:
+    kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     state: present
     merge_type:
     - strategic-merge
@@ -89,6 +95,7 @@
 
 - name: Wait for the CSI Operator to come online
   k8s_info:
+    kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     api_version: apiextensions.k8s.io/v1beta1
     kind: CustomResourceDefinition
     name: nutanixcsistorages.crd.nutanix.com
@@ -100,6 +107,7 @@
 
 - name: Wait for the CSI Operator to come online
   k8s_info:
+    kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     api_version: apiextensions.k8s.io/v1
     kind: CustomResourceDefinition
     name: nutanixcsistorages.crd.nutanix.com
@@ -111,6 +119,7 @@
 
 - name: Create Secret and Operand instance
   k8s:
+    kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     state: present
     merge_type:
     - strategic-merge
@@ -127,6 +136,7 @@
 
 - name: Create Volumes StorageClass
   k8s:
+    kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     state: present
     merge_type:
     - strategic-merge
@@ -146,6 +156,7 @@
 
   - name: Create Files StorageClass
     k8s:
+      kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
       state: present
       merge_type:
       - strategic-merge
@@ -161,6 +172,7 @@
 
   - name: Apply NFS SELinux Patch
     k8s:
+      kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
       state: present
       merge_type:
       - strategic-merge
@@ -179,6 +191,7 @@
 
 - name: Create iSCSI Service MachineConfig
   k8s:
+    kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     state: present
     merge_type:
     - strategic-merge

@@ -4,3 +4,4 @@
 *.cluster-config.yaml
 credentials-infrastructure.yml
 credentials-infrastructure.yaml
+/context/

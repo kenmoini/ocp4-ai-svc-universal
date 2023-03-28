@@ -1,0 +1,10 @@
+unqualified-search-registries = ["quay.io", "registry.access.redhat.com", "docker.io"]
+
+{% for isc in imageContentSources %}
+[[registry]]
+  location = "{{ isc.source }}"
+{% for mirror in isc.mirrors %}
+  [[registry.mirror]]
+  location = "{{ mirror }}"
+{% endfor %}
+{% endfor %}

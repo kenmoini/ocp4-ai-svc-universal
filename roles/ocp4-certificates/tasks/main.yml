@@ -9,6 +9,7 @@
 
   - name: Create ConfigMap for Root Certificate Bundle
     kubernetes.core.k8s:
+      kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
       state: present
       merge_type:
       - strategic-merge
@@ -19,6 +20,7 @@
 
   - name: Create Secret for API LoadBalancer
     kubernetes.core.k8s:
+      kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
       state: present
       merge_type:
       - strategic-merge
@@ -39,6 +41,7 @@
 
   - name: Create Secret for Application LoadBalancer
     kubernetes.core.k8s:
+      kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
       state: present
       merge_type:
       - strategic-merge
@@ -63,6 +66,7 @@
 
   - name: Patch the cluster proxy configuration with the new root certificate bundle
     kubernetes.core.k8s:
+      kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
       state: present
       merge_type:
       - strategic-merge
@@ -79,6 +83,7 @@
 
   - name: Patch the cluster IngressController Operator
     kubernetes.core.k8s:
+      kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
       state: present
       merge_type:
       - strategic-merge
@@ -96,6 +101,7 @@
 
   - name: Patch the cluster APIServer Configuration
     kubernetes.core.k8s:
+      kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
       state: present
       merge_type:
       - strategic-merge

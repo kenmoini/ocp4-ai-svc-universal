@@ -56,6 +56,7 @@
       loop: "{{ v2_host_roles_names_map }}"
       loop_control:
         loop_var: host_item
+      retries: 5
 
     - name: Set the host roles of the nodes
       when: cluster_type == "Standard"
@@ -70,6 +71,7 @@
       loop: "{{ v2_host_roles_names_map }}"
       loop_control:
         loop_var: host_item
+      retries: 5
 
     - name: Pause for 5 seconds to let the API catch up
       wait_for:

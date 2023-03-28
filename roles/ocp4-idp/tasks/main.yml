@@ -12,6 +12,7 @@
 
 - name: Add the IDP collection to the cluster
   kubernetes.core.k8s:
+    kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     state: present
     merge_type:
     - strategic-merge
