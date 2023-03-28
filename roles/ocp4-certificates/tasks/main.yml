@@ -2,11 +2,9 @@
 # tasks file for ocp4-certificates
 - name: Cluster authentication tasks
   block:
-
 ## ===================================================================================================
 ## Create the Secrets and ConfigMaps for the cluster certificates
 ## ===================================================================================================
-
   - name: Create ConfigMap for Root Certificate Bundle
     kubernetes.core.k8s:
       kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
