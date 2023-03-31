@@ -120,42 +120,6 @@
                   name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-ca"
                 url: "{{ provider.url }}/{{ provider.url_filter }}"
 
-
-      #- name: Add the IDP object to the cluster - LDAP
-      #  when: provider.type == "LDAP"
-      #  kubernetes.core.k8s:
-      #    state: present
-      #    merge_type:
-      #    - strategic-merge
-      #    - merge
-      #    definition:
-      #      apiVersion: config.openshift.io/v1
-      #      kind: OAuth
-      #      metadata:
-      #        name: cluster
-      #      spec:
-      #        identityProviders:
-      #        - name: "{{ provider.name }}"
-      #          type: LDAP
-      #          mappingMethod: "{{ provider.mappingMethod | default('claim') }}"
-      #          ldap:
-      #            attributes:
-      #              id:
-      #              - dn
-      #              email:
-      #              - mail
-      #              name:
-      #              - cn
-      #              preferredUsername:
-      #              - uid
-      #            bindDN: "{{ provider.bindDN }}"
-      #            bindPassword:
-      #              name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-bind-password"
-      #            insecure: "{{ provider.insecure | default(false) }}"
-      #            ca:
-      #              name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-ca"
-      #            url: "{{ provider.url }}/{{ provider.url_filter }}"
-
       ## =============================================================================================
       ## ActiveDirectory Identity Provider
       ## More info here: https://examples.openshift.pub/cluster-configuration/authentication/activedirectory-ldap/
@@ -185,41 +149,6 @@
                 ca:
                   name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-ca"
                 url: "{{ provider.url }}/{{ provider.url_filter }}"
-
-      #- name: Add the IDP object to the cluster - ActiveDirectory
-      #  when: provider.type == "ActiveDirectory"
-      #  kubernetes.core.k8s:
-      #    state: present
-      #    merge_type:
-      #    - strategic-merge
-      #    - merge
-      #    definition:
-      #      apiVersion: config.openshift.io/v1
-      #      kind: OAuth
-      #      metadata:
-      #        name: cluster
-      #      spec:
-      #        identityProviders:
-      #        - name: "{{ provider.name }}"
-      #          type: LDAP
-      #          mappingMethod: "{{ provider.mappingMethod | default('claim') }}"
-      #          ldap:
-      #            attributes:
-      #              id:
-      #              - sAMAccountName
-      #              email:
-      #              - mail
-      #              name:
-      #              - cn
-      #              preferredUsername:
-      #              - sAMAccountName
-      #            bindDN: "{{ provider.bindDN }}"
-      #            bindPassword:
-      #              name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-bind-password"
-      #            insecure: false
-      #            ca:
-      #              name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-ca"
-      #            url: "{{ provider.url }}/{{ provider.url_filter }}"
 
       - name: Add this IdP to the collection
         ansible.builtin.set_fact:

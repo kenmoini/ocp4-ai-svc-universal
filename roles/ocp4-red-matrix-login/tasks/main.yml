@@ -12,7 +12,7 @@
         name: matrix-login-template
         namespace: openshift-config
       data:
-        login.html: "{{ lookup('template', 'templates/login.html.j2' ) | b64encode }}"
+        login.html: "{{ lookup('template', 'templates/login.html.j2') | b64encode }}"
 
 - name: Patch the OAuth Config
   kubernetes.core.k8s:

@@ -152,42 +152,41 @@
   retries: 30
 
 - name: Deploying Nutanix File Server (NFS) StorageClass
+  when: nutanix_csi_deploy_files_storageclass|bool
   block:
 
-  - name: Create Files StorageClass
-    kubernetes.core.k8s:
-      kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
-      state: present
-      merge_type:
-        - strategic-merge
-        - merge
-      definition: "{{ lookup('template', template_file) | from_yaml }}"
-    loop:
-      - ./templates/storageclass-files.yaml.j2
-    loop_control:
-      loop_var: template_file
-    until: k8s_run is not failed
-    delay: 10
-    retries: 30
+    - name: Create Files StorageClass
+      kubernetes.core.k8s:
+        kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
+        state: present
+        merge_type:
+          - strategic-merge
+          - merge
+        definition: "{{ lookup('template', template_file) | from_yaml }}"
+      loop:
+        - ./templates/storageclass-files.yaml.j2
+      loop_control:
+        loop_var: template_file
+      until: k8s_run is not failed
+      delay: 10
+      retries: 30
 
-  - name: Apply NFS SELinux Patch
-    when: nutanix_csi_deploy_files_storageclass_selinux_patch|bool
-    kubernetes.core.k8s:
-      kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
-      state: present
-      merge_type:
-        - strategic-merge
-        - merge
-      definition: "{{ lookup('template', template_file) | from_yaml }}"
-    loop:
-      - ./templates/enable-nfs-pv-selinux-workaround-machineconfig.yaml.j2
-    loop_control:
-      loop_var: template_file
-    until: k8s_run is not failed
-    delay: 10
-    retries: 30
-
-  when: nutanix_csi_deploy_files_storageclass|bool
+    - name: Apply NFS SELinux Patch
+      when: nutanix_csi_deploy_files_storageclass_selinux_patch|bool
+      kubernetes.core.k8s:
+        kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
+        state: present
+        merge_type:
+          - strategic-merge
+          - merge
+        definition: "{{ lookup('template', template_file) | from_yaml }}"
+      loop:
+        - ./templates/enable-nfs-pv-selinux-workaround-machineconfig.yaml.j2
+      loop_control:
+        loop_var: template_file
+      until: k8s_run is not failed
+      delay: 10
+      retries: 30
 
 - name: Create iSCSI Service MachineConfig
   when: nutanix_csi_deploy_iscsid_machineconfig|bool
