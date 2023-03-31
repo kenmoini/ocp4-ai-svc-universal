@@ -122,7 +122,7 @@
     - vmware_create_vms
     - vmware_configure_vm_hardware
 
-- name: debug vm_guest_info
+- name: Debug vm_guest_info
   ansible.builtin.debug:
     msg: "{{ vm_guest_info }}"
   tags:

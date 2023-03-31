@@ -4,6 +4,8 @@
 # profile:  min, basic, moderate,safety, shared, production
 profile: null
 
+use_default_rules: true
+
 warn_list:
   - yaml[comments]
   - yaml[line-length]
