@@ -22,4 +22,4 @@ jobs:
         # replace `main` with any valid ref, or tags like `v6`
         uses: ansible/ansible-lint-action@main
         with:
-          path: "tasks/"  # <-- only one value is allowed
+          path: "-c .ansible-lint tasks/"  # <-- only one value is allowed
