@@ -1,5 +1,4 @@
 {
-  "kind": "Cluster",
   "name": "{{ cluster_name }}",
   "openshift_version": "{{ cluster_full_version }}",
   "base_dns_domain": "{{ cluster_domain }}",
@@ -12,10 +11,20 @@
   "high_availability_mode": "{{ (cluster_type == 'Standard') | ternary('Full', 'None') }}",
   "network_type": "{{ ocp_network_type }}",
   "schedulable_masters": {{ schedulable_masters | default('false') }},
+{% if 'SNO' == cluster_type  %}
+"user_managed_networking": true,
+{% endif %}
   "platform": {
-    "type": "{{ cluster_platform_type | default ('baremetal') }}"
+{% if 'vsphere' == provider_type  %}
+    "type": "vsphere"
+{% elif 'nutanix' == provider_type %}
+    "type": "baremetal"
+{% elif 'libvirt' == provider_type and 'Standard' == cluster_type  %}
+    "type": "baremetal"
+{% elif 'SNO' == cluster_type %}
+    "type": "none"
+{% endif %}
   },
-  "ssh_authorized_key": "{{ ssh_public_key }}",
   "ssh_public_key": "{{ ssh_public_key }}",
   "pull_secret": {{ pull_secret }}
 }

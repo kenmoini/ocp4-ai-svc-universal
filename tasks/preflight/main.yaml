@@ -32,7 +32,6 @@
     that:
       - vars[var_item] is defined
   loop:
-    - pull_secret
     - cluster_domain
     - cluster_name
     - cluster_type
@@ -42,3 +41,15 @@
     - infrastructure_providers
   loop_control:
     loop_var: var_item
+
+- name: Check for pull secret
+  ansible.builtin.slurp:
+    src: "{{ pull_secret_path }}"
+  when: pull_secret is undefined
+  register: pullSecretSlurp
+
+
+- name: Set the client secret
+  ansible.builtin.set_fact:
+    pull_secret: "{{ pullSecretSlurp['content'] | b64decode }}"
+  when: pull_secret is undefined

@@ -2,6 +2,9 @@
 
 This set of resources handles an idempotent way to deploy OpenShift via the Assisted Installer Service to any number of infrastructure platforms.
 
+
+![Ansible Lint](https://github.com/Red-Hat-SE-RTO/ocp4-ai-svc-universal/actions/workflows/ansible-lint.yml/badge.svg) - [DETAILS](https://github.com/Red-Hat-SE-RTO/ocp4-ai-svc-universal/actions/workflows/ansible-lint.yml)
+
 ## Features
 
 - Use the Red Hat hosted Assisted Installer or your own hosted Assisted Installer Service
@@ -165,10 +168,14 @@ ansible-galaxy collection install -r collections/requirements.yml
 - Copy `example_vars/cluster-config.yaml` to the working directory, ideally with a prefix of the cluster name - modify as needed.
 
 ```bash
-cp example_vars/cluster-config.yaml CLUSTER_NAME.cluster-config.yaml
+ls example_vars/cluster-config-*
+cp example_vars/cluster-config-selected.yaml CLUSTER_NAME.cluster-config.yaml
 ```
 
 - Copy the other relevant files from `example_vars/` to `vars/` to auto-load them - or the working directory to manually include them - and modify as you see fit, such as those for infrastructure credentials.
+```
+cp example_vars/credentials-infrastructure.yaml  credentials-infrastructure.yaml
+```
 
 ### Running the Playbook
 

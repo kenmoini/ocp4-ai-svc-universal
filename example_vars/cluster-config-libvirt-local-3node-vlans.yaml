@@ -25,6 +25,7 @@ cluster_version: "4.10"
 # Ensure the DNS A records for {api,api-int,*.apps}.cluster_name.cluster_domain exist
 cluster_name: ocp-3node
 cluster_domain: kemo.labs
+provider_type: libvirt
 
 ## core_user_password: set a password for the core user, allows log in via console
 core_user_password: Passw0rd123
