@@ -4,5 +4,5 @@
 profile: null
 
 warn_list:
-  - role-name
-  - yaml[line-length]  # you can also use sub-rule matches
+  - yaml[comments]
+  - yaml[line-length]
