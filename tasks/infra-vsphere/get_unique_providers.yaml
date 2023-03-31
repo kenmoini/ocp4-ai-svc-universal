@@ -1,39 +1,39 @@
 ---
 
 - name: Set fact for JSON query
-  set_fact:
+  ansible.builtin.set_fact:
     infra_provider_name_json_query: "[?name=='{{ node_item.infra.name }}']"
     infra_provider_type_json_query: "[?type=='{{ node_item.infra.type }}']"
 
 - name: Check if the provider is already in the unique list
   when: unique_vsphere_infra_providers | community.general.json_query(infra_provider_name_json_query) | length == 0
   block:
-  - name: Set the provider to a unique list
-    set_fact:
-      unique_vsphere_infra: "{{ node_item.infra }}"
-
-  - name: Add the actual infrastructure provider credentials
-    block:
-    - name: Build queries for infrastructure provider
-      set_fact:
-        provider_name_json_query: "[?name=='{{ unique_vsphere_infra.name }}']"
-        provider_type_json_query: "[?type=='{{ unique_vsphere_infra.type }}']"
-
-    - name: Target provider by name
-      set_fact:
-        named_provider: "{{ infrastructure_providers | community.general.json_query(provider_name_json_query) }}"
-
-    - name: Double filter just to be sure
-      set_fact:
-        provider_list: "{{ named_provider | community.general.json_query(provider_type_json_query) }}"
-        single_provider: "{{ named_provider | community.general.json_query(provider_type_json_query) | first }}"
+    - name: Set the provider to a unique list
+      ansible.builtin.set_fact:
+        unique_vsphere_infra: "{{ node_item.infra }}"
 
     - name: Add the actual infrastructure provider credentials
-      set_fact:
-        unique_vsphere_infra_providers: "{{ unique_vsphere_infra_providers + [single_provider] }}"
+      block:
+        - name: Build queries for infrastructure provider
+          ansible.builtin.set_fact:
+            provider_name_json_query: "[?name=='{{ unique_vsphere_infra.name }}']"
+            provider_type_json_query: "[?type=='{{ unique_vsphere_infra.type }}']"
+
+        - name: Target provider by name
+          ansible.builtin.set_fact:
+            named_provider: "{{ infrastructure_providers | community.general.json_query(provider_name_json_query) }}"
+
+        - name: Double filter just to be sure
+          ansible.builtin.set_fact:
+            provider_list: "{{ named_provider | community.general.json_query(provider_type_json_query) }}"
+            single_provider: "{{ named_provider | community.general.json_query(provider_type_json_query) | first }}"
+
+        - name: Add the actual infrastructure provider credentials
+          ansible.builtin.set_fact:
+            unique_vsphere_infra_providers: "{{ unique_vsphere_infra_providers + [single_provider] }}"
 
 - name: Reset facts
-  set_fact:
+  ansible.builtin.set_fact:
     infra_provider_name_json_query: ''
     infra_provider_type_json_query: ''
     provider_name_json_query: ''

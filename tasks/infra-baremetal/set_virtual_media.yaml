@@ -1,7 +1,7 @@
 ---
 
 - name: Check the Redfish Manager Virtual CD
-  uri:
+  ansible.builtin.uri:
     url: "{{ redfish_manager_url }}/{{ redfish_media_device }}"
     return_content: yes
     user: "{{ provider.credentials.ipmi_username | default(omit) }}"
@@ -11,15 +11,15 @@
   register: redfish_manager_virtual_cd
 
 #- name: Debug the Virtual CD state
-#  debug:
+#  ansible.builtin.debug:
 #    msg: "{{ redfish_manager_virtual_cd }}"
 
 #- name: Debug the ipmi_iso_url
-#  debug:
+#  ansible.builtin.debug:
 #    msg: "{{ ipmi_iso_url }}"
 
 - name: Set the Redfish Virtual CD to the intended URL
-  uri:
+  ansible.builtin.uri:
     url: "{{ redfish_manager_url }}/{{ redfish_media_device }}/Actions/VirtualMedia.InsertMedia"
     user: "{{ provider.credentials.ipmi_username | default(omit) }}"
     password: "{{ provider.credentials.ipmi_password | default(omit) }}"
@@ -30,7 +30,7 @@
     body_format: json
 
 - name: Check the Redfish Manager Virtual CD
-  uri:
+  ansible.builtin.uri:
     url: "{{ redfish_manager_url }}/{{ redfish_media_device }}"
     return_content: yes
     user: "{{ provider.credentials.ipmi_username | default(omit) }}"
@@ -40,11 +40,11 @@
   register: redfish_manager_virtual_cd_check
 
 #- name: Debug the Virtual CD state
-#  debug:
+#  ansible.builtin.debug:
 #    msg: "{{ redfish_manager_virtual_cd }}"
 
 #- name: Debug the Virtual CD state
-#  debug:
+#  ansible.builtin.debug:
 #    msg: "ISO Connected: {{ redfish_manager_virtual_cd.json.Inserted }}"
 
 #===============================================================================
@@ -52,7 +52,7 @@
 #===============================================================================
 
 - name: Set the boot order to the intended virtual CD
-  uri:
+  ansible.builtin.uri:
     url: "{{ redfish_system_url }}"
     user: "{{ provider.credentials.ipmi_username | default(omit) }}"
     password: "{{ provider.credentials.ipmi_password | default(omit) }}"

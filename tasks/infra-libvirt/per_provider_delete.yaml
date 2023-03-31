@@ -1,7 +1,7 @@
 ---
 
 - name: Set iso name
-  set_fact:
+  ansible.builtin.set_fact:
     iso_name: "ocp_ai-{{ cluster_id }}.iso"
 
 - name: Use SSH to delete the ISO on the target Libvirt host when connecting with qemu+ssh
@@ -9,29 +9,29 @@
   block:
     - name: Set user facts
       when: provider.credentials.libvirt_username is defined
-      set_fact:
+      ansible.builtin.set_fact:
         user_target: "{{ provider.credentials.libvirt_username }}@"
 
     - name: Check for the ISO on the remote host
-      shell: |
+      ansible.builtin.shell: |
         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i {{ provider.credentials.libvirt_ssh_key_path }} {{ user_target | default('') }}{{ provider.credentials.libvirt_endpoint }} ls -1 {{ provider.configuration.libvirt_base_iso_path | default('/var/lib/libvirt/images') }}
       register: disk_check
 
     - name: Delete the ISO on the remote Libvirt host
       when: iso_name in disk_check.stdout_lines
-      shell: |
+      ansible.builtin.shell: |
         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i {{ provider.credentials.libvirt_ssh_key_path }} {{ user_target | default('') }}{{ provider.credentials.libvirt_endpoint }} rm -f {{ provider.configuration.libvirt_base_iso_path | default('/var/lib/libvirt/images') }}/{{ iso_name }}
 
 - name: Delete the ISO from the target path when connecting with qemu locally
   when: (provider.credentials.libvirt_transport is defined and provider.credentials.libvirt_transport == 'qemu') or (provider.credentials.libvirt_transport is not defined)
   block:
     - name: Delete the ISO from the target path
-      file:
+      ansible.builtin.file:
         path: "{{ provider.configuration.libvirt_base_iso_path | default('/var/lib/libvirt/images') }}/{{ iso_name }}"
         state: absent
 
 - name: Reset facts
-  set_fact:
+  ansible.builtin.set_fact:
     iso_name: ""
     user_target: ""
     disk_check: {}

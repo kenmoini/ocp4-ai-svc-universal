@@ -8,40 +8,40 @@
 - name: Download and apply the Calico Networking manifests
   block:
 
-  - name: Download the Calico manifests
-    get_url:
-      url: "{{ url_link }}"
-      dest: "{{ tempYAMLDir.path }}"
-    loop: "{{ calico_network_manifests }}"
-    loop_control:
-      loop_var: url_link
+    - name: Download the Calico manifests
+      ansible.builtin.get_url:
+        url: "{{ url_link }}"
+        dest: "{{ tempYAMLDir.path }}"
+      loop: "{{ calico_network_manifests }}"
+      loop_control:
+        loop_var: url_link
 
-  - name: Base64 Encode the files
-    set_fact:
-      calico_manifests: "{{ calico_manifests | default({}) | combine ({ (item | basename) : lookup('file', item) | b64encode }) }}"
-    with_fileglob:
-      - "{{ tempYAMLDir.path }}/*.yml"
-      - "{{ tempYAMLDir.path }}/*.yaml"
+    - name: Base64 Encode the files
+      ansible.builtin.set_fact:
+        calico_manifests: "{{ calico_manifests | default({}) | combine ({ (item | basename) : lookup('file', item) | b64encode }) }}"
+      with_fileglob:
+        - "{{ tempYAMLDir.path }}/*.yml"
+        - "{{ tempYAMLDir.path }}/*.yaml"
 
-  - name: Post the manifests to the cluster
-    uri:
-      headers: "{{ compiled_uri_headers }}"
-      url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/manifests"
-      return_content: yes
-      method: POST
-      body: "{\"file_name\":\"{{ manifest.key }}\", \"folder\":\"manifests\", \"content\":\"{{ manifest.value }}\"}"
-      status_code: 201
-      body_format: json
-    loop: "{{ calico_manifests | dict2items }}"
-    loop_control:
-      loop_var: manifest
+    - name: Post the manifests to the cluster
+      ansible.builtin.uri:
+        headers: "{{ compiled_uri_headers }}"
+        url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/manifests"
+        return_content: yes
+        method: POST
+        body: "{\"file_name\":\"{{ manifest.key }}\", \"folder\":\"manifests\", \"content\":\"{{ manifest.value }}\"}"
+        status_code: 201
+        body_format: json
+      loop: "{{ calico_manifests | dict2items }}"
+      loop_control:
+        loop_var: manifest
 
   rescue:
-  - name: Use the registered var and the file module to remove the temporary file
-    when: tempYAMLDir.path is defined
-    ansible.builtin.file:
-      path: "{{ tempYAMLDir.path }}"
-      state: absent
+    - name: Use the registered var and the file module to remove the temporary file
+      when: tempYAMLDir.path is defined
+      ansible.builtin.file:
+        path: "{{ tempYAMLDir.path }}"
+        state: absent
 
 - name: Use the registered var and the file module to remove the temporary file
   when: tempYAMLDir.path is defined

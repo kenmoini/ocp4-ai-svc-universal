@@ -4,7 +4,7 @@
 #===========================================================================
 
 - name: Get the infrastructure provider for this host - {{ node_item.name }}
-  include_tasks: "target_infra_credential.yaml"
+  ansible.builtin.include_tasks: "target_infra_credential.yaml"
 
 #===========================================================================
 # Set Per VM Metadata
@@ -12,16 +12,16 @@
 
 - name: Set extra facts - ssh_key_option - {{ node_item.name }}
   when: provider.credentials.libvirt_ssh_key_path is defined
-  set_fact:
+  ansible.builtin.set_fact:
     ssh_key_option: "&keyfile={{ provider.credentials.libvirt_ssh_key_path }}"
 
 - name: Set extra facts - user_target - {{ node_item.name }}
   when: provider.credentials.libvirt_username is defined
-  set_fact:
+  ansible.builtin.set_fact:
     user_target: "{{ provider.credentials.libvirt_username }}@"
 
 - name: Set the Libvirt url and VM Name - {{ node_item.name }}
-  set_fact:
+  ansible.builtin.set_fact:
     libvirt_uri: "{{ provider.credentials.libvirt_transport | default('qemu') }}://{{ user_target | default('') }}{{ provider.credentials.libvirt_endpoint | default('') }}/system{{ provider.credentials.libvirt_options | default('?no_verify=1&socket=/var/run/libvirt/libvirt-sock') }}{{ ssh_key_option | default('') }}"
     vm_name: "{{ cluster_name }}-{{ node_item.name }}"
 
@@ -61,7 +61,7 @@
 #===========================================================================
 
 - name: Delete the VM disks - {{ node_item.name }}
-  include_tasks: "delete_disks.yaml"
+  ansible.builtin.include_tasks: "delete_disks.yaml"
   loop: "{{ node_item.vm.disks }}"
   loop_control:
     loop_var: disk_item
@@ -70,7 +70,7 @@
 # Reset facts for next item in the loop
 #===========================================================================
 - name: Reset facts
-  set_fact:
+  ansible.builtin.set_fact:
     libvirt_uri: ""
     ssh_key_option: ""
     user_target: ""

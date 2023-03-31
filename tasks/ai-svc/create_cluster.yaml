@@ -1,12 +1,12 @@
 ---
 
 - name: Template out the deployment.json file
-  template:
+  ansible.builtin.template:
     src: templates/deployment.json.j2
     dest: "{{ generated_asset_directory }}/deployment-{{ deployment_name }}.json"
 
 - name: AI Service - Create Cluster
-  uri:
+  ansible.builtin.uri:
     headers: "{{ compiled_uri_headers }}"
     url: "{{ assisted_service_endpoint }}/clusters/"
     return_content: yes
@@ -18,6 +18,6 @@
 
 - name: Set facts for Cluster
   when: (create_cluster.json.base_dns_domain == cluster_domain) and (create_cluster.json.name == cluster_name)
-  set_fact:
+  ansible.builtin.set_fact:
     cluster_id: "{{ create_cluster.json.id }}"
     cluster_status: "{{ create_cluster.json.status }}"

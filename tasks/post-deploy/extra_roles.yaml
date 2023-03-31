@@ -1,23 +1,23 @@
 ---
 - name: Run old fasioned oc CLI commands
   block:
-  - name: Log into the cluster
-    when: cluster_kubeadmin_password is defined
-    shell:
-      cmd: "oc login {{ cluster_api_url }} --password=\"{{ cluster_kubeadmin_password }}\" --username=\"{{ cluster_kubeadmin_username }}\" --insecure-skip-tls-verify=true"
-    no_log: true
-    register: cluster_auth_status
-    until: (cluster_auth_status.rc == 0)
-    retries: 120
-    delay: 20
+    - name: Log into the cluster
+      when: cluster_kubeadmin_password is defined
+      ansible.builtin.shell:
+        cmd: "oc login {{ cluster_api_url }} --password=\"{{ cluster_kubeadmin_password }}\" --username=\"{{ cluster_kubeadmin_username }}\" --insecure-skip-tls-verify=true"
+      no_log: true
+      register: cluster_auth_status
+      until: (cluster_auth_status.rc == 0)
+      retries: 120
+      delay: 20
 
-  - name: Deploy Extra Defined Roles
-    include_role:
-      name: "{{ role_name }}"
-    loop: "{{ extra_roles }}"
-    loop_control:
-      loop_var: role_name
-    when: extra_roles is defined
+    - name: Deploy Extra Defined Roles
+      when: extra_roles is defined
+      ansible.builtin.include_role:
+        name: "{{ role_name }}"
+      loop: "{{ extra_roles }}"
+      loop_control:
+        loop_var: role_name
 
   #always:
   #- name: Log out of the cluster
@@ -25,4 +25,4 @@
   #    cmd: oc logout
 
   tags:
-  - extra_roles
+    - extra_roles

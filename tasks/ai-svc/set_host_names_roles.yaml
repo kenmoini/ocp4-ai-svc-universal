@@ -1,7 +1,7 @@
 ---
 
 - name: Set appropriate next steps
-  set_fact:
+  ansible.builtin.set_fact:
     valid_next_steps:
       - insufficient
       - ready
@@ -9,7 +9,7 @@
       - adding-hosts
 
 - name: Ensure the cluster is in a valid state to set names and roles
-  uri:
+  ansible.builtin.uri:
     headers: "{{ compiled_uri_headers }}"
     url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}"
     return_content: yes
@@ -23,11 +23,11 @@
   block:
 
     - name: Pause for 5 seconds to let the API catch up
-      wait_for:
+      ansible.builtin.wait_for:
         timeout: 5
 
     - name: Get the list of hosts from the API
-      uri:
+      ansible.builtin.uri:
         headers: "{{ compiled_uri_headers }}"
         url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}/hosts"
         return_content: yes
@@ -36,16 +36,16 @@
       register: ai_svc_list_of_hosts
 
     - name: template out new v2 api map
-      template:
+      ansible.builtin.template:
         src: templates/v2_host_roles_names_map.json.j2
         dest: "{{ generated_asset_directory }}/{{ cluster_id }}/v2_host_roles_names_map.json"
 
     - name: Set template fact
-      set_fact:
+      ansible.builtin.set_fact:
         v2_host_roles_names_map: "{{ lookup('ansible.builtin.template', 'templates/v2_host_roles_names_map.json.j2') }}"
 
     - name: Set the hostnames of the nodes
-      uri:
+      ansible.builtin.uri:
         headers: "{{ compiled_uri_headers }}"
         url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}/hosts/{{ host_item.id }}"
         return_content: yes
@@ -60,7 +60,7 @@
 
     - name: Set the host roles of the nodes
       when: cluster_type == "Standard"
-      uri:
+      ansible.builtin.uri:
         headers: "{{ compiled_uri_headers }}"
         url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}/hosts/{{ host_item.id }}"
         return_content: yes
@@ -74,6 +74,5 @@
       retries: 5
 
     - name: Pause for 5 seconds to let the API catch up
-      wait_for:
+      ansible.builtin.wait_for:
         timeout: 5
-  

@@ -3,7 +3,7 @@
 ####################################################### CLUSTER INFO
 
 - name: Get available clusters
-  uri:
+  ansible.builtin.uri:
     url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v3_base }}/clusters/list"
     return_content: yes
     method: POST
@@ -18,7 +18,7 @@
 
 - name: Set Facts - Set Cluster UUID
   when: cluster.spec.name == provider.configuration.prism_cluster_name
-  set_fact:
+  ansible.builtin.set_fact:
     nutanix_cluster_uuid: "{{ cluster.metadata.uuid }}"
   loop: "{{ nutanix_clusters_info.json.entities }}"
   loop_control:
@@ -28,7 +28,7 @@
 ####################################################### NETWORK INFO
 
 - name: Get available Networks
-  uri:
+  ansible.builtin.uri:
     url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v3_base }}/subnets/list"
     return_content: yes
     method: POST
@@ -43,7 +43,7 @@
 
 - name: Set Facts - Set Network UUID
   when: network.spec.name == provider.configuration.prism_network_name
-  set_fact:
+  ansible.builtin.set_fact:
     nutanix_network_uuid: "{{ network.metadata.uuid }}"
   loop: "{{ nutanix_networks_info.json.entities }}"
   loop_control:
@@ -53,7 +53,7 @@
 ####################################################### Image INFO
 
 - name: Get available Storage Containers
-  uri:
+  ansible.builtin.uri:
     url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v2_base }}/storage_containers"
     return_content: yes
     method: GET
@@ -68,7 +68,7 @@
 
 - name: Set Facts - Set Cluster Image Storage Container
   when: storage_container.name == provider.configuration.prism_image_storage_container_name
-  set_fact:
+  ansible.builtin.set_fact:
     nutanix_image_storage_container_uuid: "{{ storage_container.storage_container_uuid }}"
   loop: "{{ nutanix_image_storage_info.json.entities }}"
   loop_control:
@@ -78,7 +78,7 @@
 ####################################################### VM STORAGE INFO
 
 - name: Get available Storage Containers
-  uri:
+  ansible.builtin.uri:
     url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v2_base }}/storage_containers"
     return_content: yes
     method: GET
@@ -93,7 +93,7 @@
 
 - name: Set Facts - Set Cluster VM Storage Container
   when: storage_container.name == provider.configuration.prism_vm_storage_container_name
-  set_fact:
+  ansible.builtin.set_fact:
     nutanix_vm_storage_container_uuid: "{{ storage_container.storage_container_uuid }}"
   loop: "{{ nutanix_vm_storage_info.json.entities }}"
   loop_control:
@@ -101,7 +101,7 @@
     label: "{{ storage_container.name }}"
 
 - name: Facts presented
-  debug:
+  ansible.builtin.debug:
     msg:
       - "Cluster UUID: {{ nutanix_cluster_uuid }}"
       - "Network UUID: {{ nutanix_network_uuid }}"

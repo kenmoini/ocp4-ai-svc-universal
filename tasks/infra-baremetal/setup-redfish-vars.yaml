@@ -4,11 +4,11 @@
 #===============================================================================
 
 - name: Set Redfish base url
-  set_fact:
+  ansible.builtin.set_fact:
     redfish_base_url: "{{ provider.credentials.ipmi_transport }}://{{ provider.credentials.ipmi_endpoint }}:{{ provider.credentials.ipmi_port }}/redfish/v1"
 
 - name: Set Redfish Systems and Manager urls
-  set_fact:
+  ansible.builtin.set_fact:
     redfish_systems_url: "{{ redfish_base_url }}/Systems"
     redfish_managers_url: "{{ redfish_base_url }}/Managers"
 
@@ -20,7 +20,7 @@
   when: provider.credentials.ipmi_manufacturer == "dell"
   block:
     - name: Set the url targets for Dell hardware
-      set_fact:
+      ansible.builtin.set_fact:
         redfish_system_url: "{{ redfish_systems_url }}/System.Embedded.1"
         redfish_manager_url: "{{ redfish_managers_url }}/iDRAC.Embedded.1"
         redfish_media_device: VirtualMedia/CD
@@ -33,7 +33,7 @@
   when: provider.credentials.ipmi_manufacturer == "supermicro"
   block:
     - name: Set the url targets for Supermicro
-      set_fact:
+      ansible.builtin.set_fact:
         redfish_system_url: "{{ redfish_systems_url }}/1"
         redfish_manager_url: "{{ redfish_managers_url }}/1"
         redfish_media_device: VM1
@@ -46,7 +46,7 @@
   when: provider.credentials.ipmi_manufacturer == "hp"
   block:
     - name: Set the url targets for HP hardware
-      set_fact:
+      ansible.builtin.set_fact:
         redfish_system_url: "{{ redfish_systems_url }}/1"
         redfish_manager_url: "{{ redfish_managers_url }}/1"
         redfish_media_device: VirtualMedia/CD
@@ -59,13 +59,13 @@
   when: provider.credentials.ipmi_manufacturer == "sushy"
   block:
     - name: Get the Members of the Systems list
-      uri:
+      ansible.builtin.uri:
         url: "{{ redfish_systems_url }}"
         return_content: yes
       register: sushy_systems
 
     - name: Get the data for the systems
-      uri:
+      ansible.builtin.uri:
         url: "{{ provider.credentials.ipmi_transport }}://{{ provider.credentials.ipmi_endpoint }}:{{ provider.credentials.ipmi_port }}{{ system_item['@odata.id'] }}"
         return_content: yes
       loop: "{{ sushy_systems.json.Members }}"
@@ -76,7 +76,7 @@
 
     - name: Step through the systems and set the target_system when the names match
       when: system_item.json.Name == cluster_name + '-' + node_item.name
-      set_fact:
+      ansible.builtin.set_fact:
         target_system: "{{ system_item.json }}"
         redfish_system_url: "{{ redfish_systems_url }}/{{ system_item.json.UUID }}"
         redfish_manager_url: "{{ redfish_managers_url }}/{{ system_item.json.UUID }}"
@@ -87,7 +87,7 @@
         label: "{{ system_item.json.Name }}"
 
 - name: Print facts for the Redfish endpoint
-  debug:
+  ansible.builtin.debug:
     msg:
       - "redfish_base_url: {{ redfish_base_url }}"
       - "redfish_system_url: {{ redfish_system_url }}"

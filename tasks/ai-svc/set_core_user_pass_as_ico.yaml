@@ -1,7 +1,7 @@
 ---
 
 - name: Set fact for Password
-  set_fact:
+  ansible.builtin.set_fact:
     passwordHash: "{{ core_user_password | password_hash('sha512') }}"
   no_log: true
 
@@ -16,7 +16,7 @@
 #  register: infraenv_query
 
 - name: Set fact for json content
-  set_fact:
+  ansible.builtin.set_fact:
     ignition_overrides: {}
     passwd_ico_object:
       passwd:

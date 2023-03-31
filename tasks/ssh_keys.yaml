@@ -13,13 +13,13 @@
   when: generate_ssh_key|bool and (cluster_id != "")
   block:
     - name: Stat for the public key file
-      stat:
+      ansible.builtin.stat:
         path: "{{ generated_asset_directory }}/{{ cluster_id }}/cluster_key.pub"
       register: public_key_check
 
     - name: Copy private key
       when: not public_key_check.stat.exists
-      copy:
+      ansible.builtin.copy:
         remote_src: yes
         src: "{{ generated_asset_directory }}/cluster_key-{{ deployment_name }}"
         dest: "{{ generated_asset_directory }}/{{ cluster_id }}/cluster_key"
@@ -27,14 +27,14 @@
 
     - name: Copy public key
       when: not public_key_check.stat.exists
-      copy:
+      ansible.builtin.copy:
         remote_src: yes
         src: "{{ generated_asset_directory }}/cluster_key-{{ deployment_name }}.pub"
         dest: "{{ generated_asset_directory }}/{{ cluster_id }}/cluster_key.pub"
 
     - name: Remove old cluster keys from primary generation folder
       when: not public_key_check.stat.exists
-      file:
+      ansible.builtin.file:
         state: absent
         path: "{{ item }}"
       loop:
@@ -42,19 +42,17 @@
         - "{{ generated_asset_directory }}/cluster_key-{{ deployment_name }}"
 
     - name: Read SSH Key
-      set_fact:
+      ansible.builtin.set_fact:
         ssh_public_key: "{{ lookup('file', generated_asset_directory+'/' + cluster_id + '/cluster_key.pub') }}"
-    
 
 - name: Read in SSH key
   when: not generate_ssh_key
   block:
-  - name: Fetch the pre-existing SSH Key
-    ansible.builtin.slurp:
-      src: "{{ ssh_pub_key_path }}"
-    register: sshKeySlurp
-      
-  - name: Set the SSH Key from a file
-    ansible.builtin.set_fact:
-      ssh_public_key: "{{ sshKeySlurp['content'] | b64decode | trim }}"
-
+    - name: Fetch the pre-existing SSH Key
+      ansible.builtin.slurp:
+        src: "{{ ssh_pub_key_path }}"
+      register: sshKeySlurp
+        
+    - name: Set the SSH Key from a file
+      ansible.builtin.set_fact:
+        ssh_public_key: "{{ sshKeySlurp['content'] | b64decode | trim }}"

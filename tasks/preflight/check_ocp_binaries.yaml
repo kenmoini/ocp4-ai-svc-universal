@@ -25,12 +25,12 @@
         remote_src: yes
 
     - name: Set the oc binary path
-      set_fact:
+      ansible.builtin.set_fact:
         oc_binary: "{{ generated_asset_directory }}/bin/oc"
 
 - name: Set the openshift-install binary path
   when: program_check_oc.rc == 0
-  set_fact:
+  ansible.builtin.set_fact:
     oc_binary: "{{ program_check_oc.stdout_lines[0] }}"
 
 
@@ -148,9 +148,9 @@
 #    coreos_installer_binary: "{{ program_check_coreos_installer.stdout_lines[0] }}"
 #
 - name: Output discovered binary paths
-  debug:
+  ansible.builtin.debug:
     msg:
-    - "oc_binary: {{ oc_binary }}"
+      - "oc_binary: {{ oc_binary }}"
     #- "openshift_install_binary: {{ openshift_install_binary }}"
     #- "butane_binary: {{ butane_binary }}"
     #- "coreos_installer_binary: {{ coreos_installer_binary }}"

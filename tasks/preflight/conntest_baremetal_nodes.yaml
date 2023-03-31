@@ -5,17 +5,17 @@
 #===========================================================================
 
 - name: Get the infrastructure provider for this host
-  include_tasks: "tasks/infra-baremetal/target_infra_credential.yaml"
+  ansible.builtin.include_tasks: "tasks/infra-baremetal/target_infra_credential.yaml"
 
 #===========================================================================
 # Get the Redfish Variables for this Infrastructure Provider
 #===========================================================================
 
 - name: Get the infrastructure provider for this host
-  include_tasks: "tasks/infra-baremetal/setup-redfish-vars.yaml"
+  ansible.builtin.include_tasks: "tasks/infra-baremetal/setup-redfish-vars.yaml"
 
 - name: d
-  debug:
+  ansible.builtin.debug:
     msg:
       - "{{ redfish_systems_url }}"
       - "{{ redfish_managers_url }}"
@@ -27,7 +27,7 @@
 #===========================================================================
 
 - name: Do a connection test to the target Redfish System URL
-  uri:
+  ansible.builtin.uri:
     url: "{{ redfish_system_url }}"
     return_content: yes
     user: "{{ provider.credentials.ipmi_username | default(omit) }}"
@@ -38,5 +38,5 @@
 
 - name: Fail if the Redfish System UUID is not found
   when: redfish_system_connection_test.json.UUID is undefined
-  fail:
+  ansible.builtin.fail:
     msg: "UUID Not Found! {{ redfish_system_connection_test }}"

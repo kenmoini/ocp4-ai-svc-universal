@@ -4,10 +4,10 @@
 #===========================================================================
 
 - name: Get the infrastructure provider for this host
-  include_tasks: "tasks/infra-baremetal/setup-redfish-vars.yaml"
+  ansible.builtin.include_tasks: "tasks/infra-baremetal/setup-redfish-vars.yaml"
 
 - name: d
-  debug:
+  ansible.builtin.debug:
     msg:
       - "{{ redfish_systems_url }}"
       - "{{ redfish_managers_url }}"

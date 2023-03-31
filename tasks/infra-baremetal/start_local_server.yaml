@@ -1,12 +1,12 @@
 ---
 
 - name: Delete the server file
-  file:
+  ansible.builtin.file:
     path: "{{ generated_asset_directory }}/{{ cluster_id }}/server.py"
     state: absent
 
 - name: Create web server python script
-  lineinfile:
+  ansible.builtin.lineinfile:
     create: yes
     dest: "{{ generated_asset_directory }}/{{ cluster_id }}/server.py"
     mode: 0755
@@ -21,18 +21,18 @@
       server_object.serve_forever()
 
 - name: Scan any process using this port
-  shell: |
+  ansible.builtin.shell: |
     lsof -n -i :{{ http_server_port | default('7654') }} | grep LISTEN | cut -f 2 -d " "
   register: port_scan
   become: yes
 
 - name: Kill any process using this port
   when: port_scan.stdout_lines|length > 0
-  shell: "kill {{ port_scan.stdout }}"
+  ansible.builtin.shell: "kill {{ port_scan.stdout }}"
   become: yes
 
 - name: Execute python script
-  shell: |
+  ansible.builtin.shell: |
     cd {{ generated_asset_directory }}/{{ cluster_id }}
     python3 server.py &> /dev/null &
     echo $!

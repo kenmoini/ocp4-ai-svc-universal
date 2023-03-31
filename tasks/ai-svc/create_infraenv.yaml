@@ -1,11 +1,11 @@
 ---
 - name: Template out the infraenv.json file
-  template:
+  ansible.builtin.template:
     src: templates/infraenv.json.j2
     dest: "{{ generated_asset_directory }}/{{ cluster_id }}/infraenv.json"
 
 - name: AI Service - Create Infraenv
-  uri:
+  ansible.builtin.uri:
     headers: "{{ compiled_uri_headers }}"
     url: "{{ assisted_service_endpoint }}/infra-envs/"
     return_content: yes

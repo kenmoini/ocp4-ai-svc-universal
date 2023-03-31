@@ -1,6 +1,6 @@
 ---
 - name: Ensure the cluster is in a valid state to get ready to install...
-  uri:
+  ansible.builtin.uri:
     headers: "{{ compiled_uri_headers }}"
     url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}"
     return_content: yes
@@ -14,7 +14,7 @@
 
 - name: Start the Installation of the OpenShift Cluster
   when: cluster_current_status.json.status == "ready"
-  uri:
+  ansible.builtin.uri:
     headers: "{{ compiled_uri_headers }}"
     url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/actions/install"
     return_content: yes

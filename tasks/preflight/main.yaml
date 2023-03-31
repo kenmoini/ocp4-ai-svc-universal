@@ -16,7 +16,7 @@
   
 - name: Fail if needed programs are not found
   failed_when: program_item.rc != 0
-  fail:
+  ansible.builtin.fail:
     msg: "{{ program_item.cmd | replace('which ','') }} is not found! You need to install it first."
   loop: "{{ program_check.results }}"
   loop_control:

@@ -1,40 +1,40 @@
 ---
 - name: Cluster Install progression
   block:
-  - name: Ensure the cluster is fully installed
-    uri:
-      headers: "{{ compiled_uri_headers }}"
-      url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}"
-      return_content: yes
-      method: GET
-      status_code: 200
-      body_format: json
-    register: cluster_install_status
-    until: (cluster_install_status.json.status == "installed")
-    retries: 120
-    delay: 30
+    - name: Ensure the cluster is fully installed
+      ansible.builtin.uri:
+        headers: "{{ compiled_uri_headers }}"
+        url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}"
+        return_content: yes
+        method: GET
+        status_code: 200
+        body_format: json
+      register: cluster_install_status
+      until: (cluster_install_status.json.status == "installed")
+      retries: 120
+      delay: 30
 
   rescue:
-  - name: Pull info again
-    uri:
-      headers: "{{ compiled_uri_headers }}"
-      url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}"
-      return_content: yes
-      method: GET
-      status_code: 200
-      body_format: json
-    register: cluster_install_statustwo
-    failed_when: false
+    - name: Pull info again
+      ansible.builtin.uri:
+        headers: "{{ compiled_uri_headers }}"
+        url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}"
+        return_content: yes
+        method: GET
+        status_code: 200
+        body_format: json
+      register: cluster_install_statustwo
+      failed_when: false
   
-  - name: Resync auth headers
-    when: cluster_install_statustwo.status == 401
-    block:
-      - name: Set up Authentication Headers if needed
-        when: assisted_service_authentication != "none"
-        include_tasks: tasks/ai-svc/setup_auth_headers.yaml
+    - name: Resync auth headers
+      when: cluster_install_statustwo.status == 401
+      block:
+        - name: Set up Authentication Headers if needed
+          when: assisted_service_authentication != "none"
+          ansible.builtin.include_tasks: tasks/ai-svc/setup_auth_headers.yaml
 
-      - name: Start the install if needed
-        include_tasks: tasks/ai-svc/start_install.yaml
+        - name: Start the install if needed
+          ansible.builtin.include_tasks: tasks/ai-svc/start_install.yaml
 
-      - name: INCEPTION - Wait for the cluster to be fully installed
-        include_tasks: tasks/ai-svc/check_cluster_install_finished.yaml
+        - name: INCEPTION - Wait for the cluster to be fully installed
+          ansible.builtin.include_tasks: tasks/ai-svc/check_cluster_install_finished.yaml

@@ -1,7 +1,7 @@
 ---
 
 - name: Get the list of hosts from the InfraEnv
-  uri:
+  ansible.builtin.uri:
     headers: "{{ compiled_uri_headers }}"
     url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}/hosts"
     return_content: yes
@@ -11,21 +11,21 @@
   register: get_hosts_resp
 
 - name: Template for good measure
-  template:
+  ansible.builtin.template:
     src: ignition-config-override-files.json.j2
     dest: "{{ generated_asset_directory }}/{{ cluster_id }}/pointer-ico-files.json"
   vars:
     ignition_version: "3.2.0"
 
 - name: Set the patch data
-  set_fact:
+  ansible.builtin.set_fact:
     override_ic_body: "{ \"config\": '{{ lookup(\"template\", \"ignition-config-override-files.json.j2\") | to_json }}' }"
     #override_ic_body: "{ \"ignition_config_override\": '{{ ignition_config_override_bundle_string | to_json }}' }"
   vars:
     ignition_version: "3.2.0"
 
 - name: Patch the ignition_config_override_bundle_string into the per-host Pointer ignition override
-  uri:
+  ansible.builtin.uri:
     headers: "{{ compiled_uri_headers }}"
     url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}/hosts/{{ host_item.id }}/ignition"
     return_content: yes

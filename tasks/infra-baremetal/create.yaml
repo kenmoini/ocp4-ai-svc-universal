@@ -4,20 +4,20 @@
 #===========================================================================
 
 - name: Get the infrastructure provider for this host
-  include_tasks: "target_infra_credential.yaml"
+  ansible.builtin.include_tasks: "target_infra_credential.yaml"
 
 #===========================================================================
 # Get the Redfish Variables for this host's Infrastructure Provider
 #===========================================================================
 
 - name: Get the infrastructure provider for this host
-  include_tasks: "setup-redfish-vars.yaml"
+  ansible.builtin.include_tasks: "setup-redfish-vars.yaml"
 
 - name: Shutdown the host if it is powered on
-  include_tasks: set_power_state_off.yaml
+  ansible.builtin.include_tasks: set_power_state_off.yaml
 
 - name: Attach the virtual media
-  include_tasks: set_virtual_media.yaml
+  ansible.builtin.include_tasks: set_virtual_media.yaml
 
 - name: Power on the host
-  include_tasks: set_power_state_on.yaml
+  ansible.builtin.include_tasks: set_power_state_on.yaml

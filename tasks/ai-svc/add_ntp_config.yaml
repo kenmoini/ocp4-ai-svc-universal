@@ -1,25 +1,25 @@
 ---
 - name: Set facts for an empty list
-  set_fact:
+  ansible.builtin.set_fact:
     target_sources: []
 
 - name: Add set NTP Sources just by the address
-  set_fact:
+  ansible.builtin.set_fact:
     target_sources: "{{ target_sources + [source.address] }}"
   loop: "{{ ntp_sources }}"
   loop_control:
     loop_var: source
 
 - name: Combine no proxy list
-  set_fact:
+  ansible.builtin.set_fact:
     cluster_ntp_sources: "{{ target_sources | join(',') }}"
 
 - name: Set body data
-  set_fact:
+  ansible.builtin.set_fact:
     override_ntp_ic_body: "{ \"additional_ntp_sources\": \"{{ cluster_ntp_sources|default('0.pool.ntp.org') }}\" }"
 
 - name: Inject NTP config into the Cluster
-  uri:
+  ansible.builtin.uri:
     headers: "{{ compiled_uri_headers }}"
     url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}"
     return_content: yes
@@ -30,7 +30,7 @@
   register: ntpCluster_resp
 
 - name: Inject NTP config into the InfraEnv
-  uri:
+  ansible.builtin.uri:
     headers: "{{ compiled_uri_headers }}"
     url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}"
     return_content: yes
