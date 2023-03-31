@@ -1,5 +1,13 @@
 name: ansible-lint
-on: [push, pull_request]
+on:
+  push:
+    paths:
+      - 'roles/**'
+      - 'tasks/**'
+  pull_request:
+    paths:
+      - 'roles/**'
+      - 'tasks/**'
 
 jobs:
   build:
@@ -12,8 +20,14 @@ jobs:
         with:
           fetch-depth: 0 # needed for progressive mode to work
 
-      - name: Run ansible-lint
+      - name: Run ansible-lint on roles
         # replace `main` with any valid ref, or tags like `v6`
         uses: ansible/ansible-lint-action@main
         with:
           path: "roles/"  # <-- only one value is allowed
+
+      - name: Run ansible-lint on tasks
+        # replace `main` with any valid ref, or tags like `v6`
+        uses: ansible/ansible-lint-action@main
+        with:
+          path: "tasks/"  # <-- only one value is allowed
