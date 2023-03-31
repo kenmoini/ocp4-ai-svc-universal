@@ -8,6 +8,6 @@
     status_code: 200
     body_format: json
   register: host_status
-  until: host_status.json.hosts|length == cluster_nodes|length
+  until: host_status.json.hosts | length == cluster_nodes | length
   retries: 60
   delay: 15

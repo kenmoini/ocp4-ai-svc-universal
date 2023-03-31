@@ -20,7 +20,7 @@
   register: libvirt_test_info
 
 - name: Fail if the Libvirt instance cannot be connected to
-  when: libvirt_test_info.failed|bool
+  when: libvirt_test_info.failed | bool
   ansible.builtin.fail:
     msg: "Cannot connect to Libvirt at {{ provider.credentials.libvirt_endpoint }}!"
 
