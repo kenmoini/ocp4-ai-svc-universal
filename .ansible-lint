@@ -1,0 +1,8 @@
+# https://ansible-lint.readthedocs.io/configuring/#specifying-configuration-files
+
+# profile:  min, basic, moderate,safety, shared, production
+profile: null
+
+warn_list:
+  - role-name
+  - yaml[line-length]  # you can also use sub-rule matches
