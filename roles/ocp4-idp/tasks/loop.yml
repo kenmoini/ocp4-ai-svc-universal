@@ -33,7 +33,7 @@
       ## =============================================================================================
 
       - name: Set fact for this identity provider
-        set_fact:
+        ansible.builtin.set_fact:
           idp_item:
             - name: "{{ provider.name }}"
               type: Google
@@ -45,7 +45,7 @@
                 hostedDomain: "{{ provider.hostedDomain | default(omit) }}"
 
       - name: Add this IdP to the collection
-        set_fact:
+        ansible.builtin.set_fact:
           idp_collection: "{{ idp_collection + idp_item }}"
 
 ## ===================================================================================================
@@ -97,7 +97,7 @@
 
       - name: Set fact for this identity provider
         when: provider.type == "LDAP"
-        set_fact:
+        ansible.builtin.set_fact:
           idp_item:
             - name: "{{ provider.name }}"
               type: LDAP
@@ -163,7 +163,7 @@
 
       - name: Set fact for this identity provider
         when: provider.type == "ActiveDirectory"
-        set_fact:
+        ansible.builtin.set_fact:
           idp_item:
             - name: "{{ provider.name }}"
               type: LDAP
@@ -222,5 +222,5 @@
       #            url: "{{ provider.url }}/{{ provider.url_filter }}"
 
       - name: Add this IdP to the collection
-        set_fact:
+        ansible.builtin.set_fact:
           idp_collection: "{{ idp_collection + idp_item }}"

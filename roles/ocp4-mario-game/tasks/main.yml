@@ -1,7 +1,7 @@
 ---
 # tasks file for ocp4-workloads-mario
 - name: Create Namespace/Project for Mario
-  k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     state: present
     kind: Namespace
@@ -21,7 +21,7 @@
   - create_ns
 
 - name: Create infinite-mario DeploymentConfig
-  k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     namespace: "{{ mario_project_namespace }}"
     kind: DeploymentConfig
@@ -69,7 +69,7 @@
             schedulerName: default-scheduler
 
 - name: Create infinite-mario Service
-  k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     state: present
     definition:
@@ -95,7 +95,7 @@
         sessionAffinity: None
 
 - name: Create infinite-mario Route
-  k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     state: present
     definition:
@@ -116,7 +116,7 @@
         wildcardPolicy: None
 
 - name: Get infinite-mario Route
-  k8s_info:
+  kubernetes.core.k8s_info:
     kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     kind: Route
     api_version: route.openshift.io/v1
@@ -125,7 +125,7 @@
   register: mario_route_r
 
 - name: COMPLETE - Display needed resources
-  debug:
+  ansible.builtin.debug:
     msg:
       - Infinite Mario successfully launched!
       - "=================================================================="

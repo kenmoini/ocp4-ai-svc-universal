@@ -2,7 +2,7 @@
 # tasks file for ocp4-nutanix-csi
 
 - name: Get Cluster Version
-  k8s_info:
+  kubernetes.core.k8s_info:
     kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     api_version: config.openshift.io/v1
     kind: ClusterVersion
@@ -10,11 +10,11 @@
   register: r_ocp_version
 
 - name: Set cluster version
-  set_fact:
-    ocp_version: "{{ r_ocp_version.resources[0].status.desired.version  }}"
+  ansible.builtin.set_fact:
+    ocp_version: "{{ r_ocp_version.resources[0].status.desired.version }}"
 
 - name: Query the nutanixcsioperator PackageManifest for the latest version of the Nutanix Operator
-  k8s_info:
+  kubernetes.core.k8s_info:
     kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     api_version: packages.operators.coreos.com/v1
     kind: PackageManifest
@@ -23,15 +23,15 @@
   register: r_nutanixcsioperator_pm
 
 - name: Set the latest CSV version
-  set_fact:
+  when: chan_item.name == "stable"
+  ansible.builtin.set_fact:
     ntnx_csi_csv_version: "{{ chan_item.currentCSV }}"
   loop: "{{ r_nutanixcsioperator_pm.resources[0].status.channels }}"
   loop_control:
     loop_var: chan_item
-  when: chan_item.name == "stable"
 
 - name: Create {{ operator_namespace }} namespace
-  k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     state: present
     kind: Namespace
@@ -55,7 +55,7 @@
   retries: 30
 
 - name: Query the {{ operator_namespace }} namespace for OperatorGroups
-  k8s_info:
+  kubernetes.core.k8s_info:
     kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     api_version: operators.coreos.com/v1
     kind: OperatorGroup
@@ -63,7 +63,8 @@
   register: r_og_list
 
 - name: Create Operator OperatorGroup
-  k8s:
+  when: r_og_list.resources | length == 0
+  kubernetes.core.k8s:
     kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     state: present
     apply: yes
@@ -75,10 +76,9 @@
   until: k8s_run is not failed
   delay: 10
   retries: 30
-  when: r_og_list.resources | length == 0
 
 - name: Create Operator subscription
-  k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     state: present
     merge_type:
@@ -94,7 +94,8 @@
   retries: 30
 
 - name: Wait for the CSI Operator to come online
-  k8s_info:
+  when: ocp_version is version('4.9.0', operator='lt', strict=True)
+  kubernetes.core.k8s_info:
     kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     api_version: apiextensions.k8s.io/v1beta1
     kind: CustomResourceDefinition
@@ -103,10 +104,10 @@
   retries: 200
   delay: 10
   until: csi_crd.resources | list | length == 1
-  when: ocp_version is version('4.9.0', operator='lt', strict=True)
 
 - name: Wait for the CSI Operator to come online
-  k8s_info:
+  when: ocp_version is version('4.9.0', operator='ge', strict=True)
+  kubernetes.core.k8s_info:
     kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     api_version: apiextensions.k8s.io/v1
     kind: CustomResourceDefinition
@@ -115,10 +116,9 @@
   retries: 200
   delay: 10
   until: csi_crd.resources | list | length == 1
-  when: ocp_version is version('4.9.0', operator='ge', strict=True)
 
 - name: Create Secret and Operand instance
-  k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     state: present
     merge_type:
@@ -135,7 +135,8 @@
   retries: 30
 
 - name: Create Volumes StorageClass
-  k8s:
+  when: nutanix_csi_deploy_volumes_storageclass|bool
+  kubernetes.core.k8s:
     kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     state: present
     merge_type:
@@ -149,13 +150,12 @@
   until: k8s_run is not failed
   delay: 10
   retries: 30
-  when: nutanix_csi_deploy_volumes_storageclass|bool
 
 - name: Deploying Nutanix File Server (NFS) StorageClass
   block:
 
   - name: Create Files StorageClass
-    k8s:
+    kubernetes.core.k8s:
       kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
       state: present
       merge_type:
@@ -171,7 +171,8 @@
     retries: 30
 
   - name: Apply NFS SELinux Patch
-    k8s:
+    when: nutanix_csi_deploy_files_storageclass_selinux_patch|bool
+    kubernetes.core.k8s:
       kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
       state: present
       merge_type:
@@ -185,12 +186,12 @@
     until: k8s_run is not failed
     delay: 10
     retries: 30
-    when: nutanix_csi_deploy_files_storageclass_selinux_patch|bool
 
   when: nutanix_csi_deploy_files_storageclass|bool
 
 - name: Create iSCSI Service MachineConfig
-  k8s:
+  when: nutanix_csi_deploy_iscsid_machineconfig|bool
+  kubernetes.core.k8s:
     kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     state: present
     merge_type:
@@ -204,4 +205,3 @@
   until: k8s_run is not failed
   delay: 10
   retries: 30
-  when: nutanix_csi_deploy_iscsid_machineconfig|bool

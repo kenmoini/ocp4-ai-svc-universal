@@ -6,23 +6,24 @@
 ## Create the Secrets and ConfigMaps for the cluster certificates
 ## ===================================================================================================
   - name: Create ConfigMap for Root Certificate Bundle
+    when: additionalTrustBundle is defined
     kubernetes.core.k8s:
       kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
       state: present
       merge_type:
-      - strategic-merge
-      - merge
+        - strategic-merge
+        - merge
       definition: "{{ lookup('template', 'templates/additionalTrustBundleConfigMap.yaml.j2') | from_yaml }}"
-    when: additionalTrustBundle is defined
 
 
   - name: Create Secret for API LoadBalancer
+    when: cluster_api_lb_tls_crt is defined and cluster_api_lb_tls_key is defined
     kubernetes.core.k8s:
       kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
       state: present
       merge_type:
-      - strategic-merge
-      - merge
+        - strategic-merge
+        - merge
       definition:
         apiVersion: v1
         kind: Secret
@@ -35,15 +36,15 @@
             {{ cluster_api_lb_tls_crt }}
           "tls.key": |
             {{ cluster_api_lb_tls_key }}
-    when: cluster_api_lb_tls_crt is defined and cluster_api_lb_tls_key is defined
 
   - name: Create Secret for Application LoadBalancer
+    when: cluster_app_lb_tls_crt is defined and cluster_app_lb_tls_key is defined
     kubernetes.core.k8s:
       kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
       state: present
       merge_type:
-      - strategic-merge
-      - merge
+        - strategic-merge
+        - merge
       definition:
         apiVersion: v1
         kind: Secret
@@ -56,19 +57,19 @@
             {{ cluster_app_lb_tls_crt }}
           "tls.key": |
             {{ cluster_app_lb_tls_key }}
-    when: cluster_app_lb_tls_crt is defined and cluster_app_lb_tls_key is defined
 
 ## ===================================================================================================
 ## Patch the needed certificates into the cluster
 ## ===================================================================================================
 
   - name: Patch the cluster proxy configuration with the new root certificate bundle
+    when: additionalTrustBundle is defined
     kubernetes.core.k8s:
       kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
       state: present
       merge_type:
-      - strategic-merge
-      - merge
+        - strategic-merge
+        - merge
       definition:
         apiVersion: config.openshift.io/v1
         kind: Proxy
@@ -77,15 +78,15 @@
         spec:
           trustedCA:
             name: root-certificate-bundle
-    when: additionalTrustBundle is defined
 
   - name: Patch the cluster IngressController Operator
+    when: cluster_app_lb_tls_crt is defined and cluster_app_lb_tls_key is defined
     kubernetes.core.k8s:
       kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
       state: present
       merge_type:
-      - strategic-merge
-      - merge
+        - strategic-merge
+        - merge
       definition:
         apiVersion: operator.openshift.io/v1
         kind: IngressController
@@ -95,15 +96,15 @@
         spec:
           defaultCertificate:
             name: "{{ cluster_app_lb_secret_name }}"
-    when: cluster_app_lb_tls_crt is defined and cluster_app_lb_tls_key is defined
 
   - name: Patch the cluster APIServer Configuration
+    when: cluster_api_lb_tls_crt is defined and cluster_api_lb_tls_key is defined
     kubernetes.core.k8s:
       kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
       state: present
       merge_type:
-      - strategic-merge
-      - merge
+        - strategic-merge
+        - merge
       definition:
         apiVersion: config.openshift.io/v1
         kind: APIServer
@@ -116,4 +117,3 @@
                   name: "{{ cluster_api_lb_secret_name }}"
                 names:
                   - "api.{{ cluster_name }}.{{ cluster_domain }}"
-    when: cluster_api_lb_tls_crt is defined and cluster_api_lb_tls_key is defined

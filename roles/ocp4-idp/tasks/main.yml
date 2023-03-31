@@ -1,7 +1,7 @@
 ---
 # tasks file for ocp4-idp
 - name: Set the blank fact for IDPs
-  set_fact:
+  ansible.builtin.set_fact:
     idp_collection: []
 
 - name: Loop through the idp_providers

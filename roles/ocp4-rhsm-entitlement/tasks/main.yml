@@ -1,7 +1,7 @@
 ---
 # tasks file for ocp4-rh-entitlement
 - name: Apply the 50-rhsm-conf MachineConfig Template
-  k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     state: present
     definition:
@@ -24,7 +24,7 @@
               path: /etc/rhsm/rhsm.conf
 
 - name: Apply the 50-entitlement-pem MachineConfig Template
-  k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     state: present
     definition:
@@ -47,7 +47,7 @@
               path: /etc/pki/entitlement/entitlement.pem
 
 - name: Apply the 50-entitlement-key-pem MachineConfig Template
-  k8s:
+  kubernetes.core.k8s:
     kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     state: present
     definition:

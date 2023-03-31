@@ -136,7 +136,7 @@
                     serviceAccountName: "ldap-group-syncer"
 
     - name: Pause for 90 seconds to allow the LDAP Sync Job to run
-      pause:
+      ansible.builtin.pause:
         seconds: 90
 
     - name: Set the CronJob to run the Sync to a 30min sync
