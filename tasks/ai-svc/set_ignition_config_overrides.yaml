@@ -45,7 +45,7 @@
     url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}"
     return_content: true
     method: PATCH
-    body:  '{{ override_ic_body }}'
+    body: '{{ override_ic_body }}'
     status_code: 201
     body_format: json
   register: patchIgnitionConfigOverrides_resp

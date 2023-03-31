@@ -33,7 +33,7 @@
 #  when: infraenv_query.json.ignition_config_override is defined and infraenv_query.json.ignition_config_override != ""
 #  set_fact:
 #    ignition_overrides: "{{ infraenv_query.json.ignition_config_override | from_json }}"
-#
+
 #- name: Set reformatted fact
 #  set_fact:
 #    ignition_overrides: "{{ ignition_overrides | combine(passwd_ico_object) }}"
@@ -48,8 +48,7 @@
 #    url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}"
 #    return_content: true
 #    method: PATCH
-#    body:  '{{ override_ic_pass_body }}'
+#    body: '{{ override_ic_pass_body }}'
 #    status_code: 201
 #    body_format: json
 #  register: infraenv_discovery_ign_patch
-#

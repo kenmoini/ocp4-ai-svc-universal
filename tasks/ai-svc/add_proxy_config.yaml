@@ -50,7 +50,7 @@
 #     url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}"
 #     return_content: true
 #     method: PATCH
-#     body:  "{{ override_proxy_body }}"
+#     body: "{{ override_proxy_body }}"
 #     status_code: 201
 #     body_format: json
 #   register: additionalProxiesEnvVars_resp
@@ -65,7 +65,7 @@
     url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}"
     return_content: true
     method: PATCH
-    body:  '{{ override_proxy_patch_body }}'
+    body: '{{ override_proxy_patch_body }}'
     status_code: 201
     body_format: json
   register: proxyCluster_resp
@@ -76,7 +76,7 @@
     url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}"
     return_content: true
     method: PATCH
-    body:  "{{ override_proxy_patch_body }}"
+    body: "{{ override_proxy_patch_body }}"
     status_code: 201
     body_format: json
   register: proxyInfraEnv_resp
@@ -87,7 +87,7 @@
 #     url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/install-config"
 #     return_content: true
 #     method: PATCH
-#     body:  '{{ override_ic_body | to_json }}'
+#     body: '{{ override_ic_body | to_json }}'
 #     status_code: 201
 #     body_format: json
 #   register: proxyIC_resp
