@@ -7,7 +7,7 @@
 
 - name: Create web server python script
   ansible.builtin.lineinfile:
-    create: yes
+    create: true
     dest: "{{ generated_asset_directory }}/{{ cluster_id }}/server.py"
     mode: 0755
     line: |
@@ -24,12 +24,12 @@
   ansible.builtin.shell: |
     lsof -n -i :{{ http_server_port | default('7654') }} | grep LISTEN | cut -f 2 -d " "
   register: port_scan
-  become: yes
+  become: true
 
 - name: Kill any process using this port
   when: port_scan.stdout_lines|length > 0
   ansible.builtin.shell: "kill {{ port_scan.stdout }}"
-  become: yes
+  become: true
 
 - name: Execute python script
   ansible.builtin.shell: |

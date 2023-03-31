@@ -16,7 +16,7 @@
 
 - name: Set body data
   ansible.builtin.set_fact:
-    override_ntp_ic_body: "{ \"additional_ntp_sources\": \"{{ cluster_ntp_sources|default('0.pool.ntp.org') }}\" }"
+    override_ntp_ic_body: "{ \"additional_ntp_sources\": \"{{ cluster_ntp_sources | default('0.pool.ntp.org') }}\" }"
 
 - name: Inject NTP config into the Cluster
   ansible.builtin.uri:

@@ -1,8 +1,8 @@
 ---
 
-#===========================================================================
+# ===========================================================================
 # Get Image Storage Container Info
-#===========================================================================
+# ===========================================================================
 
 - name: Get available Storage Containers
   ansible.builtin.uri:
@@ -15,7 +15,7 @@
     force_basic_auth: true
     user: "{{ provider.credentials.prism_username }}"
     password: "{{ provider.credentials.prism_password }}"
-    validate_certs: "{{provider.credentials.prism_verify_ssl }}"
+    validate_certs: "{{ provider.credentials.prism_verify_ssl }}"
   register: nutanix_image_storage_info
 
 - name: Set Facts - Set Cluster Image Storage Container
@@ -27,9 +27,9 @@
     loop_var: storage_container
     label: "{{ storage_container.name }}"
 
-#===========================================================================
+# ===========================================================================
 # Get VM Storage Container Info
-#===========================================================================
+# ===========================================================================
 
 - name: Get available Storage Containers
   ansible.builtin.uri:
@@ -42,7 +42,7 @@
     force_basic_auth: true
     user: "{{ provider.credentials.prism_username }}"
     password: "{{ provider.credentials.prism_password }}"
-    validate_certs: "{{provider.credentials.prism_verify_ssl }}"
+    validate_certs: "{{ provider.credentials.prism_verify_ssl }}"
   register: nutanix_vm_storage_info
 
 - name: Set Facts - Set Cluster VM Storage Container

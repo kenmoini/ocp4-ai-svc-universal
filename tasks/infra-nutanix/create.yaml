@@ -1,7 +1,7 @@
 ---
-#===========================================================================
+# ===========================================================================
 # Get the Infrastructure Provider for this host
-#===========================================================================
+# ===========================================================================
 
 - name: Get the infrastructure provider for this host
   ansible.builtin.include_tasks: "target_infra_credential.yaml"
@@ -12,7 +12,11 @@
 - name: Get Storage Info
   ansible.builtin.include_tasks: get_storage_info.yaml
 
-- name: Check for this VM - {{ cluster_name }}-{{ node_item.name }}
+- name: Set fact for node_name
+  ansible.builtin.set_fact:
+    node_name: "{{ cluster_name }}-{{ node_item.name }}"
+
+- name: Check for this VM - {{ node_name }}
   ansible.builtin.uri:
     url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v3_base }}/vms/list"
     return_content: true
@@ -26,7 +30,7 @@
     validate_certs: "{{ provider.credentials.prism_verify_ssl }}"
   register: nutanix_vm_check
 
-- name: Create VM processes - {{ cluster_name }}-{{ node_item.name }}
+- name: Create VM processes - {{ node_name }}
   when: nutanix_vm_check.json.entities | length == 0
   block:
 
@@ -47,7 +51,7 @@
       vars:
         cd_name: "ocp-ai-{{ cluster_id }}"
 
-    - name: Create VM - {{ cluster_name }}-{{ node_item.name }}
+    - name: Create VM - {{ node_name }}
       nutanix.ncp.ntnx_vms:
         nutanix_username: "{{ provider.credentials.prism_username }}"
         nutanix_password: "{{ provider.credentials.prism_password }}"
@@ -61,7 +65,7 @@
         networks: "{{ vm_nic_config }}"
         disks: "{{ vm_disk_config }}"
         #  - type: "DISK"
-        #    size_gb: "{{ node_item.vm.disk_size|int }}"
+        #    size_gb: "{{ node_item.vm.disk_size | int }}"
         #    bus: "SATA"
         #    storage_container:
         #      uuid: "{{ nutanix_vm_storage_container_uuid }}"
@@ -74,9 +78,9 @@
           boot_order:
             - DISK
             - CDROM
-        vcpus: "{{ node_item.vm.cpu_sockets|int }}"
-        cores_per_vcpu: "{{ node_item.vm.cpu_cores|int }}"
-        memory_gb: "{{ (node_item.vm.memory|int / 1024) |int }}"
+        vcpus: "{{ node_item.vm.cpu_sockets | int }}"
+        cores_per_vcpu: "{{ node_item.vm.cpu_cores | int }}"
+        memory_gb: "{{ (node_item.vm.memory | int / 1024)  | int }}"
 
     - name: Reset facts
       ansible.builtin.set_fact:

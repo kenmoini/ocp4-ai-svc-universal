@@ -1,18 +1,18 @@
 ---
-#===========================================================================
+# ===========================================================================
 # Get the Infrastructure Provider for this host
-#===========================================================================
+# ===========================================================================
 
 - name: Get the infrastructure provider for this host
   ansible.builtin.include_tasks: "target_infra_credential.yaml"
 
-#===========================================================================
+# ===========================================================================
 # Assemble VM Metadata
-#===========================================================================
+# ===========================================================================
 
 - name: Setup VMWare disk dictionary - {{ node_item.name }}
   ansible.builtin.set_fact:
-    disks: "{{ disks | default([]) + [{ 'size_gb' : disk_item.size, 'type' : type|default('thin') }] }}"
+    disks: "{{ disks | default([]) + [{ 'size_gb' : disk_item.size, 'type' : type | default('thin') }] }}"
   loop: "{{ node_item.vm.disks }}"
   loop_control:
     loop_var: disk_item
@@ -25,7 +25,7 @@
 - name: Setup VMWare network dictionary - {{ node_item.name }}
   when: iface_item.mac_address is defined
   ansible.builtin.set_fact:
-    networks: "{{ networks | default([]) + [{ 'name' : iface_item.vcenter_network | default(provider.configuration.vcenter_network), 'device_type' : 'vmxnet3', 'mac' : iface_item.mac_address|default('') }] }}"
+    networks: "{{ networks | default([]) + [{ 'name' : iface_item.vcenter_network | default(provider.configuration.vcenter_network), 'device_type' : 'vmxnet3', 'mac' : iface_item.mac_address | default('') }] }}"
   loop: "{{ node_item.networking.interfaces }}"
   loop_control:
     loop_var: iface_item
@@ -54,9 +54,9 @@
         state: present
         type: none
 
-#===========================================================================
+# ===========================================================================
 # Create VM
-#===========================================================================
+# ===========================================================================
 
 - name: Create VM - {{ node_item.name }}
   community.vmware.vmware_guest:
@@ -74,10 +74,10 @@
     disk: "{{ disks }}"
     hardware:
       memory_mb: "{{ node_item.vm.memory }}"
-      num_cpu_cores_per_socket : "{{ node_item.vm.cpu_cores }}"
-      num_cpus : "{{ (node_item.vm.cpu_sockets|int * node_item.vm.cpu_cores|int) }}"
-      hotadd_cpu: yes
-      hotadd_memory: yes
+      num_cpu_cores_per_socket: "{{ node_item.vm.cpu_cores }}"
+      num_cpus: "{{ (node_item.vm.cpu_sockets | int * node_item.vm.cpu_cores | int) }}"
+      hotadd_cpu: true
+      hotadd_memory: true
       version: "{{ vcenter_hardware_version | int }}"
       nested_virt: "{{ vsphere_nested_virt | default(False) }}"
     cdrom: "{{ cdrom }}"
@@ -147,9 +147,9 @@
     - vmware_create_vms
     - vmware_boot_vm
 
-#===========================================================================
+# ===========================================================================
 # Cleanup
-#===========================================================================
+# ===========================================================================
 
 - name: Resetting Facts - {{ node_item.name }}
   ansible.builtin.set_fact:

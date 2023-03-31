@@ -1,9 +1,9 @@
 ---
 # Organization stuff
 
-#===========================================================================
+# ===========================================================================
 # Upload ISO
-#===========================================================================
+# ===========================================================================
 
 - name: Check for image, get the image info
   ansible.builtin.include_tasks: get_image_info.yaml
@@ -23,7 +23,7 @@
         force_basic_auth: true
         user: "{{ provider.credentials.prism_username }}"
         password: "{{ provider.credentials.prism_password }}"
-        validate_certs: "{{provider.credentials.prism_verify_ssl }}"
+        validate_certs: "{{ provider.credentials.prism_verify_ssl }}"
       register: nutanix_image_storage_info
 
     - name: Set Facts - Set Cluster Image Storage Container
@@ -55,7 +55,7 @@
         force_basic_auth: true
         user: "{{ provider.credentials.prism_username }}"
         password: "{{ provider.credentials.prism_password }}"
-        validate_certs: "{{provider.credentials.prism_verify_ssl }}"
+        validate_certs: "{{ provider.credentials.prism_verify_ssl }}"
       register: nutanix_create_image_info
 
     - name: Get Task details
@@ -68,7 +68,7 @@
         force_basic_auth: true
         user: "{{ provider.credentials.prism_username }}"
         password: "{{ provider.credentials.prism_password }}"
-        validate_certs: "{{provider.credentials.prism_verify_ssl }}"
+        validate_certs: "{{ provider.credentials.prism_verify_ssl }}"
       register: nutanix_image_task_info
 
     - name: Get Image details
@@ -81,7 +81,7 @@
         force_basic_auth: true
         user: "{{ provider.credentials.prism_username }}"
         password: "{{ provider.credentials.prism_password }}"
-        validate_certs: "{{provider.credentials.prism_verify_ssl }}"
+        validate_certs: "{{ provider.credentials.prism_verify_ssl }}"
       register: nutanix_image_detail_info
       delay: 10
       retries: 30

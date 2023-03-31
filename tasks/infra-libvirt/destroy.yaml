@@ -1,14 +1,14 @@
 ---
-#===========================================================================
+# ===========================================================================
 # Get the Infrastructure Provider for this host
-#===========================================================================
+# ===========================================================================
 
 - name: Get the infrastructure provider for this host - {{ node_item.name }}
   ansible.builtin.include_tasks: "target_infra_credential.yaml"
 
-#===========================================================================
+# ===========================================================================
 # Set Per VM Metadata
-#===========================================================================
+# ===========================================================================
 
 - name: Set extra facts - ssh_key_option - {{ node_item.name }}
   when: provider.credentials.libvirt_ssh_key_path is defined
@@ -25,9 +25,9 @@
     libvirt_uri: "{{ provider.credentials.libvirt_transport | default('qemu') }}://{{ user_target | default('') }}{{ provider.credentials.libvirt_endpoint | default('') }}/system{{ provider.credentials.libvirt_options | default('?no_verify=1&socket=/var/run/libvirt/libvirt-sock') }}{{ ssh_key_option | default('') }}"
     vm_name: "{{ cluster_name }}-{{ node_item.name }}"
 
-#===========================================================================
+# ===========================================================================
 # Power Off and Destroy VM
-#===========================================================================
+# ===========================================================================
 
 - name: List all VMs
   community.libvirt.virt:
@@ -56,9 +56,9 @@
     uri: "{{ libvirt_uri }}"
   when: vm_name in all_vms.list_vms
 
-#===========================================================================
+# ===========================================================================
 # Destroy the VM Disks
-#===========================================================================
+# ===========================================================================
 
 - name: Delete the VM disks - {{ node_item.name }}
   ansible.builtin.include_tasks: "delete_disks.yaml"
@@ -66,9 +66,9 @@
   loop_control:
     loop_var: disk_item
 
-#===========================================================================
+# ===========================================================================
 # Reset facts for next item in the loop
-#===========================================================================
+# ===========================================================================
 - name: Reset facts
   ansible.builtin.set_fact:
     libvirt_uri: ""

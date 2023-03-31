@@ -1,14 +1,14 @@
 ---
-#===========================================================================
+# ===========================================================================
 # Get the Infrastructure Provider for this host
-#===========================================================================
+# ===========================================================================
 
 - name: Get the infrastructure provider for this host
   ansible.builtin.include_tasks: "target_infra_credential.yaml"
 
-#===========================================================================
+# ===========================================================================
 # Destroy VM
-#===========================================================================
+# ===========================================================================
 
 - name: Check for this VM
   ansible.builtin.uri:
@@ -21,7 +21,7 @@
     force_basic_auth: true
     user: "{{ provider.credentials.prism_username }}"
     password: "{{ provider.credentials.prism_password }}"
-    validate_certs: "{{provider.credentials.prism_verify_ssl }}"
+    validate_certs: "{{ provider.credentials.prism_verify_ssl }}"
   register: nutanix_vm_check
 
 - name: Set VM UUID
@@ -42,4 +42,4 @@
     force_basic_auth: true
     user: "{{ provider.credentials.prism_username }}"
     password: "{{ provider.credentials.prism_password }}"
-    validate_certs: "{{provider.credentials.prism_verify_ssl }}"
+    validate_certs: "{{ provider.credentials.prism_verify_ssl }}"

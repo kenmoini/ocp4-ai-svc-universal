@@ -1,8 +1,8 @@
 ---
 
-#===========================================================================
+# ===========================================================================
 # ISO Image
-#===========================================================================
+# ===========================================================================
 
 - name: Get list of images
   ansible.builtin.uri:
@@ -14,7 +14,7 @@
     force_basic_auth: true
     user: "{{ provider.credentials.prism_username }}"
     password: "{{ provider.credentials.prism_password }}"
-    validate_certs: "{{provider.credentials.prism_verify_ssl }}"
+    validate_certs: "{{ provider.credentials.prism_verify_ssl }}"
   register: nutanix_images_info
 
 - name: Set Image Info if it exists

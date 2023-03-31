@@ -1,15 +1,15 @@
 ---
 
-#===========================================================================
+# ===========================================================================
 # Get the Infrastructure Provider for this host
-#===========================================================================
+# ===========================================================================
 
 - name: Get the infrastructure provider for this host
   ansible.builtin.include_tasks: "tasks/infra-baremetal/target_infra_credential.yaml"
 
-#===========================================================================
+# ===========================================================================
 # Get the Redfish Variables for this Infrastructure Provider
-#===========================================================================
+# ===========================================================================
 
 - name: Get the infrastructure provider for this host
   ansible.builtin.include_tasks: "tasks/infra-baremetal/setup-redfish-vars.yaml"
@@ -22,9 +22,9 @@
       - "{{ redfish_system_url }}"
       - "{{ redfish_manager_url }}"
 
-#===========================================================================
+# ===========================================================================
 # Curl the target Redfish System URL
-#===========================================================================
+# ===========================================================================
 
 - name: Do a connection test to the target Redfish System URL
   ansible.builtin.uri:

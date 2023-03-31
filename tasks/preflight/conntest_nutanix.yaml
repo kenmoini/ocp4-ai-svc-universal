@@ -13,7 +13,7 @@
     force_basic_auth: true
     user: "{{ provider.credentials.prism_username }}"
     password: "{{ provider.credentials.prism_password }}"
-    validate_certs: "{{provider.credentials.prism_verify_ssl }}"
+    validate_certs: "{{ provider.credentials.prism_verify_ssl }}"
   register: nutanix_clusters_info
 
 - name: Set Facts - Set Cluster UUID
@@ -38,7 +38,7 @@
     force_basic_auth: true
     user: "{{ provider.credentials.prism_username }}"
     password: "{{ provider.credentials.prism_password }}"
-    validate_certs: "{{provider.credentials.prism_verify_ssl }}"
+    validate_certs: "{{ provider.credentials.prism_verify_ssl }}"
   register: nutanix_networks_info
 
 - name: Set Facts - Set Network UUID
@@ -63,7 +63,7 @@
     force_basic_auth: true
     user: "{{ provider.credentials.prism_username }}"
     password: "{{ provider.credentials.prism_password }}"
-    validate_certs: "{{provider.credentials.prism_verify_ssl }}"
+    validate_certs: "{{ provider.credentials.prism_verify_ssl }}"
   register: nutanix_image_storage_info
 
 - name: Set Facts - Set Cluster Image Storage Container
@@ -88,7 +88,7 @@
     force_basic_auth: true
     user: "{{ provider.credentials.prism_username }}"
     password: "{{ provider.credentials.prism_password }}"
-    validate_certs: "{{provider.credentials.prism_verify_ssl }}"
+    validate_certs: "{{ provider.credentials.prism_verify_ssl }}"
   register: nutanix_vm_storage_info
 
 - name: Set Facts - Set Cluster VM Storage Container
