@@ -29,7 +29,7 @@
 - name: Do a connection test to the target Redfish System URL
   ansible.builtin.uri:
     url: "{{ redfish_system_url }}"
-    return_content: yes
+    return_content: true
     user: "{{ provider.credentials.ipmi_username | default(omit) }}"
     password: "{{ provider.credentials.ipmi_password | default(omit) }}"
     status_code: [200, 201, 202, 204]

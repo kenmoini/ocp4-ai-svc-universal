@@ -12,7 +12,7 @@
       ansible.builtin.unarchive:
         src: "{{ cilium_networking_tar_url }}"
         dest: "{{ tempYAMLDir.path }}"
-        remote_src: yes
+        remote_src: true
 
     - name: Template the CiliumConfig
       ansible.builtin.template:
@@ -30,7 +30,7 @@
       ansible.builtin.uri:
         headers: "{{ compiled_uri_headers }}"
         url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/manifests"
-        return_content: yes
+        return_content: true
         method: POST
         body: "{\"file_name\":\"{{ manifest.key }}\", \"folder\":\"manifests\", \"content\":\"{{ manifest.value }}\"}"
         status_code: 201

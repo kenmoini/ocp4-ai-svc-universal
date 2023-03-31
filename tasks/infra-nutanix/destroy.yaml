@@ -13,12 +13,12 @@
 - name: Check for this VM
   ansible.builtin.uri:
     url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v3_base }}/vms/list"
-    return_content: yes
+    return_content: true
     method: POST
     status_code: 200
     body_format: json
     body: '{"kind":"vm", "filter": "vm_name=={{ cluster_name }}-{{ node_item.name }}"}'
-    force_basic_auth: yes
+    force_basic_auth: true
     user: "{{ provider.credentials.prism_username }}"
     password: "{{ provider.credentials.prism_password }}"
     validate_certs: "{{provider.credentials.prism_verify_ssl }}"
@@ -35,11 +35,11 @@
   when: nutanix_vm_uuid is defined
   ansible.builtin.uri:
     url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v3_base }}/vms/{{ nutanix_vm_uuid }}"
-    return_content: yes
+    return_content: true
     method: DELETE
     status_code: 202
     body_format: json
-    force_basic_auth: yes
+    force_basic_auth: true
     user: "{{ provider.credentials.prism_username }}"
     password: "{{ provider.credentials.prism_password }}"
     validate_certs: "{{provider.credentials.prism_verify_ssl }}"

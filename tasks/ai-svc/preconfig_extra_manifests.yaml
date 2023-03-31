@@ -5,7 +5,7 @@
       ansible.builtin.uri:
         headers: "{{ compiled_uri_headers }}"
         url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/manifests"
-        return_content: yes
+        return_content: true
         method: POST
         body: "{\"file_name\":\"{{ manifest.name }}\", \"folder\":\"{{ manifest.folder }}\", \"content\":\"{{ manifest.content | b64encode }}\"}"
         status_code: 201

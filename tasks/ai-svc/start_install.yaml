@@ -3,7 +3,7 @@
   ansible.builtin.uri:
     headers: "{{ compiled_uri_headers }}"
     url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}"
-    return_content: yes
+    return_content: true
     method: GET
     status_code: 200
     body_format: json
@@ -17,7 +17,7 @@
   ansible.builtin.uri:
     headers: "{{ compiled_uri_headers }}"
     url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/actions/install"
-    return_content: yes
+    return_content: true
     method: POST
     status_code: 202
     body_format: json

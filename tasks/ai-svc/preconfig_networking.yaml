@@ -9,7 +9,7 @@
   ansible.builtin.uri:
     headers: "{{ compiled_uri_headers }}"
     url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/install-config"
-    return_content: yes
+    return_content: true
     method: PATCH
     body: "{{ calico_networking_json | to_json }}"
     status_code: 201
@@ -21,7 +21,7 @@
   ansible.builtin.uri:
     headers: "{{ compiled_uri_headers }}"
     url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/install-config"
-    return_content: yes
+    return_content: true
     method: PATCH
     body: "{{ cilium_networking_json | to_json }}"
     status_code: 201

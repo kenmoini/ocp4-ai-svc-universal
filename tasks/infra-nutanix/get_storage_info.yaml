@@ -7,12 +7,12 @@
 - name: Get available Storage Containers
   ansible.builtin.uri:
     url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v2_base }}/storage_containers"
-    return_content: yes
+    return_content: true
     method: GET
     status_code: 200
     body_format: json
     body: '{"filter_criteria": "name=={{ provider.configuration.prism_image_storage_container_name }}"}'
-    force_basic_auth: yes
+    force_basic_auth: true
     user: "{{ provider.credentials.prism_username }}"
     password: "{{ provider.credentials.prism_password }}"
     validate_certs: "{{provider.credentials.prism_verify_ssl }}"
@@ -34,12 +34,12 @@
 - name: Get available Storage Containers
   ansible.builtin.uri:
     url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v2_base }}/storage_containers"
-    return_content: yes
+    return_content: true
     method: GET
     status_code: 200
     body_format: json
     body: '{"filter_criteria": "name=={{ provider.configuration.prism_vm_storage_container_name }}"}'
-    force_basic_auth: yes
+    force_basic_auth: true
     user: "{{ provider.credentials.prism_username }}"
     password: "{{ provider.credentials.prism_password }}"
     validate_certs: "{{provider.credentials.prism_verify_ssl }}"

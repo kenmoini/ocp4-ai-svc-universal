@@ -9,7 +9,7 @@
   ansible.builtin.uri:
     headers: "{{ compiled_uri_headers }}"
     url: "{{ assisted_service_endpoint }}/clusters/"
-    return_content: yes
+    return_content: true
     method: POST
     body: "{{ lookup('ansible.builtin.template', 'templates/deployment.json.j2') }}"
     status_code: 201

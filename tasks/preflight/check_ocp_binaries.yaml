@@ -22,7 +22,7 @@
       ansible.builtin.unarchive:
         src: https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-client-linux.tar.gz
         dest: "{{ generated_asset_directory }}/bin/"
-        remote_src: yes
+        remote_src: true
 
     - name: Set the oc binary path
       ansible.builtin.set_fact:
@@ -62,7 +62,7 @@
 #      ansible.builtin.unarchive:
 #        src: "{{ generated_asset_directory }}/bin/openshift-install-linux.tar.gz"
 #        dest: "{{ generated_asset_directory }}/bin/"
-#        remote_src: yes
+#        remote_src: true
 #
 #    - name: Set the openshift-install binary path
 #      set_fact:

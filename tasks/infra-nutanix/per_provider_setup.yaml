@@ -15,12 +15,12 @@
     - name: Get available Storage Containers
       ansible.builtin.uri:
         url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v2_base }}/storage_containers"
-        return_content: yes
+        return_content: true
         method: GET
         status_code: 200
         body_format: json
         body: '{"filter_criteria": "name=={{ provider.configuration.prism_image_storage_container_name }}"}'
-        force_basic_auth: yes
+        force_basic_auth: true
         user: "{{ provider.credentials.prism_username }}"
         password: "{{ provider.credentials.prism_password }}"
         validate_certs: "{{provider.credentials.prism_verify_ssl }}"
@@ -38,7 +38,7 @@
     - name: Create Image if it does not exist
       ansible.builtin.uri:
         url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v2_base }}/images"
-        return_content: yes
+        return_content: true
         method: POST
         status_code: [200, 201]
         body_format: json
@@ -52,7 +52,7 @@
               "storage_container_uuid": "{{ image_storage_container_uuid }}"
             }
           }'
-        force_basic_auth: yes
+        force_basic_auth: true
         user: "{{ provider.credentials.prism_username }}"
         password: "{{ provider.credentials.prism_password }}"
         validate_certs: "{{provider.credentials.prism_verify_ssl }}"
@@ -61,11 +61,11 @@
     - name: Get Task details
       ansible.builtin.uri:
         url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v2_base }}/tasks/{{ nutanix_create_image_info.json.task_uuid }}"
-        return_content: yes
+        return_content: true
         method: GET
         status_code: 200
         body_format: json
-        force_basic_auth: yes
+        force_basic_auth: true
         user: "{{ provider.credentials.prism_username }}"
         password: "{{ provider.credentials.prism_password }}"
         validate_certs: "{{provider.credentials.prism_verify_ssl }}"
@@ -74,11 +74,11 @@
     - name: Get Image details
       ansible.builtin.uri:
         url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v2_base }}/images/{{ nutanix_image_task_info.json.entity_list[0].entity_id }}"
-        return_content: yes
+        return_content: true
         method: GET
         status_code: 200
         body_format: json
-        force_basic_auth: yes
+        force_basic_auth: true
         user: "{{ provider.credentials.prism_username }}"
         password: "{{ provider.credentials.prism_password }}"
         validate_certs: "{{provider.credentials.prism_verify_ssl }}"

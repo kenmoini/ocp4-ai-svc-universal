@@ -61,13 +61,13 @@
     - name: Get the Members of the Systems list
       ansible.builtin.uri:
         url: "{{ redfish_systems_url }}"
-        return_content: yes
+        return_content: true
       register: sushy_systems
 
     - name: Get the data for the systems
       ansible.builtin.uri:
         url: "{{ provider.credentials.ipmi_transport }}://{{ provider.credentials.ipmi_endpoint }}:{{ provider.credentials.ipmi_port }}{{ system_item['@odata.id'] }}"
-        return_content: yes
+        return_content: true
       loop: "{{ sushy_systems.json.Members }}"
       loop_control:
         loop_var: system_item

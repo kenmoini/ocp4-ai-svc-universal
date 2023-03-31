@@ -318,6 +318,9 @@
 
     - name: Do cluster configuration things
       when: cluster_status in ["insufficient", "ready", "pending-for-input", "adding-hosts"]
+      tags:
+        - ai_svc
+        - ai_configure_cluster
       block:
         - name: AI Service - Inject extra manifests
           when: injected_manifests is defined
@@ -484,15 +487,13 @@
         #  tags:
         #    - ai_svc_set_core_user_password
 
-      tags:
-        - ai_svc
-        - ai_configure_cluster
-
     # =========================================================================================================================
     # Downloading of the Discovery ISO
     # =========================================================================================================================
 
     - name: Download ISO if needed
+      tags:
+        - download_iso
       block:
         - name: Check for existing ISO
           ansible.builtin.stat:
@@ -507,6 +508,9 @@
           block:
 
             - name: Pull OpenShift ISO if needed
+              tags:
+                - ai_svc
+                - ai_svc_download_iso
               ansible.builtin.get_url:
                 headers: "{{ compiled_uri_headers }}"
                 url: "{{ infraenv_download_url }}"
@@ -515,9 +519,6 @@
               until: pull_result.status_code is defined and pull_result.status_code in [201, 200, 302, 304]
               retries: 10
               delay: 10
-              tags:
-                - ai_svc
-                - ai_svc_download_iso
 
           rescue:
             - name: Pull info again
@@ -539,6 +540,9 @@
                   ansible.builtin.include_tasks: tasks/ai-svc/setup_auth_headers.yaml
 
                 - name: Pull OpenShift ISO if needed
+                  tags:
+                    - ai_svc
+                    - ai_svc_download_iso
                   ansible.builtin.get_url:
                     headers: "{{ compiled_uri_headers }}"
                     url: "{{ infraenv_download_url }}"
@@ -547,12 +551,6 @@
                   until: pull_result.status_code is defined and pull_result.status_code in [201, 200, 302, 304]
                   retries: 10
                   delay: 10
-                  tags:
-                    - ai_svc
-                    - ai_svc_download_iso
-
-      tags:
-        - download_iso
 
     # =========================================================================================================================
     # Local HTTP Server
@@ -608,14 +606,14 @@
         - infra_baremetal
         - infra_baremetal_create_infra
       block:
-        #- name: Perform per Bare Metal Infrastructure Provider set up
-        #  ansible.builtin.include_tasks: tasks/infra-baremetal/per_provider_setup.yaml
-        #  loop: "{{ unique_baremetal_infra_providers }}"
-        #  loop_control:
-        #    loop_var: provider
-        #    label: "Bare Metal Infrastructure Provider: {{ provider.name }}"
-        #  tags:
-        #    - infra_baremetal_per_provider_setup
+        # - name: Perform per Bare Metal Infrastructure Provider set up
+        #   ansible.builtin.include_tasks: tasks/infra-baremetal/per_provider_setup.yaml
+        #   loop: "{{ unique_baremetal_infra_providers }}"
+        #   loop_control:
+        #     loop_var: provider
+        #     label: "Bare Metal Infrastructure Provider: {{ provider.name }}"
+        #   tags:
+        #     - infra_baremetal_per_provider_setup
 
         - name: Deploy Bare Metal infrastructure
           ansible.builtin.include_tasks:
@@ -630,12 +628,12 @@
             label: "Bare Metal Host: {{ node_item.name }}"
 
     - name: Wait for other bare metal hosts to be manually added
-      when: baremetal_wait_for_manual_hosts is defined and baremetal_wait_for_manual_hosts|bool
-      ansible.builtin.pause:
-        prompt: "\nDownload the ISO from the Assisted Installer Service and boot your bare metal hosts.\nIt can also be found locally at {{ generated_asset_directory }}/{{ cluster_id }}/ocp_ai.iso\n\nPress [ENTER] to continue"
+      when: baremetal_wait_for_manual_hosts is defined and baremetal_wait_for_manual_hosts | bool
       tags:
         - infra_baremetal
         - infra_baremetal_wait_for_other_hosts
+      ansible.builtin.pause:
+        prompt: "\nDownload the ISO from the Assisted Installer Service and boot your bare metal hosts.\nIt can also be found locally at {{ generated_asset_directory }}/{{ cluster_id }}/ocp_ai.iso\n\nPress [ENTER] to continue"
 
     # =========================================================================================================================
     # Infrastructure-specific Creation Tasks - Libvirt
@@ -673,6 +671,9 @@
         - libvirt_hosts is defined
         - libvirt_hosts | length > 0
         - unique_libvirt_infra_providers | length > 0
+      tags:
+        - infra_libvirt
+        - infra_libvirt_create_infra
       block:
         - name: Perform per Libvirt Infrastructure Provider set up
           ansible.builtin.include_tasks:
@@ -700,9 +701,6 @@
           loop_control:
             loop_var: node_item
             label: "Libvirt Host: {{ node_item.name }}"
-      tags:
-        - infra_libvirt
-        - infra_libvirt_create_infra
 
     # =========================================================================================================================
     # Infrastructure-specific Creation Tasks - Nutanix
@@ -740,6 +738,9 @@
         - nutanix_hosts is defined
         - nutanix_hosts | length > 0
         - unique_nutanix_infra_providers | length > 0
+      tags:
+        - infra_nutanix
+        - infra_nutanix_create_infra
       block:
         - name: Perform per Nutanix Infrastructure Provider set up
           ansible.builtin.include_tasks:
@@ -767,9 +768,6 @@
           loop_control:
             loop_var: node_item
             label: "Nutanix Host: {{ node_item.name }}"
-      tags:
-        - infra_nutanix
-        - infra_nutanix_create_infra
 
     # =========================================================================================================================
     # Infrastructure-specific Creation Tasks - vSphere
@@ -807,6 +805,9 @@
         - vsphere_hosts is defined
         - vsphere_hosts | length > 0
         - unique_vsphere_infra_providers | length > 0
+      tags:
+        - infra_vsphere
+        - infra_vsphere_create_infra
       block:
         - name: Perform per vSphere Infrastructure Provider set up
           ansible.builtin.include_tasks:
@@ -837,9 +838,6 @@
             label: "vSphere Host: {{ node_item.name }}"
           tags:
             - infra_vsphere_deploy_infra
-      tags:
-        - infra_vsphere
-        - infra_vsphere_create_infra
 
     # =========================================================================================================================
     # AI Service - Configure Cluster
@@ -974,6 +972,8 @@
 
     - name: Log into the cluster with a Kubeadmin password
       when: cluster_kubeadmin_password is defined
+      tags:
+        - post_deploy
       ansible.builtin.shell:
         cmd: "oc login {{ cluster_api_url }} --password=\"{{ cluster_kubeadmin_password }}\" --username=\"{{ cluster_kubeadmin_username }}\" --insecure-skip-tls-verify=true"
       register: cluster_auth_status
@@ -981,11 +981,11 @@
       no_log: false
       retries: 120
       delay: 20
-      tags:
-        - post_deploy
 
     - name: Log into the cluster
       when: cluster_kubeadmin_password is not defined
+      tags:
+        - post_deploy
       ansible.builtin.shell:
         cmd: "oc whoami"
       environment:
@@ -995,10 +995,8 @@
       no_log: false
       retries: 120
       delay: 20
-      tags:
-        - post_deploy
 
-    - name: d
+    - name: Debug
       ansible.builtin.debug:
         msg: "{{ cluster_auth_status }}"
 

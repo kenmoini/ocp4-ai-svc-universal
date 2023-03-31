@@ -8,7 +8,7 @@
   ansible.builtin.uri:
     headers: "{{ compiled_uri_headers }}"
     url: "{{ assisted_service_endpoint }}/infra-envs/"
-    return_content: yes
+    return_content: true
     method: POST
     body: "{{ lookup('ansible.builtin.template', 'templates/infraenv.json.j2') }}"
     status_code: 201

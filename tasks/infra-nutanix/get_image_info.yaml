@@ -7,11 +7,11 @@
 - name: Get list of images
   ansible.builtin.uri:
     url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v2_base }}/images?include_vm_disk_paths=false&include_vm_disk_sizes=false'"
-    return_content: yes
+    return_content: true
     method: GET
     status_code: 200
     body_format: json
-    force_basic_auth: yes
+    force_basic_auth: true
     user: "{{ provider.credentials.prism_username }}"
     password: "{{ provider.credentials.prism_password }}"
     validate_certs: "{{provider.credentials.prism_verify_ssl }}"

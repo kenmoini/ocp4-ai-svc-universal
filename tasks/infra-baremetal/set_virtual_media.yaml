@@ -3,7 +3,7 @@
 - name: Check the Redfish Manager Virtual CD
   ansible.builtin.uri:
     url: "{{ redfish_manager_url }}/{{ redfish_media_device }}"
-    return_content: yes
+    return_content: true
     user: "{{ provider.credentials.ipmi_username | default(omit) }}"
     password: "{{ provider.credentials.ipmi_password | default(omit) }}"
     status_code: [200, 201, 202, 204]
@@ -32,7 +32,7 @@
 - name: Check the Redfish Manager Virtual CD
   ansible.builtin.uri:
     url: "{{ redfish_manager_url }}/{{ redfish_media_device }}"
-    return_content: yes
+    return_content: true
     user: "{{ provider.credentials.ipmi_username | default(omit) }}"
     password: "{{ provider.credentials.ipmi_password | default(omit) }}"
     status_code: [200, 201, 202, 204]

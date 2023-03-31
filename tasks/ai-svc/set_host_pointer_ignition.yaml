@@ -4,7 +4,7 @@
   ansible.builtin.uri:
     headers: "{{ compiled_uri_headers }}"
     url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}/hosts"
-    return_content: yes
+    return_content: true
     method: GET
     status_code: 200
     body_format: json
@@ -28,7 +28,7 @@
   ansible.builtin.uri:
     headers: "{{ compiled_uri_headers }}"
     url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}/hosts/{{ host_item.id }}/ignition"
-    return_content: yes
+    return_content: true
     method: PATCH
     body:  '{{ override_ic_body }}'
     status_code: 201

@@ -13,7 +13,7 @@
   ansible.builtin.uri:
     headers: "{{ compiled_uri_headers }}"
     url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/install-config"
-    return_content: yes
+    return_content: true
     method: PATCH
     body:  '{{ wrapped_fact | to_json }}'
     status_code: 201

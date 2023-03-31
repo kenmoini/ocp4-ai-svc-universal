@@ -20,7 +20,7 @@
     - name: Copy private key
       when: not public_key_check.stat.exists
       ansible.builtin.copy:
-        remote_src: yes
+        remote_src: true
         src: "{{ generated_asset_directory }}/cluster_key-{{ deployment_name }}"
         dest: "{{ generated_asset_directory }}/{{ cluster_id }}/cluster_key"
         mode: 0400
@@ -28,7 +28,7 @@
     - name: Copy public key
       when: not public_key_check.stat.exists
       ansible.builtin.copy:
-        remote_src: yes
+        remote_src: true
         src: "{{ generated_asset_directory }}/cluster_key-{{ deployment_name }}.pub"
         dest: "{{ generated_asset_directory }}/{{ cluster_id }}/cluster_key.pub"
 
