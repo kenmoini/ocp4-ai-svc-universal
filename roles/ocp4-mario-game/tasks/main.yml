@@ -7,8 +7,8 @@
     kind: Namespace
     api_version: v1
     merge_type:
-    - strategic-merge
-    - merge
+      - strategic-merge
+      - merge
     definition:
       metadata:
         name: "{{ mario_project_namespace }}"
@@ -17,8 +17,8 @@
           openshift.io/display-name: "Infinite Mario"
       spec: {}
   tags:
-  - preflight
-  - create_ns
+    - preflight
+    - create_ns
 
 - name: Create infinite-mario DeploymentConfig
   kubernetes.core.k8s:

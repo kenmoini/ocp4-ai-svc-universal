@@ -5,7 +5,7 @@
     idp_collection: []
 
 - name: Loop through the idp_providers
-  include_tasks: loop.yml
+  ansible.builtin.include_tasks: loop.yml
   loop: "{{ idp_providers }}"
   loop_control:
     loop_var: provider
@@ -15,8 +15,8 @@
     kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     state: present
     merge_type:
-    - strategic-merge
-    - merge
+      - strategic-merge
+      - merge
     definition:
       apiVersion: config.openshift.io/v1
       kind: OAuth
@@ -26,7 +26,7 @@
         identityProviders: "{{ idp_collection }}"
 
 - name: Loop through the idp_providers for any LDAP group sync setups
-  include_tasks: ldap-group-sync.yml
+  ansible.builtin.include_tasks: ldap-group-sync.yml
   loop: "{{ idp_providers }}"
   loop_control:
     loop_var: provider

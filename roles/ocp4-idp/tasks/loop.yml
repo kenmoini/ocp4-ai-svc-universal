@@ -16,8 +16,8 @@
           kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
           state: present
           merge_type:
-          - strategic-merge
-          - merge
+            - strategic-merge
+            - merge
           definition:
             apiVersion: v1
             kind: Secret
@@ -61,8 +61,8 @@
           kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
           state: present
           merge_type:
-          - strategic-merge
-          - merge
+            - strategic-merge
+            - merge
           definition:
             apiVersion: v1
             kind: ConfigMap
@@ -79,8 +79,8 @@
           kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
           state: present
           merge_type:
-          - strategic-merge
-          - merge
+            - strategic-merge
+            - merge
           definition:
             apiVersion: v1
             kind: Secret
@@ -105,13 +105,13 @@
               ldap:
                 attributes:
                   id:
-                  - dn
+                    - dn
                   email:
-                  - mail
+                    - mail
                   name:
-                  - cn
+                    - cn
                   preferredUsername:
-                  - uid
+                    - uid
                 bindDN: "{{ provider.bindDN }}"
                 bindPassword:
                   name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-bind-password"
@@ -171,13 +171,13 @@
               ldap:
                 attributes:
                   id:
-                  - sAMAccountName
+                    - sAMAccountName
                   email:
-                  - mail
+                    - mail
                   name:
-                  - cn
+                    - cn
                   preferredUsername:
-                  - sAMAccountName
+                    - sAMAccountName
                 bindDN: "{{ provider.bindDN }}"
                 bindPassword:
                   name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-bind-password"
