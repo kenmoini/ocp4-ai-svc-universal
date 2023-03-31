@@ -24,7 +24,7 @@
     url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}"
     return_content: true
     method: PATCH
-    body:  '{{ override_ntp_ic_body }}'
+    body: '{{ override_ntp_ic_body }}'
     status_code: 201
     body_format: json
   register: ntpCluster_resp
@@ -35,7 +35,7 @@
     url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}"
     return_content: true
     method: PATCH
-    body:  '{{ override_ntp_ic_body }}'
+    body: '{{ override_ntp_ic_body }}'
     status_code: 201
     body_format: json
   register: ntpInfraEnv_resp
