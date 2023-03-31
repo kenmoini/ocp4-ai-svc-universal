@@ -15,7 +15,7 @@
     url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/install-config"
     return_content: yes
     method: PATCH
-    body:  '{{ lookup("file", installconfigfilepath) }}'
+    body:  '{{ wrapped_fact | to_json }}'
     status_code: 201
     body_format: json
   register: additionalBundleIC_resp

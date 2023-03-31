@@ -49,6 +49,12 @@
 - name: Read in SSH key
   when: not generate_ssh_key
   block:
-    - name: Read pre-exising SSH Key
-      set_fact:
-        ssh_public_key: "{{ lookup('file', ssh_pub_key_path) }}"
+  - name: Fetch the pre-existing SSH Key
+    ansible.builtin.slurp:
+      src: "{{ ssh_pub_key_path }}"
+    register: sshKeySlurp
+      
+  - name: Set the SSH Key from a file
+    ansible.builtin.set_fact:
+      ssh_public_key: "{{ sshKeySlurp['content'] | b64decode | trim }}"
+
