@@ -28,7 +28,7 @@
 # ====================================================================================================================
 
 - name: Check for required variables - Global
-  assert:
+  ansible.builtin.assert:
     that:
       - vars[var_item] is defined
   loop:

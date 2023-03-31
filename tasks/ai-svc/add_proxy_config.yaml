@@ -16,21 +16,21 @@
 
 - name: Set proxy ic conf
   ansible.builtin.set_fact:
-    proxy_ic_conf: "{\"httpProxy\": \"{{ cluster_proxy.httpProxy | default('') }}\", \"httpsProxy\": \"{{ cluster_proxy.httpsProxy | default('') }}\", \"noProxy\": \"{{ cluster_no_proxy | default('') }}\"}"
+    proxy_ic_conf: "{\"httpProxy\": \"{{ cluster_proxy.httpProxy | default('') }}\", \"httpsProxy\": \"{{ cluster_proxy.httpsProxy | default('') }}\", \"noProxy\": \"{{ cluster_no_proxy | default('') }}\"}" #yamllint disable-line rule:line-length
 
 - name: Set ignition_config_overrides
   ansible.builtin.set_fact:
-    ignition_config_override_files: "{{ ignition_config_override_files | default('') }}{{ ',' if ignition_config_override_files is defined and ignition_config_override_files != '' }}{{ '{\"path\": \"/etc/profile.d/proxy_env_vars.sh\", \"mode\": 420, \"overwrite\": true, \"user\": { \"name\": \"root\"},\"contents\": {\"source\": \"data:text/plain;base64,{{ proxy_env_config | b64encode }}\"}}' }}"
+    ignition_config_override_files: "{{ ignition_config_override_files | default('') }}{{ ',' if ignition_config_override_files is defined and ignition_config_override_files != '' }}{{ '{\"path\": \"/etc/profile.d/proxy_env_vars.sh\", \"mode\": 420, \"overwrite\": true, \"user\": { \"name\": \"root\"},\"contents\": {\"source\": \"data:text/plain;base64,{{ proxy_env_config | b64encode }}\"}}' }}" #yamllint disable-line rule:line-length
 
-#- name: debug ignition_config_override_files
-#  ansible.builtin.debug:
-#    msg: "{{ ignition_config_override_files }}"
+# - name: debug ignition_config_override_files
+#   ansible.builtin.debug:
+#     msg: "{{ ignition_config_override_files }}"
 
 - name: Set body data
   ansible.builtin.set_fact:
-    override_proxy_patch_body: "{ \"proxy\": { \"no_proxy\": \"{{ cluster_no_proxy | default('') }}\", \"http_proxy\": \"{{ cluster_proxy.httpProxy | default('') }}\", \"https_proxy\": \"{{ cluster_proxy.httpsProxy | default('') }}\"  } }"
+    override_proxy_patch_body: "{ \"proxy\": { \"no_proxy\": \"{{ cluster_no_proxy | default('') }}\", \"http_proxy\": \"{{ cluster_proxy.httpProxy | default('') }}\", \"https_proxy\": \"{{ cluster_proxy.httpsProxy | default('') }}\"  } }" #yamllint disable-line rule:line-length
     override_ic_body: "{ \"proxy\": {{ proxy_ic_conf | to_json }}  }"
-    #override_proxy_body: "{ \"ignition_config_override\": '{{ ignition_config_override_bundle_string | to_json }}' }"
+    # override_proxy_body: "{ \"ignition_config_override\": '{{ ignition_config_override_bundle_string | to_json }}' }"
 
 - name: Set override struct
   ansible.builtin.set_fact:
@@ -44,20 +44,20 @@
   ansible.builtin.set_fact:
     install_config_overrides: "{{ install_config_overrides | combine(install_config_override_proxy) }}"
 
-#- name: Inject extra Proxy Env Variables into the Discovery ISO
-#  ansible.builtin.uri:
-#    headers: "{{ compiled_uri_headers }}"
-#    url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}"
-#    return_content: true
-#    method: PATCH
-#    body:  "{{ override_proxy_body }}"
-#    status_code: 201
-#    body_format: json
-#  register: additionalProxiesEnvVars_resp
+# - name: Inject extra Proxy Env Variables into the Discovery ISO
+#   ansible.builtin.uri:
+#     headers: "{{ compiled_uri_headers }}"
+#     url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}"
+#     return_content: true
+#     method: PATCH
+#     body:  "{{ override_proxy_body }}"
+#     status_code: 201
+#     body_format: json
+#   register: additionalProxiesEnvVars_resp
 
-#- name: d
-#  ansible.builtin.debug:
-#    msg: "{{ additionalProxiesEnvVars_resp }}"
+# - name: d
+#   ansible.builtin.debug:
+#     msg: "{{ additionalProxiesEnvVars_resp }}"
 
 - name: Inject Proxy config into the Cluster
   ansible.builtin.uri:
@@ -81,23 +81,23 @@
     body_format: json
   register: proxyInfraEnv_resp
 
-#- name: Inject the Proxy config into the install-config
-#  ansible.builtin.uri:
-#    headers: "{{ compiled_uri_headers }}"
-#    url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/install-config"
-#    return_content: true
-#    method: PATCH
-#    body:  '{{ override_ic_body | to_json }}'
-#    status_code: 201
-#    body_format: json
-#  register: proxyIC_resp
+# - name: Inject the Proxy config into the install-config
+#   ansible.builtin.uri:
+#     headers: "{{ compiled_uri_headers }}"
+#     url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/install-config"
+#     return_content: true
+#     method: PATCH
+#     body:  '{{ override_ic_body | to_json }}'
+#     status_code: 201
+#     body_format: json
+#   register: proxyIC_resp
 
-#- name: Get the install-config
-#  ansible.builtin.uri:
-#    headers: "{{ compiled_uri_headers }}"
-#    url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/install-config"
-#    return_content: true
-#    method: GET
-#    status_code: 200
-#    body_format: json
-#  register: getproxyIC_resp
+# - name: Get the install-config
+#   ansible.builtin.uri:
+#     headers: "{{ compiled_uri_headers }}"
+#     url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/install-config"
+#     return_content: true
+#     method: GET
+#     status_code: 200
+#     body_format: json
+#   register: getproxyIC_resp

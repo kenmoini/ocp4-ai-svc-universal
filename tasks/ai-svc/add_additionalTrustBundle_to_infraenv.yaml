@@ -11,63 +11,63 @@
 
 - name: Set override string
   ansible.builtin.set_fact:
-    ignition_config_override_files: "{{ ignition_config_override_files | default('') }}{{ ',' if ignition_config_override_files is defined and ignition_config_override_files != '' }}{{ '{\"path\": \"/etc/pki/ca-trust/source/anchors/extra_ca.pem\", \"mode\": 420, \"overwrite\": true, \"user\": { \"name\": \"root\"},\"contents\": {\"source\": \"data:text/plain;base64,{{ additionalTrustBundle | b64encode }}\"}}' }}"
+    ignition_config_override_files: "{{ ignition_config_override_files | default('') }}{{ ',' if ignition_config_override_files is defined and ignition_config_override_files != '' }}{{ '{\"path\": \"/etc/pki/ca-trust/source/anchors/extra_ca.pem\", \"mode\": 420, \"overwrite\": true, \"user\": { \"name\": \"root\"},\"contents\": {\"source\": \"data:text/plain;base64,{{ additionalTrustBundle | b64encode }}\"}}' }}" #yamllint disable-line rule:line-length
 
-#- name: debug ignition_config_override_files
-#  debug:
-#    msg: "{{ ignition_config_override_files }}"
+# - name: debug ignition_config_override_files
+#   ansible.builtin.debug:
+#     msg: "{{ ignition_config_override_files }}"
 
 - name: Set body data
   ansible.builtin.set_fact:
-    #override_body: "{ \"ignition_config_override\": '{{ ignition_config_override_bundle_string | to_json }}{{ ',' if ignition_config_overrides_resp.json.ignition_config_override != '' }}{{ ignition_config_overrides_resp.json.ignition_config_override }}' }"
+    # override_body: "{ \"ignition_config_override\": '{{ ignition_config_override_bundle_string | to_json }}{{ ',' if ignition_config_overrides_resp.json.ignition_config_override != '' }}{{ ignition_config_overrides_resp.json.ignition_config_override }}' }"
     override_ic_body: "{ \"additionalTrustBundle\": \"{{ additionalTrustBundle }}\" }"
 
-#- name: Debug override_ic_body
-#  ansible.builtin.debug:
-#    msg: "{{ override_ic_body }}"
-#
-#- name: Debug override_ic_body
-#  ansible.builtin.debug:
-#    msg: '{{ override_ic_body | to_json }}'
+# - name: Debug override_ic_body
+#   ansible.builtin.debug:
+#     msg: "{{ override_ic_body }}"
+# 
+# - name: Debug override_ic_body
+#   ansible.builtin.debug:
+#     msg: '{{ override_ic_body | to_json }}'
 
-#- name: Inject extra Root CAs into the Discovery ISO
-#  ansible.builtin.uri:
-#    headers: "{{ compiled_uri_headers }}"
-#    url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}"
-#    return_content: true
-#    method: PATCH
-#    body:  "{{ override_body }}"
-#    status_code: 201
-#    body_format: json
-#  register: additionalBundle_resp
+# - name: Inject extra Root CAs into the Discovery ISO
+#   ansible.builtin.uri:
+#     headers: "{{ compiled_uri_headers }}"
+#     url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}"
+#     return_content: true
+#     method: PATCH
+#     body:  "{{ override_body }}"
+#     status_code: 201
+#     body_format: json
+#   register: additionalBundle_resp
 
-#- name: d
-#  ansible.builtin.debug:
-#    msg: "{{ additionalBundle_resp }}"
+# - name: d
+#   ansible.builtin.debug:
+#     msg: "{{ additionalBundle_resp }}"
 
-#- name: Get current install-config
-#  ansible.builtin.uri:
-#    headers: "{{ compiled_uri_headers }}"
-#    url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/install-config"
-#    return_content: true
-#    method: GET
-#  register: getIC_res
-#
-#- name: Debug getIC_res
-#  ansible.builtin.debug:
-#    msg: "{{ getIC_res }}"
-#
-#- name: Debug compiled_uri_headers
-#  ansible.builtin.debug:
-#    msg: "{{ compiled_uri_headers }}"
+# - name: Get current install-config
+#   ansible.builtin.uri:
+#     headers: "{{ compiled_uri_headers }}"
+#     url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/install-config"
+#     return_content: true
+#     method: GET
+#   register: getIC_res
+# 
+# - name: Debug getIC_res
+#   ansible.builtin.debug:
+#     msg: "{{ getIC_res }}"
+# 
+# - name: Debug compiled_uri_headers
+#   ansible.builtin.debug:
+#     msg: "{{ compiled_uri_headers }}"
 
-#- name: Inject extra Root CAs into the install-config.yaml
-#  ansible.builtin.uri:
-#    headers: "{{ compiled_uri_headers }}"
-#    url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/install-config"
-#    return_content: true
-#    method: PATCH
-#    body:  '{{ override_ic_body }}'
-#    status_code: 201
-#    body_format: json
-#  register: additionalBundleIC_resp
+# - name: Inject extra Root CAs into the install-config.yaml
+#   ansible.builtin.uri:
+#     headers: "{{ compiled_uri_headers }}"
+#     url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}/install-config"
+#     return_content: true
+#     method: PATCH
+#     body:  '{{ override_ic_body }}'
+#     status_code: 201
+#     body_format: json
+#   register: additionalBundleIC_resp

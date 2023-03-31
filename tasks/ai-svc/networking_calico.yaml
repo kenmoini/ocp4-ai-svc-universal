@@ -18,7 +18,7 @@
 
     - name: Base64 Encode the files
       ansible.builtin.set_fact:
-        calico_manifests: "{{ calico_manifests | default({}) | combine ({ (item | basename) : lookup('file', item) | b64encode }) }}"
+        calico_manifests: "{{ calico_manifests | default({}) | combine({(item | basename): lookup('file', item) | b64encode}) }}"
       with_fileglob:
         - "{{ tempYAMLDir.path }}/*.yml"
         - "{{ tempYAMLDir.path }}/*.yaml"
