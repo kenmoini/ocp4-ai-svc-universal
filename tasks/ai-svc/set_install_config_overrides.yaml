@@ -20,3 +20,6 @@
     status_code: 201
     body_format: json
   register: additional_bundle_ic_resp
+  failed_when:
+  - additional_bundle_ic_resp.status != 201
+  - '"error while adding Platfom baremetal to install config" not in (additional_bundle_ic_resp.content|from_json).reason'

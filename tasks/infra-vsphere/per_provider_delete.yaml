@@ -10,12 +10,12 @@
     username: '{{ provider.credentials.vcenter_username }}'
     password: '{{ provider.credentials.vcenter_password }}'
     validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
-    datacenter: "{{ provider.configuration.vcenter_datacenter }}"
+    datacenter: "{{ provider.configuration.vcenter_path | default('') }}{{ provider.configuration.vcenter_datacenter }}"
     datastore: "{{ provider.configuration.vcenter_datastore }}"
     path: "ISOs/ocp-ai-{{ cluster_id }}.iso"
     state: file
-  ignore_errors: true
   changed_when: false
+  failed_when: false
   register: vmware_check_for_iso
   tags:
     - vmware_tasks
@@ -28,7 +28,7 @@
     username: '{{ provider.credentials.vcenter_username }}'
     password: '{{ provider.credentials.vcenter_password }}'
     validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
-    datacenter: "{{ provider.configuration.vcenter_datacenter }}"
+    datacenter: "{{ provider.configuration.vcenter_path | default('') }}{{ provider.configuration.vcenter_datacenter }}"
     datastore: "{{ provider.configuration.vcenter_datastore }}"
     path: "ISOs/ocp-ai-{{ cluster_id }}.iso"
     state: absent

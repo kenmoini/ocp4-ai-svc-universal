@@ -1,4 +1,8 @@
 ---
+####################################################################################
+# Datacenter Enumeration, dumb connection test
+####################################################################################
+
 - name: Query vCenter for a connectivity test
   community.vmware.vmware_datacenter_info:
     hostname: '{{ provider.credentials.vcenter_hostname }}'
@@ -12,6 +16,56 @@
   ansible.builtin.fail:
     msg: "Cannot connect to vCenter at {{ provider.credentials.vcenter_hostname }}!"
 
+####################################################################################
+# Datacenter Check
+####################################################################################
+
+- name: Check to see if we have access to our Datacenter
+  community.vmware.vmware_datacenter_info:
+    hostname: '{{ provider.credentials.vcenter_hostname }}'
+    username: '{{ provider.credentials.vcenter_username }}'
+    password: '{{ provider.credentials.vcenter_password }}'
+    validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
+    datacenter: '{{ provider.configuration.vcenter_datacenter }}'
+    show_tag: true
+  register: vcenter_datacenter_info
+  failed_when: vcenter_datacenter_info.datacenter_info | length == 0
+
+####################################################################################
+# Cluster Check
+####################################################################################
+
+- name: Check to see if we have access to our Cluster
+  community.vmware.vmware_cluster_info:
+    hostname: '{{ provider.credentials.vcenter_hostname }}'
+    username: '{{ provider.credentials.vcenter_username }}'
+    password: '{{ provider.credentials.vcenter_password }}'
+    validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
+    datacenter: '{{ provider.configuration.vcenter_datacenter }}'
+    cluster_name: '{{ provider.configuration.vcenter_cluster }}'
+    show_tag: true
+  register: vcenter_cluster_info
+  failed_when: vcenter_cluster_info.clusters | length == 0
+
+####################################################################################
+# Datastore Check
+####################################################################################
+
+- name: Check to see if we have access to our datastore
+  community.vmware.vmware_datastore_info:
+    hostname: '{{ provider.credentials.vcenter_hostname }}'
+    username: '{{ provider.credentials.vcenter_username }}'
+    password: '{{ provider.credentials.vcenter_password }}'
+    validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
+    datacenter: '{{ provider.configuration.vcenter_datacenter }}'
+    name: '{{ provider.configuration.vcenter_datastore }}'
+    show_tag: true
+  register: vcenter_datastore_info
+  failed_when: vcenter_datastore_info.datastores | length == 0
+
 - name: Reset facts
   ansible.builtin.set_fact:
     vcenter_test_info: {}
+    vcenter_datacenter_info: {}
+    vcenter_cluster_info: {}
+    vcenter_datastore_info: {}

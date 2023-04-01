@@ -24,9 +24,9 @@
     username: '{{ provider.credentials.vcenter_username }}'
     password: '{{ provider.credentials.vcenter_password }}'
     validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
-    datacenter: "{{ provider.configuration.vcenter_datacenter }}"
+    datacenter: "{{ provider.configuration.vcenter_path | default('') }}{{ provider.configuration.vcenter_datacenter }}"
     datastore: "{{ provider.configuration.vcenter_datastore }}"
-    path: /ISOs
+    path: "/ISOs"
     state: directory
   tags:
     - vmware_tasks
@@ -42,7 +42,7 @@
     username: '{{ provider.credentials.vcenter_username }}'
     password: '{{ provider.credentials.vcenter_password }}'
     validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
-    datacenter: "{{ provider.configuration.vcenter_datacenter }}"
+    datacenter: "{{ provider.configuration.vcenter_path | default('') }}{{ provider.configuration.vcenter_datacenter }}"
     datastore: "{{ provider.configuration.vcenter_datastore }}"
     path: "ISOs/ocp-ai-{{ cluster_id }}.iso"
     state: file
@@ -59,7 +59,7 @@
     username: '{{ provider.credentials.vcenter_username }}'
     password: '{{ provider.credentials.vcenter_password }}'
     validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
-    datacenter: "{{ provider.configuration.vcenter_datacenter }}"
+    datacenter: "{{ provider.configuration.vcenter_path | default('') }}{{ provider.configuration.vcenter_datacenter }}"
     datastore: "{{ provider.configuration.vcenter_datastore }}"
     src: "{{ generated_asset_directory }}/{{ cluster_id }}/ocp_ai.iso"
     path: "ISOs/ocp-ai-{{ cluster_id }}.iso"
