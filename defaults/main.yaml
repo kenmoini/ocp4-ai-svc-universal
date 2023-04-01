@@ -1,0 +1,66 @@
+---
+# cluster_network_type = Default, Cilium, or Calico (TODO, only Default and Calico work atm)
+cluster_network_type: Default
+
+cluster_network_cidr: 10.128.0.0/14
+cluster_network_host_prefix: 23
+cluster_service_cidr: 172.30.0.0/16
+
+# cluster_skip_verify_tls: true
+
+generated_asset_directory: ./.generated
+
+ocp_network_type: OVNKubernetes
+cluster_hyperthreading: all
+
+# discovery_iso_type: full-iso | minimal-iso
+discovery_iso_type: full-iso
+
+######################### Libvirt/KVM - General Variables
+libvirt_firmware_mode: uefi # bios or uefi
+
+######################### vSphere - General Variables
+vcenter_hardware_version: 15
+vsphere_nested_virt: false
+
+######################### Nutanix - General Variables
+nutanix_prism_api_v3_base: "/api/nutanix/v3"
+nutanix_prism_api_v2_base: "/PrismGateway/services/rest/v2.0"
+
+#####################################################################
+# Cilium Networking default configuration
+cilium_networking_git_branch: master
+cilium_networking_version: v1.9.8
+cilium_networking_tar_url: "https://codeload.github.com/cilium/cilium-olm/tar.gz/{{ cilium_networking_git_branch }}"
+
+#####################################################################
+# Calico Networking Default configuration
+calico_network_manifests:
+  - https://docs.projectcalico.org/manifests/ocp/crds/01-crd-installation.yaml
+  - https://docs.projectcalico.org/manifests/ocp/crds/01-crd-imageset.yaml
+  - https://docs.projectcalico.org/manifests/ocp/crds/01-crd-tigerastatus.yaml
+  - https://docs.projectcalico.org/manifests/ocp/crds/calico/kdd/crd.projectcalico.org_bgpconfigurations.yaml
+  - https://docs.projectcalico.org/manifests/ocp/crds/calico/kdd/crd.projectcalico.org_bgppeers.yaml
+  - https://docs.projectcalico.org/manifests/ocp/crds/calico/kdd/crd.projectcalico.org_blockaffinities.yaml
+  - https://docs.projectcalico.org/manifests/ocp/crds/calico/kdd/crd.projectcalico.org_clusterinformations.yaml
+  - https://docs.projectcalico.org/manifests/ocp/crds/calico/kdd/crd.projectcalico.org_felixconfigurations.yaml
+  - https://docs.projectcalico.org/manifests/ocp/crds/calico/kdd/crd.projectcalico.org_globalnetworkpolicies.yaml
+  - https://docs.projectcalico.org/manifests/ocp/crds/calico/kdd/crd.projectcalico.org_globalnetworksets.yaml
+  - https://docs.projectcalico.org/manifests/ocp/crds/calico/kdd/crd.projectcalico.org_hostendpoints.yaml
+  - https://docs.projectcalico.org/manifests/ocp/crds/calico/kdd/crd.projectcalico.org_ipamblocks.yaml
+  - https://docs.projectcalico.org/manifests/ocp/crds/calico/kdd/crd.projectcalico.org_ipamconfigs.yaml
+  - https://docs.projectcalico.org/manifests/ocp/crds/calico/kdd/crd.projectcalico.org_ipamhandles.yaml
+  - https://docs.projectcalico.org/manifests/ocp/crds/calico/kdd/crd.projectcalico.org_ippools.yaml
+  - https://docs.projectcalico.org/manifests/ocp/crds/calico/kdd/crd.projectcalico.org_kubecontrollersconfigurations.yaml
+  - https://docs.projectcalico.org/manifests/ocp/crds/calico/kdd/crd.projectcalico.org_networkpolicies.yaml
+  - https://docs.projectcalico.org/manifests/ocp/crds/calico/kdd/crd.projectcalico.org_networksets.yaml
+  - https://docs.projectcalico.org/manifests/ocp/tigera-operator/00-namespace-tigera-operator.yaml
+  - https://docs.projectcalico.org/manifests/ocp/tigera-operator/02-rolebinding-tigera-operator.yaml
+  - https://docs.projectcalico.org/manifests/ocp/tigera-operator/02-role-tigera-operator.yaml
+  - https://docs.projectcalico.org/manifests/ocp/tigera-operator/02-serviceaccount-tigera-operator.yaml
+  - https://docs.projectcalico.org/manifests/ocp/tigera-operator/02-configmap-calico-resources.yaml
+  - https://docs.projectcalico.org/manifests/ocp/tigera-operator/02-tigera-operator.yaml
+  - https://docs.projectcalico.org/manifests/ocp/01-cr-installation.yaml
+
+calico_enable_direct_server_return: false
+calicoctl_url: https://github.com/projectcalico/calicoctl/releases/download/v3.19.1/calicoctl
