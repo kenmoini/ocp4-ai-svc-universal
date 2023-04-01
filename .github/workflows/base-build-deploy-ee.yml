@@ -9,7 +9,7 @@
 ## - REDHAT_USERNAME - If using a RHEL supported EE base image
 ## - AH_TOKEN - If using automation hub collections
 
-name: Build and Deploy Execution Environment (reusable)
+name: BASE - Build and Deploy Execution Environment (reusable)
 
 on:
   # This is a reusable workflow
@@ -81,7 +81,7 @@ jobs:
 
       - name: Log in to registry.redhat.io
         id: registry-redhat
-        if: ${{ secrets.REDHAT_PASSWORD }}
+        if: ${{ secrets.REDHAT_PASSWORD != 0 }}
         uses: redhat-actions/podman-login@v1
         with:
           registry: registry.redhat.io
@@ -90,7 +90,7 @@ jobs:
           
       - name: Substitute token for automation hub
         id: ah-token
-        if: ${{ secrets.AH_TOKEN }}
+        if: ${{ secrets.AH_TOKEN != 0 }}
         run: |
           sed -i "s/my_ah_token/$AH_TOKEN/1" ansible.cfg
         env:
