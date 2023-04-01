@@ -71,49 +71,49 @@
 
     - name: Preflight Check - Libvirt Connection Test
       when: provider.type == "libvirt"
-      ansible.builtin.include_tasks: tasks/preflight/conntest_libvirt.yaml
       tags:
         - preflight
         - conntest_libvirt
+      ansible.builtin.include_tasks: tasks/preflight/conntest_libvirt.yaml
       loop: "{{ infrastructure_providers }}"
       loop_control:
         loop_var: provider
 
     - name: Preflight Check - VMWare Connection Test
       when: provider.type == "vsphere"
+      tags:
+        - preflight
+        - conntest_vmware
       ansible.builtin.include_tasks: tasks/preflight/conntest_vmware.yaml
       loop: "{{ infrastructure_providers }}"
       loop_control:
         loop_var: provider
-      tags:
-        - preflight
-        - conntest_vmware
 
     # =========================================================================================================================
     # Infrastructure-specific Destruction Tasks - Libvirt
     # =========================================================================================================================
 
     - name: Create the list of Libvirt targeted hosts
+      when: node_item.infra.type == "libvirt"
+      tags:
+        - infra_libvirt
+        - infra_libvirt_create_hosts_list
       ansible.builtin.set_fact:
         libvirt_hosts: "{{ libvirt_hosts | default([]) + [node_item] }}"
         unique_libvirt_infra_providers: []
       loop: "{{ cluster_nodes }}"
       loop_control:
         loop_var: node_item
-      when: node_item.infra.type == "libvirt"
-      tags:
-        - infra_libvirt
-        - infra_libvirt_create_hosts_list
 
     - name: Create the list of unique Libvirt infrastructure providers
       when: libvirt_hosts is defined and libvirt_hosts | length > 0
+      tags:
+        - infra_libvirt
+        - infra_libvirt_create_infra_list
       ansible.builtin.include_tasks: tasks/infra-libvirt/get_unique_providers.yaml
       loop: "{{ libvirt_hosts }}"
       loop_control:
         loop_var: node_item
-      tags:
-        - infra_libvirt
-        - infra_libvirt_create_infra_list
 
     - name: Delete the Libvirt infrastructure
       when:
@@ -147,26 +147,26 @@
     # =========================================================================================================================
 
     - name: Create the list of vSphere targeted hosts
+      when: node_item.infra.type == "vsphere"
+      tags:
+        - infra_vsphere
+        - infra_vsphere_create_hosts_list
       ansible.builtin.set_fact:
         vsphere_hosts: "{{ vsphere_hosts | default([]) + [node_item] }}"
         unique_vsphere_infra_providers: []
       loop: "{{ cluster_nodes }}"
       loop_control:
         loop_var: node_item
-      when: node_item.infra.type == "vsphere"
-      tags:
-        - infra_vsphere
-        - infra_vsphere_create_hosts_list
 
     - name: Create the list of unique vSphere infrastructure providers
       when: vsphere_hosts is defined and vsphere_hosts | length > 0
+      tags:
+        - infra_vsphere
+        - infra_vsphere_create_infra_list
       ansible.builtin.include_tasks: tasks/infra-vsphere/get_unique_providers.yaml
       loop: "{{ vsphere_hosts }}"
       loop_control:
         loop_var: node_item
-      tags:
-        - infra_vsphere
-        - infra_vsphere_create_infra_list
 
     - name: Delete the vSphere infrastructure
       when:

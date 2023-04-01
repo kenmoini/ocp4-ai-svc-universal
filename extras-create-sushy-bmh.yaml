@@ -60,7 +60,7 @@
 
   tasks:
     - name: Read in variables
-      include_vars:
+      ansible.builtin.include_vars:
         dir: vars
         extensions:
           - 'yaml'
@@ -72,20 +72,20 @@
 
     - name: Preflight Check - Libvirt Connection Test
       when: provider.type == "libvirt"
-      include_tasks: tasks/preflight/conntest_libvirt.yaml
       tags:
         - preflight
         - conntest_libvirt
+      ansible.builtin.include_tasks: tasks/preflight/conntest_libvirt.yaml
       loop: "{{ infrastructure_providers }}"
       loop_control:
         loop_var: provider
 
     - name: Preflight Check - VMWare Connection Test
       when: provider.type == "vsphere"
-      include_tasks: tasks/preflight/conntest_vmware.yaml
       tags:
         - preflight
         - conntest_vmware
+      ansible.builtin.include_tasks: tasks/preflight/conntest_vmware.yaml
       loop: "{{ infrastructure_providers }}"
       loop_control:
         loop_var: provider
@@ -96,34 +96,37 @@
 
     - name: Create the list of Libvirt targeted hosts
       when: node_item.infra.type == "libvirt"
-      set_fact:
+      tags:
+        - infra_libvirt
+        - infra_libvirt_create_hosts_list
+      ansible.builtin.set_fact:
         libvirt_hosts: "{{ libvirt_hosts | default([]) + [node_item] }}"
         unique_libvirt_infra_providers: []
       loop: "{{ virtual_bmh }}"
       loop_control:
         loop_var: node_item
-      tags:
-        - infra_libvirt
-        - infra_libvirt_create_hosts_list
 
     - name: Create the list of unique Libvirt infrastructure providers
       when: libvirt_hosts is defined and libvirt_hosts | length > 0
-      include_tasks: tasks/infra-libvirt/get_unique_providers.yaml
-      loop: "{{ libvirt_hosts }}"
-      loop_control:
-        loop_var: node_item
       tags:
         - infra_libvirt
         - infra_libvirt_create_infra_list
+      ansible.builtin.include_tasks: tasks/infra-libvirt/get_unique_providers.yaml
+      loop: "{{ libvirt_hosts }}"
+      loop_control:
+        loop_var: node_item
 
     - name: Create the Libvirt infrastructure
       when:
-      - libvirt_hosts is defined
-      - libvirt_hosts | length > 0
-      - unique_libvirt_infra_providers | length > 0
+        - libvirt_hosts is defined
+        - libvirt_hosts | length > 0
+        - unique_libvirt_infra_providers | length > 0
+      tags:
+        - infra_libvirt
+        - infra_libvirt_create_infra
       block:
         - name: Perform per Libvirt Infrastructure Provider set up
-          include_tasks: tasks/infra-libvirt/per_provider_setup.yaml
+          ansible.builtin.include_tasks: tasks/infra-libvirt/per_provider_setup.yaml
           loop: "{{ unique_libvirt_infra_providers }}"
           loop_control:
             loop_var: provider
@@ -132,14 +135,11 @@
             - infra_libvirt_per_provider_setup
 
         - name: Deploy Libvirt infrastructure
-          include_tasks: tasks/infra-libvirt/create.yaml
+          ansible.builtin.include_tasks: tasks/infra-libvirt/create.yaml
           loop: "{{ libvirt_hosts }}"
           loop_control:
             loop_var: node_item
             label: "Libvirt Host: {{ node_item.name }}"
-      tags:
-        - infra_libvirt
-        - infra_libvirt_create_infra
 
     # =========================================================================================================================
     # Infrastructure-specific Creation Tasks - vSphere
@@ -147,34 +147,37 @@
 
     - name: Create the list of vSphere targeted hosts
       when: node_item.infra.type == "vsphere"
-      set_fact:
+      tags:
+        - infra_vsphere
+        - infra_vsphere_create_hosts_list
+      ansible.builtin.set_fact:
         vsphere_hosts: "{{ vsphere_hosts | default([]) + [node_item] }}"
         unique_vsphere_infra_providers: []
       loop: "{{ virtual_bmh }}"
       loop_control:
         loop_var: node_item
-      tags:
-        - infra_vsphere
-        - infra_vsphere_create_hosts_list
 
     - name: Create the list of unique vSphere infrastructure providers
       when: vsphere_hosts is defined and vsphere_hosts | length > 0
-      include_tasks: tasks/infra-vsphere/get_unique_providers.yaml
-      loop: "{{ vsphere_hosts }}"
-      loop_control:
-        loop_var: node_item
       tags:
         - infra_vsphere
         - infra_vsphere_create_infra_list
+      ansible.builtin.include_tasks: tasks/infra-vsphere/get_unique_providers.yaml
+      loop: "{{ vsphere_hosts }}"
+      loop_control:
+        loop_var: node_item
 
     - name: Create the vSphere infrastructure
       when:
-      - vsphere_hosts is defined
-      - vsphere_hosts | length > 0
-      - unique_vsphere_infra_providers | length > 0
+        - vsphere_hosts is defined
+        - vsphere_hosts | length > 0
+        - unique_vsphere_infra_providers | length > 0
+      tags:
+        - infra_vsphere
+        - infra_vsphere_create_infra
       block:
         - name: Perform per vSphere Infrastructure Provider set up
-          include_tasks: tasks/infra-vsphere/per_provider_setup.yaml
+          ansible.builtin.include_tasks: tasks/infra-vsphere/per_provider_setup.yaml
           loop: "{{ unique_vsphere_infra_providers }}"
           loop_control:
             loop_var: provider
@@ -183,13 +186,10 @@
             - infra_vsphere_per_provider_setup
 
         - name: Deploy vSphere infrastructure
-          include_tasks: tasks/infra-vsphere/create.yaml
+          ansible.builtin.include_tasks: tasks/infra-vsphere/create.yaml
           loop: "{{ vsphere_hosts }}"
           loop_control:
             loop_var: node_item
             label: "vSphere Host: {{ node_item.name }}"
           tags:
             - infra_vsphere_deploy_infra
-      tags:
-        - infra_vsphere
-        - infra_vsphere_create_infra

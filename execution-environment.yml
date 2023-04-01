@@ -23,4 +23,3 @@ additional_build_steps:
     RUN dnf update -y && dnf clean all && ansible --version
   append:
     - RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz | tar -xvzf - -C /usr/local/bin/ oc && chmod 755 /usr/local/bin/oc && ln -s /usr/local/bin/oc /usr/local/bin/kubectl
-
