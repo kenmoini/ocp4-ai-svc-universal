@@ -1,5 +1,12 @@
 ---
-- name: Query versions from Assisted Install API
+
+- name: Explode the desired OpenShift version and set the set_version_ex fact
+  ansible.builtin.set_fact:
+    set_version_ex: "{{ cluster_version.split('.') }}"
+    version_options: []
+    version_found: false
+
+- name: Query versions from Assisted Installer API
   ansible.builtin.uri:
     headers: "{{ compiled_uri_headers }}"
     url: "{{ assisted_service_endpoint }}/openshift-versions"
@@ -9,59 +16,62 @@
     body_format: json
   register: ocp_versions
 
-- name: Explode the set OpenShift version and set the set_version_ex fact
+- name: Setup combined info facts from the Assisted Installer API
   ansible.builtin.set_fact:
-    set_version_ex: "{{ cluster_version.split('.') }}"
-
-- name: Set facts for ai_svc_versions
-  ansible.builtin.set_fact:
+    discovered_versions: "{{ ocp_versions.json | dict2items }}"
     ai_svc_versions: "{{ (ocp_versions.json).keys() | list | community.general.version_sort }}"
 
-- name: Set facts for ai_svc_display_versions
+- name: Build the version_options
   ansible.builtin.set_fact:
-    ai_svc_display_versions: "{{ ai_svc_display_versions | default([]) + [version_item.display_name] }}"
-  loop: "{{ (ocp_versions.json).values() }}"
+    version_options: "{{ version_options + [{'key': ver_item.key, 'msg': ver_item.key + ' : ' + ver_item.value.display_name + (' - Developer preview release' if ver_item.value.support_level != 'production' else ' - Production') + ' [' + (ver_item.value.cpu_architectures | join(', ')) + ']'}] }}"
+  loop: "{{ discovered_versions }}"
   loop_control:
-    loop_var: version_item
+    loop_var: ver_item
+    label: "{{ ver_item.key }}"
 
-- name: Set the desired cluster version if it is x.y.z and in the available versions from OAS
-  # when: cluster_version | string in ai_svc_display_versions and set_version_ex | length == 3
-  # when: set_version_ex | length == 3
-  block:
-    - name: Set the Display Name fact
-      ansible.builtin.set_fact:
-        desired_cluster_version_name: "{{ cluster_version | string }}"
-
-    - name: Set the desired cluster version if it is x.y.z and in the available versions from OAS
-      ansible.builtin.set_fact:
-        desired_cluster_version: "{{ version_item.key }}"
-      loop: "{{ (ocp_versions.json) | dict2items }}"
-      loop_control:
-        loop_var: version_item
-      when: version_item.value.display_name == desired_cluster_version_name | string
-
-- name: Get the versions that match the x.y pattern
-  when: set_version_ex | length == 2 and cluster_version | string in version_item
+- name: Set sorted_version_options
   ansible.builtin.set_fact:
-    matched_versions: "{{ matched_versions | default([]) + [version_item] }}"
-  loop: "{{ ai_svc_versions }}"
+    sorted_version_options: "{{ sorted_version_options | default([]) + [ver_item.msg] }}"
+  loop: "{{ version_options | sort(attribute='key') }}"
   loop_control:
-    loop_var: version_item
+    loop_var: ver_item
 
-- name: Set the desired_cluster_version when using the x.y pattern
-  when: set_version_ex | length == 2
-  ansible.builtin.set_fact:
-    desired_cluster_version: "{{ matched_versions | community.general.version_sort | last }}"
-
-- name: Debug
+- name: List all the discovered and sorted versions
   ansible.builtin.debug:
-    msg:
-      - "Desired cluster version: {{ desired_cluster_version }}"
-      #- "Matched versions: {{ matched_versions | community.general.version_sort }}"
-      - "ai_svc_versions: {{ ai_svc_versions }}"
-      - "ai_svc_display_versions: {{ ai_svc_display_versions }}"
-      - "desired_cluster_version_name: {{ desired_cluster_version_name }}"
-      - "desired_cluster_version: {{ desired_cluster_version }}"
+    msg: "{{ sorted_version_options }}"
+
+# if the desired version matches the key of the discovered versions
+# then we're pretty much done
+
+- name: Versions matched
+  when: cluster_version | string in ai_svc_versions
+  block:
+    - name: Set the desired cluster version if the desired cluster_version is found in the available version keys from OAS
+      ansible.builtin.set_fact:
+        desired_cluster_version: "{{ cluster_version | string }}"
+        version_found: true
+
+# if the desired version does not match the key of the discovered versions
+# then we need to check the display_name
+
+- name: Proceed to check for matching display_names
+  when: cluster_version | string not in ai_svc_versions
+  block:
+
+    - name: Set version_found to true if found in the display_names
+      when: cluster_version | string in ver_item.value.display_name
+      ansible.builtin.set_fact:
+        version_found: true
+        desired_cluster_version: "{{ ver_item.key }}"
+      loop: "{{ discovered_versions }}"
+      loop_control:
+        loop_var: ver_item
+        label: "{{ ver_item.key }}"
+
+- name: Fail if the desired version is not available
+  when: not version_found
+  ansible.builtin.fail:
+    msg: "The desired version '{{ cluster_version }}' is not available from the Assisted Installer Service!"
 
 - name: Assert that the desired version is supported by the AI Service
   ansible.builtin.assert:
@@ -72,16 +82,6 @@
       Supported versions:
       {{ ai_svc_versions }}
     success_msg: "desired_cluster_version '{{ desired_cluster_version | string }}' from cluster_version '{{ cluster_version }}' is serviced by this Assisted Installer Service!"
-
-- name: Assert that the desired version display name is supported by the AI Service
-  ansible.builtin.assert:
-    that:
-      - desired_cluster_version_name | string in ai_svc_display_versions
-    fail_msg: |
-      desired_cluster_version_name '{{ desired_cluster_version_name | string }}' from cluster_version '{{ cluster_version }}' is not serviced by this Assisted Installer Service!
-      Supported versions:
-      {{ ai_svc_display_versions }}
-    success_msg: "desired_cluster_version_name '{{ desired_cluster_version_name | string }}' from cluster_version '{{ cluster_version }}' is serviced by this Assisted Installer Service!"
 
 - name: Assert that SNO mode is supported by the desired version
   when: cluster_type == "SNO"
