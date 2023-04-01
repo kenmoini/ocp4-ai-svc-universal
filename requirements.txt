@@ -2,3 +2,4 @@ openshift == 0.13.1
 kubernetes
 pyvmomi
 jmespath
+git+https://github.com/vmware/vsphere-automation-sdk-python.git
