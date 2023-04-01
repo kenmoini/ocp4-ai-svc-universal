@@ -16,6 +16,9 @@ cluster_hyperthreading: all
 # discovery_iso_type: full-iso | minimal-iso
 discovery_iso_type: full-iso
 
+######################### Libvirt/KVM - General Variables
+libvirt_firmware_mode: uefi # bios or uefi
+
 ######################### vSphere - General Variables
 vcenter_hardware_version: 15
 vsphere_nested_virt: false
