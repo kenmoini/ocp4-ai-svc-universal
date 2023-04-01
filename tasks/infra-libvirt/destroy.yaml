@@ -49,12 +49,22 @@
     uri: "{{ libvirt_uri }}"
   when: vm_name in running_vms.list_vms
 
-- name: Undefine the VM - {{ node_item.name }}
+- name: Undefine the VM, BIOS - {{ node_item.name }}
   community.libvirt.virt:
     command: undefine
     name: "{{ cluster_name }}-{{ node_item.name }}"
     uri: "{{ libvirt_uri }}"
-  when: vm_name in all_vms.list_vms
+  when:
+    - vm_name in all_vms.list_vms
+    - libvirt_firmware_mode == "bios"
+
+# Ugly hack to undefine UEFI VMs
+- name: "Undefine the VM UEFI - {{ node_item.name }}"
+  ansible.builtin.shell: |
+    virsh -c "{{ libvirt_uri }}" undefine --nvram {{ cluster_name }}-{{ node_item.name }}
+  when:
+    - vm_name in all_vms.list_vms
+    - libvirt_firmware_mode == "uefi"
 
 # ===========================================================================
 # Destroy the VM Disks
