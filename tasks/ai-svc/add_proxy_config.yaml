@@ -28,7 +28,8 @@
 
 - name: Set body data
   ansible.builtin.set_fact:
-    override_proxy_patch_body: "{ \"proxy\": { \"no_proxy\": \"{{ cluster_no_proxy | default('') }}\", \"http_proxy\": \"{{ cluster_proxy.httpProxy | default('') }}\", \"https_proxy\": \"{{ cluster_proxy.httpsProxy | default('') }}\"  } }" #yamllint disable-line rule:line-length
+    override_proxy_patch_body_infraenv: "{ \"proxy\": { \"no_proxy\": \"{{ cluster_no_proxy | default('') }}\", \"http_proxy\": \"{{ cluster_proxy.httpProxy | default('') }}\", \"https_proxy\": \"{{ cluster_proxy.httpsProxy | default('') }}\"  } }" #yamllint disable-line rule:line-length
+    override_proxy_patch_body_cluster: "{ \"no_proxy\": \"{{ cluster_no_proxy | default('') }}\", \"http_proxy\": \"{{ cluster_proxy.httpProxy | default('') }}\", \"https_proxy\": \"{{ cluster_proxy.httpsProxy | default('') }}\" }" #yamllint disable-line rule:line-length
     override_ic_body: "{ \"proxy\": {{ proxy_ic_conf | to_json }}  }"
     # override_proxy_body: "{ \"ignition_config_override\": '{{ ignition_config_override_bundle_string | to_json }}' }"
 
@@ -65,7 +66,7 @@
     url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}"
     return_content: true
     method: PATCH
-    body: '{{ override_proxy_patch_body }}'
+    body: '{{ override_proxy_patch_body_cluster }}'
     status_code: 201
     body_format: json
   register: proxy_cluster_resp
@@ -76,7 +77,7 @@
     url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}"
     return_content: true
     method: PATCH
-    body: "{{ override_proxy_patch_body }}"
+    body: "{{ override_proxy_patch_body_infraenv }}"
     status_code: 201
     body_format: json
   register: proxy_infraenv_resp

@@ -16,7 +16,8 @@
 
 - name: Set body data
   ansible.builtin.set_fact:
-    override_ntp_ic_body: "{ \"additional_ntp_sources\": \"{{ cluster_ntp_sources | default('0.pool.ntp.org') }}\" }"
+    override_ntp_ic_body_cluster: "{ \"additional_ntp_source\": \"{{ cluster_ntp_sources | default('0.pool.ntp.org') }}\" }"
+    override_ntp_ic_body_infraenv: "{ \"additional_ntp_sources\": \"{{ cluster_ntp_sources | default('0.pool.ntp.org') }}\" }"
 
 - name: Inject NTP config into the Cluster
   ansible.builtin.uri:
@@ -24,7 +25,7 @@
     url: "{{ assisted_service_endpoint }}/clusters/{{ cluster_id }}"
     return_content: true
     method: PATCH
-    body: '{{ override_ntp_ic_body }}'
+    body: '{{ override_ntp_ic_body_cluster }}'
     status_code: 201
     body_format: json
   register: ntp_cluster_resp
@@ -35,7 +36,7 @@
     url: "{{ assisted_service_endpoint }}/infra-envs/{{ infraenv_id }}"
     return_content: true
     method: PATCH
-    body: '{{ override_ntp_ic_body }}'
+    body: '{{ override_ntp_ic_body_infraenv }}'
     status_code: 201
     body_format: json
   register: ntp_infraenv_resp

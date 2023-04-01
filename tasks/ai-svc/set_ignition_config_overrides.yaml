@@ -27,7 +27,8 @@
 
 - name: Set the patch data
   ansible.builtin.set_fact:
-    override_ic_body: "{ \"ignition_config_override\": '{{ lookup(\"template\", \"ignition-config-override-files.json.j2\") | to_json }}', \"config\": '{{ lookup(\"template\", \"ignition-config-override-files.json.j2\") | to_json }}' }"
+    override_ic_body: "{ \"ignition_config_override\": '{{ lookup(\"template\", \"ignition-config-override-files.json.j2\") | to_json }}' }"
+    #override_ic_body: "{ \"ignition_config_override\": '{{ lookup(\"template\", \"ignition-config-override-files.json.j2\") | to_json }}', \"config\": '{{ lookup(\"template\", \"ignition-config-override-files.json.j2\") | to_json }}' }"
     #override_ic_body: "{ \"ignition_config_override\": '{{ ignition_config_override_bundle_string | to_json }}' }"
   vars:
     ignition_version: "3.1.0"
