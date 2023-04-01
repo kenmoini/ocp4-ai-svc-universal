@@ -9,3 +9,10 @@ use_default_rules: true
 warn_list:
   - yaml[comments]
   - yaml[line-length]
+
+exclude_paths:
+  - .cache/ # implicit unless exclude_paths is defined in config
+  - .git/
+  - .github/
+  - docs/
+  - hack/

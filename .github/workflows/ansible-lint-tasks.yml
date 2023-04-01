@@ -2,10 +2,10 @@ name: ansible-lint Tasks
 on:
   push:
     paths:
-      - 'tasks/**'
+      - 'taskss/**'
   pull_request:
     paths:
-      - 'tasks/**'
+      - 'taskss/**'
 
 jobs:
   lint:
