@@ -20,6 +20,8 @@
     detected_infra_nodes: false
     install_config_overrides: {}
 
+    use_site_configs: false
+
     # Bare Metal Vars
     deploy_local_http_server: false
     http_server_port: 7654
@@ -27,8 +29,31 @@
 
   tasks:
     - name: Read in variables
+      when: not use_site_configs | bool
       ansible.builtin.include_vars:
         dir: vars
+        extensions:
+          - 'yaml'
+          - 'yml'
+      tags:
+        - always
+
+    - name: SITECONFIG - Read in default variables
+      when: use_site_configs | bool
+      ansible.builtin.include_vars:
+        dir: defaults
+        extensions:
+          - 'yaml'
+          - 'yml'
+      tags:
+        - always
+
+    - name: SITECONFIG - Read in site configs
+      when:
+        - use_site_configs | bool
+        - site_config_name is defined
+      ansible.builtin.include_vars:
+        dir: "site-config/{{ site_config_name }}"
         extensions:
           - 'yaml'
           - 'yml'
@@ -270,6 +295,7 @@
           ansible.builtin.file:
             path: "{{ generated_asset_directory }}/{{ cluster_id }}"
             state: directory
+            mode: 0755
           tags:
             - create_cluster_dir
 
@@ -278,12 +304,12 @@
             remote_src: true
             src: "{{ generated_asset_directory }}/deployment-{{ deployment_name }}.json"
             dest: "{{ generated_asset_directory }}/{{ cluster_id }}/deployment.json"
+            mode: 0644
 
         - name: Remove old named deployment.json
           ansible.builtin.file:
             path: "{{ generated_asset_directory }}/deployment-{{ deployment_name }}.json"
             state: absent
-
 
     - name: SSH Key Migration & Reread
       ansible.builtin.include_tasks:
@@ -515,6 +541,7 @@
                 headers: "{{ compiled_uri_headers }}"
                 url: "{{ infraenv_download_url }}"
                 dest: "{{ generated_asset_directory }}/{{ cluster_id }}/ocp_ai.iso"
+                mode: 0644
               register: pull_result
               until: pull_result.status_code is defined and pull_result.status_code in [201, 200, 302, 304]
               retries: 10
@@ -547,6 +574,7 @@
                     headers: "{{ compiled_uri_headers }}"
                     url: "{{ infraenv_download_url }}"
                     dest: "{{ generated_asset_directory }}/{{ cluster_id }}/ocp_ai.iso"
+                    mode: 0644
                   register: pull_result
                   until: pull_result.status_code is defined and pull_result.status_code in [201, 200, 302, 304]
                   retries: 10

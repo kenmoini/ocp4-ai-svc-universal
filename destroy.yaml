@@ -14,13 +14,40 @@
     generated_asset_directory: "./generated_assets"
     delete_generated_assets: true
 
+    use_site_configs: false
+
   tasks:
     - name: Read in variables
+      when: not use_site_configs | bool
       ansible.builtin.include_vars:
         dir: vars
         extensions:
           - 'yaml'
           - 'yml'
+      tags:
+        - always
+
+    - name: SITECONFIG - Read in default variables
+      when: use_site_configs | bool
+      ansible.builtin.include_vars:
+        dir: defaults
+        extensions:
+          - 'yaml'
+          - 'yml'
+      tags:
+        - always
+
+    - name: SITECONFIG - Read in site configs
+      when:
+        - use_site_configs | bool
+        - site_config_name is defined
+      ansible.builtin.include_vars:
+        dir: "site-config/{{ site_config_name }}"
+        extensions:
+          - 'yaml'
+          - 'yml'
+      tags:
+        - always
 
     # =========================================================================================================================
     # Preflight
