@@ -132,12 +132,12 @@
 #       ansible.builtin.get_url:
 #         url: https://mirror.openshift.com/pub/openshift-v4/clients/coreos-installer/latest/coreos-installer_amd64
 #         dest: "{{ generated_asset_directory }}/bin/coreos-installer"
-# 
+
 #     - name: Set the executable bits
 #       ansible.builtin.file:
 #         path: "{{ generated_asset_directory }}/bin/coreos-installer"
 #         mode: 0755
-# 
+
 #     - name: Set the coreos-installer binary path
 #       set_fact:
 #         coreos_installer_binary: "{{ generated_asset_directory }}/bin/coreos-installer"

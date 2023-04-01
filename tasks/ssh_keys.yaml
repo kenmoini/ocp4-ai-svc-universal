@@ -7,7 +7,7 @@
         path: "{{ generated_asset_directory }}/cluster_key-{{ deployment_name }}"
 
     - name: Read SSH Key
-      set_fact:
+      ansible.builtin.set_fact:
         ssh_public_key: "{{ lookup('file', generated_asset_directory + '/cluster_key-' + deployment_name + '.pub') }}"
 
 - name: Move keys to cluster folder

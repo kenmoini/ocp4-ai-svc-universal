@@ -5,7 +5,7 @@
     - name: Set up temporary fact
       ansible.builtin.set_fact:
         tmp_auth_header_fact:
-          Authorization: "Basic {{ (assisted_service_authentication_basic_username + ':' + assisted_service_authentication_basic_password)|b64encode }}"
+          Authorization: "Basic {{ (assisted_service_authentication_basic_username + ':' + assisted_service_authentication_basic_password) | b64encode }}"
 
     - name: Set up headers for Username/Password authentication
       ansible.builtin.set_fact:
@@ -19,7 +19,7 @@
       ansible.builtin.slurp:
         src: "{{ rh_api_offline_token_path }}"
       register: offlineTokenSlurp
-        
+
     - name: Set the Bearer Token from a file
       when: rh_api_offline_token is undefined
       ansible.builtin.set_fact:

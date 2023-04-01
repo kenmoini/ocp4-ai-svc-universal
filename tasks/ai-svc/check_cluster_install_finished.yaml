@@ -25,7 +25,7 @@
         body_format: json
       register: cluster_install_statustwo
       failed_when: false
-  
+
     - name: Resync auth headers
       when: cluster_install_statustwo.status == 401
       block:

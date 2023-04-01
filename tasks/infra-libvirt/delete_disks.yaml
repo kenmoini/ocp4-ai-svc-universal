@@ -1,10 +1,10 @@
 ---
 
-- name: Set iso name
+- name: Set QCOW name
   ansible.builtin.set_fact:
     qcow_name: "{{ cluster_name }}-{{ node_item.name }}-{{ disk_item.name }}.qcow2"
 
-- name: Remote Libvirt Target 
+- name: Remote Libvirt Target
   when: provider.credentials.libvirt_transport is defined and provider.credentials.libvirt_transport == 'qemu+ssh'
   block:
     - name: Set user facts

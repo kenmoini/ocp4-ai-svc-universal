@@ -14,7 +14,7 @@
     ls_command: "ls -1 {{ provider.configuration.libvirt_base_iso_path | default('/var/lib/libvirt/images') }}"
     qcow_command: "qemu-img create{{ disk_provisioning_type | default('') }} -f qcow2 {{ provider.configuration.libvirt_base_iso_path | default('/var/lib/libvirt/images') }}/{{ qcow_name }} {{ disk_item.size }}G"
 
-- name: Remote Libvirt Target 
+- name: Remote Libvirt Target
   when: provider.credentials.libvirt_transport is defined and provider.credentials.libvirt_transport == 'qemu+ssh'
   block:
     - name: Set user facts

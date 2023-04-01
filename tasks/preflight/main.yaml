@@ -13,7 +13,7 @@
 ## Break out the following into their own tasks when the infra matches
     #- qemu-img
     #- virt-install
-  
+
 - name: Fail if needed programs are not found
   failed_when: program_item.rc != 0
   ansible.builtin.fail:
