@@ -13,6 +13,8 @@ generated_asset_directory: ./.generated
 ocp_network_type: OVNKubernetes
 cluster_hyperthreading: all
 
+cluster_architecture: x86_64 # x86_64 or arm64
+
 # discovery_iso_type: full-iso | minimal-iso
 discovery_iso_type: full-iso
 
