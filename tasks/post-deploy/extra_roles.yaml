@@ -1,5 +1,7 @@
 ---
 - name: Run old fasioned oc CLI commands
+  tags:
+    - extra_roles
   block:
     - name: Log into the cluster
       when: cluster_kubeadmin_password is defined
@@ -10,6 +12,8 @@
       until: (cluster_auth_status.rc == 0)
       retries: 120
       delay: 20
+      tags:
+        - skip_ansible_lint # We need to do this in the shell in order for it to set the context properly...pretty sure about that anyway
 
     - name: Deploy Extra Defined Roles
       when: extra_roles is defined
@@ -19,10 +23,7 @@
       loop_control:
         loop_var: role_name
 
-  #always:
-  #- name: Log out of the cluster
-  #  shell:
-  #    cmd: oc logout
-
-  tags:
-    - extra_roles
+  # always:
+  # - name: Log out of the cluster
+  #   shell:
+  #     cmd: oc logout

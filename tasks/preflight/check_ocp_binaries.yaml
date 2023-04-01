@@ -5,9 +5,10 @@
 # ====================================================================================================================
 
 - name: Check for programs - oc
-  ansible.builtin.shell: "which oc"
+  ansible.builtin.command: "which oc"
   register: program_check_oc
   ignore_errors: true
+  changed_when: false
 
 - name: Check the local bin dir for the oc file
   ansible.builtin.stat:
@@ -18,7 +19,7 @@
   when: program_check_oc.rc != 0
   block:
     - name: Download the tar package and extract
-      when: local_oc_check.stat.exists == False
+      when: not local_oc_check.stat.exists
       ansible.builtin.unarchive:
         src: https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-client-linux.tar.gz
         dest: "{{ generated_asset_directory }}/bin/"

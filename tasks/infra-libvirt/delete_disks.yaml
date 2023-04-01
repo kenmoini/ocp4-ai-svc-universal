@@ -16,6 +16,7 @@
       ansible.builtin.shell: |
         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i {{ provider.credentials.libvirt_ssh_key_path }} {{ user_target | default('') }}{{ provider.credentials.libvirt_endpoint }} ls -1 {{ provider.configuration.libvirt_base_iso_path | default('/var/lib/libvirt/images') }}
       register: disk_check
+      changed_when: false
 
     - name: Delete the disk if it exists
       when: qcow_name in disk_check.stdout_lines

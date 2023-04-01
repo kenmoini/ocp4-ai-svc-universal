@@ -3,7 +3,7 @@
   ansible.builtin.tempfile:
     state: directory
     suffix: "{{ cluster_name }}"
-  register: tempYAMLDir
+  register: tmp_yml_dir
 
 - name: Download and apply the Calico Networking manifests
   block:
@@ -11,7 +11,8 @@
     - name: Download the Calico manifests
       ansible.builtin.get_url:
         url: "{{ url_link }}"
-        dest: "{{ tempYAMLDir.path }}"
+        dest: "{{ tmp_yml_dir.path }}"
+        mode: 0644
       loop: "{{ calico_network_manifests }}"
       loop_control:
         loop_var: url_link
@@ -20,8 +21,8 @@
       ansible.builtin.set_fact:
         calico_manifests: "{{ calico_manifests | default({}) | combine({(item | basename): lookup('file', item) | b64encode}) }}"
       with_fileglob:
-        - "{{ tempYAMLDir.path }}/*.yml"
-        - "{{ tempYAMLDir.path }}/*.yaml"
+        - "{{ tmp_yml_dir.path }}/*.yml"
+        - "{{ tmp_yml_dir.path }}/*.yaml"
 
     - name: Post the manifests to the cluster
       ansible.builtin.uri:
@@ -38,13 +39,13 @@
 
   rescue:
     - name: Use the registered var and the file module to remove the temporary file
-      when: tempYAMLDir.path is defined
+      when: tmp_yml_dir.path is defined
       ansible.builtin.file:
-        path: "{{ tempYAMLDir.path }}"
+        path: "{{ tmp_yml_dir.path }}"
         state: absent
 
 - name: Use the registered var and the file module to remove the temporary file
-  when: tempYAMLDir.path is defined
+  when: tmp_yml_dir.path is defined
   ansible.builtin.file:
-    path: "{{ tempYAMLDir.path }}"
+    path: "{{ tmp_yml_dir.path }}"
     state: absent

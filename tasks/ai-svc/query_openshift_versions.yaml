@@ -30,7 +30,7 @@
   block:
     - name: Set the Display Name fact
       ansible.builtin.set_fact:
-        desired_cluster_version_name: "{{ cluster_version|string }}"
+        desired_cluster_version_name: "{{ cluster_version | string }}"
 
     - name: Set the desired cluster version if it is x.y.z and in the available versions from OAS
       ansible.builtin.set_fact:
@@ -38,7 +38,7 @@
       loop: "{{ (ocp_versions.json) | dict2items }}"
       loop_control:
         loop_var: version_item
-      when: version_item.value.display_name == desired_cluster_version_name|string
+      when: version_item.value.display_name == desired_cluster_version_name | string
 
 - name: Get the versions that match the x.y pattern
   when: set_version_ex | length == 2 and cluster_version | string in version_item

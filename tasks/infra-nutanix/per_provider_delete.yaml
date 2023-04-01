@@ -2,6 +2,10 @@
 
 - name: Delete the AI ISO
   block:
+    - name: Set fact for image_spec_name
+      ansible.builtin.set_fact:
+        image_spec_name: "ocp-ai-{{ cluster_id }}"
+
     - name: Get list of images
       ansible.builtin.uri:
         url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v3_base }}/images/list"
@@ -17,14 +21,15 @@
       register: nutanix_images_info
 
     - name: Set Image UUID
+      when: image.spec.name == image_spec_name
       ansible.builtin.set_fact:
         nutanix_ocp_ai_iso_uuid: "{{ image.metadata.uuid }}"
-      when: image.spec.name == "ocp-ai-{{ cluster_id }}"
       loop: "{{ nutanix_images_info.json.entities }}"
       loop_control:
         loop_var: image
 
     - name: Delete Image if it exists
+      when: nutanix_ocp_ai_iso_uuid is defined
       ansible.builtin.uri:
         url: "https://{{ provider.credentials.prism_endpoint }}:9440{{ nutanix_prism_api_v3_base }}/images/{{ nutanix_ocp_ai_iso_uuid }}"
         return_content: true
@@ -35,4 +40,3 @@
         user: "{{ provider.credentials.prism_username }}"
         password: "{{ provider.credentials.prism_password }}"
         validate_certs: "{{ provider.credentials.prism_verify_ssl }}"
-      when: nutanix_ocp_ai_iso_uuid is defined

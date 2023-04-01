@@ -10,6 +10,11 @@
 # Remove VM
 # ===========================================================================
 
+# TODO: Come back and check for the VM's existence before trying to delete it
+#       This will prevent the playbook from failing if the VM doesn't exist,
+#       and allow us to remove the ignore_errors: true and skip_ansible_lint
+#       tags from the tasks below.
+
 - name: Power Off VM - {{ node_item.name }}
   community.vmware.vmware_guest:
     hostname: '{{ provider.credentials.vcenter_hostname }}'
@@ -24,6 +29,7 @@
     state: powered-off
   ignore_errors: true
   tags:
+    - skip_ansible_lint # The modules aren't really great at error handling
     - vmware_tasks
     - vmware_destroy_vms
     - vmware_halt_vm
@@ -42,6 +48,7 @@
     state: absent
   ignore_errors: true
   tags:
+    - skip_ansible_lint # The modules aren't really great at error handling
     - vmware_tasks
     - vmware_destroy_vms
     - vmware_delete_vm

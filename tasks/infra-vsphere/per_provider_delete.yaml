@@ -15,6 +15,7 @@
     path: "ISOs/ocp-ai-{{ cluster_id }}.iso"
     state: file
   ignore_errors: true
+  changed_when: false
   register: vmware_check_for_iso
   tags:
     - vmware_tasks
@@ -31,7 +32,7 @@
     datastore: "{{ provider.configuration.vcenter_datastore }}"
     path: "ISOs/ocp-ai-{{ cluster_id }}.iso"
     state: absent
-  ignore_errors: true
+  # ignore_errors: true
   tags:
     - vmware_tasks
     - vmware_delete_previous_iso
@@ -50,7 +51,7 @@
     folder_name: "{{ cluster_name }}"
     folder_type: vm
     state: absent
-  ignore_errors: true
+  # ignore_errors: true
   tags:
     - vmware_tasks
     - vmware_delete_folder

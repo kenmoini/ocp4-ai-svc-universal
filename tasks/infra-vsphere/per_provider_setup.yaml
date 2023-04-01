@@ -65,5 +65,6 @@
     path: "ISOs/ocp-ai-{{ cluster_id }}.iso"
   ignore_errors: true
   tags:
+    - skip_ansible_lint # The modules aren't really great at error handling
     - vmware_tasks
     - vmware_upload_iso

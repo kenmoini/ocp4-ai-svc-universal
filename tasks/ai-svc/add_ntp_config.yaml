@@ -27,7 +27,7 @@
     body: '{{ override_ntp_ic_body }}'
     status_code: 201
     body_format: json
-  register: ntpCluster_resp
+  register: ntp_cluster_resp
 
 - name: Inject NTP config into the InfraEnv
   ansible.builtin.uri:
@@ -38,4 +38,4 @@
     body: '{{ override_ntp_ic_body }}'
     status_code: 201
     body_format: json
-  register: ntpInfraEnv_resp
+  register: ntp_infraenv_resp

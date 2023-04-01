@@ -3,6 +3,7 @@
   ansible.builtin.template:
     src: registries.conf.j2
     dest: "{{ generated_asset_directory }}/{{ cluster_id }}/registries.conf"
+    mode: 0644
 
 - name: Set override struct
   ansible.builtin.set_fact:

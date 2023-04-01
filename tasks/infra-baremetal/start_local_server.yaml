@@ -22,13 +22,14 @@
 
 - name: Scan any process using this port
   ansible.builtin.shell: |
-    lsof -n -i :{{ http_server_port | default('7654') }} | grep LISTEN | cut -f 2 -d " "
+    set -o pipefail && lsof -n -i :{{ http_server_port | default('7654') }} | grep LISTEN | cut -f 2 -d " "
   register: port_scan
   become: true
+  changed_when: false
 
 - name: Kill any process using this port
   when: port_scan.stdout_lines | length > 0
-  ansible.builtin.shell: "kill {{ port_scan.stdout }}"
+  ansible.builtin.command: "kill {{ port_scan.stdout }}"
   become: true
 
 - name: Execute python script
@@ -37,3 +38,5 @@
     python3 server.py &> /dev/null &
     echo $!
   register: python_script_out
+  tags:
+    - skip_ansible_lint # ugh.  This is a hack to get around the fact that we're running a background process

@@ -32,6 +32,7 @@
         remote_src: true
         src: "{{ generated_asset_directory }}/cluster_key-{{ deployment_name }}.pub"
         dest: "{{ generated_asset_directory }}/{{ cluster_id }}/cluster_key.pub"
+        mode: 0644
 
     - name: Remove old cluster keys from primary generation folder
       when: not public_key_check.stat.exists
@@ -52,8 +53,8 @@
     - name: Fetch the pre-existing SSH Key
       ansible.builtin.slurp:
         src: "{{ ssh_pub_key_path }}"
-      register: sshKeySlurp
+      register: ssh_key_slurp
 
     - name: Set the SSH Key from a file
       ansible.builtin.set_fact:
-        ssh_public_key: "{{ sshKeySlurp['content'] | b64decode | trim }}"
+        ssh_public_key: "{{ ssh_key_slurp['content'] | b64decode | trim }}"

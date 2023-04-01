@@ -1,6 +1,6 @@
 ---
 #- name: Print currently set ignition_config_override_files
-#  debug:
+#  ansible.builtin.debug:
 #    msg: "{{ ignition_config_override_files }}"
 
 - name: Set as override string
@@ -14,13 +14,14 @@
     ignition_config_override_bundle_string: "{\"ignition\": {\"version\": \"3.1.0\"}, \"storage\": {\"files\": [ {{ ignition_config_override_files | default('') }} ] } }"
 
 #- name: Print combined override string
-#  debug:
+#  ansible.builtin.debug:
 #    msg: "{{ ignition_config_override_bundle_string }}"
 
 - name: Template for good measure
   ansible.builtin.template:
     src: ignition-config-override-files.json.j2
     dest: "{{ generated_asset_directory }}/{{ cluster_id }}/ico-files.json"
+    mode: 0644
   vars:
     ignition_version: "3.1.0"
 
@@ -32,11 +33,11 @@
     ignition_version: "3.1.0"
 
 #- name: Set the patch data
-#  set_fact:
+#  ansible.builtin.set_fact:
 #    override_ic_body: "{ 'ignition_config_override': '{{ ignition_config_override_bundle_string | to_json }}' }"
 
 #- name: Print override body
-#  debug:
+#  ansible.builtin.debug:
 #    msg: "{{ override_ic_body }}"
 
 - name: Patch the ignition_config_override_bundle_string
@@ -48,8 +49,8 @@
     body: '{{ override_ic_body }}'
     status_code: 201
     body_format: json
-  register: patchIgnitionConfigOverrides_resp
+  register: patch_ignition_config_overrides_resp
 
-#- name: d
-#  debug:
-#    msg: "{{ patchIgnitionConfigOverrides_resp }}"
+#- name: Debug patch_ignition_config_overrides_resp
+#  ansible.builtin.debug:
+#    msg: "{{ patch_ignition_config_overrides_resp }}"

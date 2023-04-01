@@ -31,5 +31,7 @@
 - name: Set NMState Cluster Preconfig
   ansible.builtin.set_fact:
     static_networking_preconfig: "{{ rendered_template }}"
+  tags:
+    - skip_ansible_lint # the template lookup is performed from the bootstrap Playbook's context via include_tasks
   vars:
     rendered_template: "{{ lookup('template', 'templates/static_networking_config.json.j2') }}"

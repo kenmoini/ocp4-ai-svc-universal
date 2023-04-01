@@ -2,7 +2,7 @@
 
 - name: Set fact for Password
   ansible.builtin.set_fact:
-    passwordHash: "{{ core_user_password | password_hash('sha512') }}"
+    password_hash: "{{ core_user_password | password_hash('sha512') }}"
   no_log: true
 
 #- name: Get the current Discovery Ignition Config overrides
@@ -27,7 +27,7 @@
               - wheel
             sshAuthorizedKeys:
               - "{{ ssh_public_key }}"
-            passwordHash: "{{ passwordHash }}"
+            passwordHash: "{{ password_hash }}"
 
 #- name: Set fact for json content
 #  when: infraenv_query.json.ignition_config_override is defined and infraenv_query.json.ignition_config_override != ""

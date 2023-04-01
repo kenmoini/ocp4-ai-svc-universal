@@ -70,4 +70,4 @@
 #     body: '{{ override_ic_body }}'
 #     status_code: 201
 #     body_format: json
-#   register: additionalBundleIC_resp
+#   register: additional_bundle_ic_resp

@@ -3,7 +3,7 @@
   ansible.builtin.tempfile:
     state: directory
     suffix: "{{ cluster_name }}"
-  register: tempYAMLDir
+  register: tmp_yml_dir
 
 - name: Download and apply the Cilium Networking manifests
   block:
@@ -11,20 +11,21 @@
     - name: Download Cilium Tar
       ansible.builtin.unarchive:
         src: "{{ cilium_networking_tar_url }}"
-        dest: "{{ tempYAMLDir.path }}"
+        dest: "{{ tmp_yml_dir.path }}"
         remote_src: true
 
     - name: Template the CiliumConfig
       ansible.builtin.template:
         src: templates/ciliumconfig.yaml.j2
-        dest: "{{ tempYAMLDir.path }}/cilium-olm-{{ cilium_networking_git_branch }}/manifests/cilium.{{ cilium_networking_version }}/ciliumconfig.yaml"
+        dest: "{{ tmp_yml_dir.path }}/cilium-olm-{{ cilium_networking_git_branch }}/manifests/cilium.{{ cilium_networking_version }}/ciliumconfig.yaml"
+        mode: 0644
 
     - name: Base64 Encode the files
       ansible.builtin.set_fact:
         cilium_manifests: "{{ cilium_manifests | default({}) | combine({(item | basename): lookup('file', item) | b64encode}) }}"
       with_fileglob:
-        - "{{ tempYAMLDir.path }}/cilium-olm-{{ cilium_networking_git_branch }}/manifests/cilium.{{ cilium_networking_version }}/*.yml"
-        - "{{ tempYAMLDir.path }}/cilium-olm-{{ cilium_networking_git_branch }}/manifests/cilium.{{ cilium_networking_version }}/*.yaml"
+        - "{{ tmp_yml_dir.path }}/cilium-olm-{{ cilium_networking_git_branch }}/manifests/cilium.{{ cilium_networking_version }}/*.yml"
+        - "{{ tmp_yml_dir.path }}/cilium-olm-{{ cilium_networking_git_branch }}/manifests/cilium.{{ cilium_networking_version }}/*.yaml"
 
     - name: Post the manifests to the cluster
       ansible.builtin.uri:
@@ -41,13 +42,13 @@
 
   rescue:
     - name: Use the registered var and the file module to remove the temporary file
-      when: tempYAMLDir.path is defined
+      when: tmp_yml_dir.path is defined
       ansible.builtin.file:
-        path: "{{ tempYAMLDir.path }}"
+        path: "{{ tmp_yml_dir.path }}"
         state: absent
 
 - name: Use the registered var and the file module to remove the temporary file
-  when: tempYAMLDir.path is defined
+  when: tmp_yml_dir.path is defined
   ansible.builtin.file:
-    path: "{{ tempYAMLDir.path }}"
+    path: "{{ tmp_yml_dir.path }}"
     state: absent

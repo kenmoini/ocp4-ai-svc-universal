@@ -135,7 +135,7 @@
   retries: 30
 
 - name: Create Volumes StorageClass
-  when: nutanix_csi_deploy_volumes_storageclass|bool
+  when: nutanix_csi_deploy_volumes_storageclass | bool
   kubernetes.core.k8s:
     kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     state: present
@@ -152,7 +152,7 @@
   retries: 30
 
 - name: Deploying Nutanix File Server (NFS) StorageClass
-  when: nutanix_csi_deploy_files_storageclass|bool
+  when: nutanix_csi_deploy_files_storageclass | bool
   block:
 
     - name: Create Files StorageClass
@@ -172,7 +172,7 @@
       retries: 30
 
     - name: Apply NFS SELinux Patch
-      when: nutanix_csi_deploy_files_storageclass_selinux_patch|bool
+      when: nutanix_csi_deploy_files_storageclass_selinux_patch | bool
       kubernetes.core.k8s:
         kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
         state: present
@@ -189,7 +189,7 @@
       retries: 30
 
 - name: Create iSCSI Service MachineConfig
-  when: nutanix_csi_deploy_iscsid_machineconfig|bool
+  when: nutanix_csi_deploy_iscsid_machineconfig | bool
   kubernetes.core.k8s:
     kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
     state: present
