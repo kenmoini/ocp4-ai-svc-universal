@@ -12,7 +12,7 @@
   <resource>
     <partition>/machine</partition>
   </resource>
-  <os firmware='efi'>
+  <os{% if libvirt_firmware_mode == "uefi" %} firmware='efi'{% endif %}>
     <type arch='x86_64' machine='q35'>hvm</type>
     <boot dev='hd'/>
     <boot dev='cdrom'/>
