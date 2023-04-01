@@ -1,6 +1,8 @@
 ---
 - name: Generate per-cluster SSH key if needed
-  when: generate_ssh_key | bool and (cluster_id == "")
+  when:
+    - generate_ssh_key | bool
+    - cluster_id == ""
   block:
     - name: Create the key pair
       community.crypto.openssh_keypair:
@@ -11,7 +13,9 @@
         ssh_public_key: "{{ lookup('file', generated_asset_directory + '/cluster_key-' + deployment_name + '.pub') }}"
 
 - name: Move keys to cluster folder
-  when: generate_ssh_key | bool and (cluster_id != "")
+  when:
+    - generate_ssh_key | bool
+    - cluster_id != ""
   block:
     - name: Stat for the public key file
       ansible.builtin.stat:
@@ -48,7 +52,10 @@
         ssh_public_key: "{{ lookup('file', generated_asset_directory + '/' + cluster_id + '/cluster_key.pub') }}"
 
 - name: Read in SSH key
-  when: not generate_ssh_key
+  when:
+    - not generate_ssh_key
+    - ssh_pub_key_path is defined
+    - ssh_public_key is not defined
   block:
     - name: Fetch the pre-existing SSH Key
       ansible.builtin.slurp:
