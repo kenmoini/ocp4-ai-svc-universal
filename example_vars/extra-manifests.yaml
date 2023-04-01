@@ -7,52 +7,53 @@
 ## This example is configured to support SNO on Nutanix deployments
 
 injected_manifests:
-- name: machineconfig-master-enable-iscsid-service.yaml
-  folder: manifests
-  content: |
-    ---
-    apiVersion: machineconfiguration.openshift.io/v1
-    kind: MachineConfig
-    metadata:
-      labels:
-        machineconfiguration.openshift.io/role: master
-      name: 99-custom-enable-iscsid-master
-    spec:
-      config:
-        ignition:
-          version: 2.2.0
-        systemd:
-          units:
-          - dropins:
-              - contents: |
-                  [Service]
-                  Restart=always
-                name: 10-iscsid-restart.conf
-            enabled: true
-            name: iscsid.service
-- name: machineconfig-nfs-pv-selinux-workaround.yaml
-  folder: manifests
-  content: |
-    ---
-    apiVersion: machineconfiguration.openshift.io/v1
-    kind: MachineConfig
-    metadata:
-      labels:
-        machineconfiguration.openshift.io/role: master
-      name: 99-master-nfs-pv-selinux-workaround
-    spec:
-      config:
-        ignition:
-          version: 2.2.0
-        systemd:
-          units:
-          - contents: |
-              [Unit]
-              Description=NFS PV selinux error workaround
-              [Service]
-              Type=oneshot
-              ExecStart=/bin/sh -c '/sbin/semanage permissive -l | /bin/grep -qw container_init_t || /sbin/semanage permissive -a container_init_t'
-              [Install]
-              WantedBy=multi-user.target
-            enabled: true
-            name: nfs-pv-selinux-workaround.service
+  - name: machineconfig-master-enable-iscsid-service.yaml
+    folder: manifests
+    content: |
+      ---
+      apiVersion: machineconfiguration.openshift.io/v1
+      kind: MachineConfig
+      metadata:
+        labels:
+          machineconfiguration.openshift.io/role: master
+        name: 99-custom-enable-iscsid-master
+      spec:
+        config:
+          ignition:
+            version: 2.2.0
+          systemd:
+            units:
+            - dropins:
+                - contents: |
+                    [Service]
+                    Restart=always
+                  name: 10-iscsid-restart.conf
+              enabled: true
+              name: iscsid.service
+
+  - name: machineconfig-nfs-pv-selinux-workaround.yaml
+    folder: manifests
+    content: |
+      ---
+      apiVersion: machineconfiguration.openshift.io/v1
+      kind: MachineConfig
+      metadata:
+        labels:
+          machineconfiguration.openshift.io/role: master
+        name: 99-master-nfs-pv-selinux-workaround
+      spec:
+        config:
+          ignition:
+            version: 2.2.0
+          systemd:
+            units:
+            - contents: |
+                [Unit]
+                Description=NFS PV selinux error workaround
+                [Service]
+                Type=oneshot
+                ExecStart=/bin/sh -c '/sbin/semanage permissive -l | /bin/grep -qw container_init_t || /sbin/semanage permissive -a container_init_t'
+                [Install]
+                WantedBy=multi-user.target
+              enabled: true
+              name: nfs-pv-selinux-workaround.service

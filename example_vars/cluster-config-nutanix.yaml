@@ -3,7 +3,7 @@
 # generate_ssh_key: true/false, will generate unique key pair if true
 generate_ssh_key: true
 # ssh_pub_key_path: If 'generate_ssh_key' is false, point to an existing SSH Public Key
-#ssh_pub_key_path: "~/.ssh/id_rsa.pub"
+# ssh_pub_key_path: "~/.ssh/id_rsa.pub"
 
 ################################################## OpenShift Pull Secret
 # pull_secret: Often best to pull from a file outside of the repo, remove any whitespace - get it from here: https://cloud.redhat.com/openshift/install/pull-secret
@@ -228,9 +228,12 @@ cluster_nodes:
           next_hop_interface: eth0
           table_id: 254
 
+################################################## Extra Post-Provisioning Roles
 # [optional] extra_roles: name of roles to run after cluster provisioning
-#extra_roles:
-#- ocp4-matrix-login
-#- ocp4-rhsm-entitlement
-#- ocp4-certificates
-#- ocp4-ntp-configuration
+
+# extra_roles:
+# - ocp4-deploy-nutanix-csi
+# - ocp4-matrix-login
+# - ocp4-rhsm-entitlement
+# - ocp4-certificates
+# - ocp4-ntp-configuration

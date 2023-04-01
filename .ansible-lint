@@ -9,6 +9,7 @@ use_default_rules: true
 warn_list:
   - yaml[comments]
   - yaml[line-length]
+  - role-name
 
 exclude_paths:
   - .cache/ # implicit unless exclude_paths is defined in config
