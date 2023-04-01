@@ -80,6 +80,7 @@
       hotadd_memory: true
       version: "{{ vcenter_hardware_version | int }}"
       nested_virt: "{{ vsphere_nested_virt | default(False) }}"
+      boot_firmware: "{{ vsphere_boot_firmware | default('efi') }}"
     cdrom: "{{ cdrom }}"
     networks: "{{ networks }}"
   tags:
