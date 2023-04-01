@@ -7,6 +7,13 @@
 ## Helpful information: https://examples.openshift.pub/cluster-configuration/authentication/activedirectory-ldap/
 
 idp_providers:
+  ## Google SSO Configuration
+  - type: Google
+    name: RedHatSSO
+    clientID: "{{ lookup('file', '/mnt/remoteWork/.gcp-oauth-cid') }}"
+    clientSecret: "{{ lookup('file', '/mnt/remoteWork/.gcp-oauth-cs') }}"
+    hostedDomain: "redhat.com" # optional - restricts logins to users with this domain
+
   ## LDAP Configuration
   - type: LDAP
     name: LabLDAP
