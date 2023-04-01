@@ -1,8 +1,9 @@
 ---
 
 #######################################################################################################################
-## ocp4-certificates role needed variables 
+## ocp4-certificates role needed variables
 #######################################################################################################################
+
 ## API Load Balancer TLS Certificate & Key
 cluster_api_lb_tls_crt: "{{ lookup('file', '/opt/core-ocp.lab.kemo.network.full-chain.cert.pem') }}"
 cluster_api_lb_tls_key: "{{ lookup('file', '/opt/core-ocp.lab.kemo.network.key.pem') }}"

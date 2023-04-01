@@ -1,7 +1,7 @@
 ---
 
 #######################################################################################################################
-## ocp4-idp role needed variables 
+## ocp4-idp role needed variables
 #######################################################################################################################
 
 ## Helpful information: https://examples.openshift.pub/cluster-configuration/authentication/activedirectory-ldap/
@@ -19,18 +19,18 @@ idp_providers:
     # insecure: false # optional, defaults to false
     group_sync:
       group_crbs:
-      - group: admins
-        crb: cluster-admin
-      - group: labadmins
-        crb: cluster-admin
+        - group: admins
+          crb: cluster-admin
+        - group: labadmins
+          crb: cluster-admin
       groupBaseDN: "cn=groups,cn=accounts,dc=kemo,dc=labs"
       groupFilter: (|(cn=labadmins)(cn=admins))
       userBaseDN: "cn=users,cn=accounts,dc=kemo,dc=labs"
       groupUIDNameMappings:
-      - ldapGroup: cn=labadmins,cn=groups,cn=accounts,dc=kemo,dc=labs
-        openshiftGroup: labadmins
-      - ldapGroup: cn=admins,cn=groups,cn=accounts,dc=kemo,dc=labs
-        openshiftGroup: admins
+        - ldapGroup: cn=labadmins,cn=groups,cn=accounts,dc=kemo,dc=labs
+          openshiftGroup: labadmins
+        - ldapGroup: cn=admins,cn=groups,cn=accounts,dc=kemo,dc=labs
+          openshiftGroup: admins
 
 ## Active Directory Configuration
 
