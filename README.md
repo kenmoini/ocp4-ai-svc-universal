@@ -2,7 +2,7 @@
 
 This set of resources handles an idempotent way to deploy OpenShift via the Assisted Installer Service to any number of infrastructure platforms.
 
-![Ansible Lint - Roles](https://github.com/kenmoini/ocp4-ai-svc-universal/actions/workflows/ansible-lint-roles.yml/badge.svg) ![Ansible Lint - Tasks](https://github.com/kenmoini/ocp4-ai-svc-universal/actions/workflows/ansible-lint-tasks.yml/badge.svg) 
+![Ansible Lint](https://github.com/kenmoini/ocp4-ai-svc-universal/actions/workflows/ansible-lint-all.yml/badge.svg) ![EE Build & Deploy](https://github.com/kenmoini/ocp4-ai-svc-universal/actions/workflows/build-deploy-ee.yml/badge.svg)
 
 ## Features
 

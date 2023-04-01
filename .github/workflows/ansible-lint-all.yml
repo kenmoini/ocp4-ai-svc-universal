@@ -5,12 +5,14 @@ on:
       - 'docs/**'
       - 'example_vars/**'
       - 'hack/**'
+      - README.md
 
   pull_request:
     paths-ignore:
       - 'docs/**'
       - 'example_vars/**'
       - 'hack/**'
+      - README.md
 
 jobs:
   lint:

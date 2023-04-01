@@ -1,0 +1,143 @@
+---
+## Needed Secrets
+## - REGISTRY_HOSTNAME - Target to push to
+## - REGISTRY_USERNAME - User to push as
+## - REGISTRY_PASSWORD - Password for user
+## - REGISTRY_PATH - Optional, if pushing to a path other than root, set to your username probably
+## Optional Secrets
+## - REDHAT_PASSWORD - If using a RHEL supported EE base image
+## - REDHAT_USERNAME - If using a RHEL supported EE base image
+## - AH_TOKEN - If using automation hub collections
+
+name: Build and Deploy Execution Environment (reusable)
+
+on:
+  # This is a reusable workflow
+  workflow_call:
+    inputs:
+      EE_FOLDER_NAME:
+        description: 'name of the folder where the EE is located'
+        default: ''
+        required: true
+        type: string
+      EE_IMAGE_NAME:
+        description: 'Image Name for the EE'
+        default: ''
+        required: true
+        type: string
+      EE_IMAGE_TAG:
+        description: 'Image tag, must be one tag for image build, defaults to latest'
+        default: 'latest'
+        required: true
+        type: string
+
+    secrets:
+      REGISTRY_HOSTNAME:
+        description: 'Needed for target push registry login'
+        required: true
+      REGISTRY_USERNAME:
+        description: 'Needed for target push registry login'
+        required: true
+      REGISTRY_PASSWORD:
+        description: 'Needed for target push registry login'
+        required: true
+      REGISTRY_PATH:
+        description: 'Optional, if you want to push to a path in the registry, probably default to your username'
+        required: true
+
+      REDHAT_PASSWORD:
+        description: 'Optional, for RH Registry login'
+        required: false
+      REDHAT_USERNAME:
+        description: 'Optional for RH registry login'
+        required: false
+      AH_TOKEN:
+        description: 'API token for hosted automation hub'
+        required: false
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+
+  # This workflow contains a single job called "build"
+  build:
+    runs-on: ubuntu-latest
+    environment: deploy
+    steps:
+
+      # In this job, all steps begin with a name
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        
+      - name: Install python requirements (ansible-builder)
+        run: pip install ansible-builder==1.1.0
+
+      - name: Log in to target registry
+        id: registry-quay
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: ${{ secrets.REGISTRY_HOSTNAME }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Log in to registry.redhat.io
+        id: registry-redhat
+        if: ${{ secrets.REDHAT_PASSWORD }}
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: registry.redhat.io
+          username: ${{ secrets.REDHAT_USERNAME }}
+          password: ${{ secrets.REDHAT_PASSWORD }}
+          
+      - name: Substitute token for automation hub
+        id: ah-token
+        if: ${{ secrets.AH_TOKEN }}
+        run: |
+          sed -i "s/my_ah_token/$AH_TOKEN/1" ansible.cfg
+        env:
+          AH_TOKEN: ${{ secrets.AH_TOKEN }}
+
+      - name: Build image
+        id: build-image
+        working-directory: ${{ inputs.EE_FOLDER_NAME }}
+        run: |
+          ansible-builder build \
+          --tag=${{ inputs.EE_IMAGE_NAME }}:${{ inputs.EE_IMAGE_TAG }} \
+          --tag=${{ inputs.EE_IMAGE_NAME }}:${{ github.sha }}
+#         env:
+#           ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_TOKEN: ${{ secrets.AH_TOKEN }}
+# Above env var doesn't work yet: https://github.com/ansible/ansible-builder/issues/346
+
+      - name: Push To Target Registry
+        id: push-to-registry
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ inputs.EE_IMAGE_NAME }}
+          tags: |
+            ${{ inputs.EE_IMAGE_TAG }}
+            ${{ github.sha }}
+          registry: ${{ secrets.REGISTRY_HOSTNAME }}/${{ secrets.REGISTRY_PATH }}/
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }} 
+        
+      - name: Print summary
+        working-directory: ${{ inputs.EE_FOLDER_NAME }}
+        run: |
+          echo "## :rocket: Usage" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Image pushed to repository: [${{ steps.push-to-registry.outputs.registry-path }}](https://${{ steps.push-to-registry.outputs.registry-path }})" >> $GITHUB_STEP_SUMMARY
+          echo "> \`podman pull ${{ steps.push-to-registry.outputs.registry-path }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "> \`podman pull ${{ secrets.REGISTRY_HOSTNAME }}/${{ inputs.REGISTRY_PATH }}/${{ inputs.EE_IMAGE_NAME }}:${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "## :pushpin: Ansible info:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "`podman run ${{ inputs.EE_IMAGE_NAME }} ansible --version`" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "## :pushpin: Installed collections:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "`podman run ${{ inputs.EE_IMAGE_NAME }} ansible-galaxy collection list`" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "## :pushpin: Containerfile:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "`cat Containerfile`" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
