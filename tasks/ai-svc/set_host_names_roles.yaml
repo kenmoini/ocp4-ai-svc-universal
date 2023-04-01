@@ -35,7 +35,7 @@
         status_code: 200
       register: ai_svc_list_of_hosts
 
-    - name: template out new v2 api map
+    - name: Template out new v2 api map
       ansible.builtin.template:
         src: templates/v2_host_roles_names_map.json.j2
         dest: "{{ generated_asset_directory }}/{{ cluster_id }}/v2_host_roles_names_map.json"

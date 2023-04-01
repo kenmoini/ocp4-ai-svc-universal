@@ -6,7 +6,7 @@
 - name: Get the infrastructure provider for this host
   ansible.builtin.include_tasks: "tasks/infra-baremetal/setup-redfish-vars.yaml"
 
-- name: d
+- name: Debug the Redfish Variables
   ansible.builtin.debug:
     msg:
       - "{{ redfish_systems_url }}"
