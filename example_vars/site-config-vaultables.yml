@@ -1,0 +1,71 @@
+---
+
+#######################################################################################################################
+## credentials-infrastructure
+#######################################################################################################################
+
+# Don't forget to add your credentials-infrastrucutre.yml to a vaulted file!
+
+################################################## OpenShift Pull Secret
+# pull_secret: Often best to pull from a file outside of the repo, remove any whitespace - get it from here: https://cloud.redhat.com/openshift/install/pull-secret
+pull_secret: "JSON_PULL_SECRET_HERE"
+
+################################################## Red Hat API Offline Token
+# rh_api_offline_token: If using the RH Cloud Assisted Installer service, you will need an Offline API Token from this page: https://access.redhat.com/management/api
+rh_api_offline_token: "RH_API_OFFLINE_TOKEN_HERE"
+
+#######################################################################################################################
+## ocp4-certificates role needed variables
+#######################################################################################################################
+cluster_api_lb_tls_crt: |
+  -----BEGIN CERTIFICATE-----
+  MIIEhTCCAu2gAwIBAgIBATANBgkqhkiG9w0BAQsFADA0MRIwEAYDVQQKDAlLRU1P
+  LkxBQlMxHjAcBgNVBAMMFUNlcnRpZmljYXRlIEF1dGhvcml0eTAeFw0yMTA0MDUx
+  NjI1MTVaFw00MTA0MDUxNjI1MTVaMDQxEjAQBgNVBAoMCUtFTU8uTEFCUzEeMBwG
+  A1UEAwwVQ2VydGlmaWNhdGUgQXV0aG9yaXR5MIIBojANBgkqhkiG9w0BAQEFAAOC
+  API_CERT_PEM_HERE
+  -----END CERTIFICATE-----
+
+cluster_api_lb_tls_key: |
+  -----BEGIN RSA PRIVATE KEY-----
+  MIIEhTCCAu2gAwIBAgIBATANBgkqhkiG9w0BAQsFADA0MRIwEAYDVQQKDAlLRU1P
+  LkxBQlMxHjAcBgNVBAMMFUNlcnRpZmljYXRlIEF1dGhvcml0eTAeFw0yMTA0MDUx
+  NjI1MTVaFw00MTA0MDUxNjI1MTVaMDQxEjAQBgNVBAoMCUtFTU8uTEFCUzEeMBwG
+  A1UEAwwVQ2VydGlmaWNhdGUgQXV0aG9yaXR5MIIBojANBgkqhkiG9w0BAQEFAAOC
+  API_KEY_PEM_HERE
+  -----END RSA PRIVATE KEY-----
+
+cluster_app_lb_tls_crt: |
+  -----BEGIN CERTIFICATE-----
+  MIIEhTCCAu2gAwIBAgIBATANBgkqhkiG9w0BAQsFADA0MRIwEAYDVQQKDAlLRU1P
+  LkxBQlMxHjAcBgNVBAMMFUNlcnRpZmljYXRlIEF1dGhvcml0eTAeFw0yMTA0MDUx
+  NjI1MTVaFw00MTA0MDUxNjI1MTVaMDQxEjAQBgNVBAoMCUtFTU8uTEFCUzEeMBwG
+  A1UEAwwVQ2VydGlmaWNhdGUgQXV0aG9yaXR5MIIBojANBgkqhkiG9w0BAQEFAAOC
+  APP_INGRESS_CERT_PEM_HERE
+  -----END CERTIFICATE-----
+
+cluster_app_lb_tls_key: |
+  -----BEGIN RSA PRIVATE KEY-----
+  MIIEhTCCAu2gAwIBAgIBATANBgkqhkiG9w0BAQsFADA0MRIwEAYDVQQKDAlLRU1P
+  LkxBQlMxHjAcBgNVBAMMFUNlcnRpZmljYXRlIEF1dGhvcml0eTAeFw0yMTA0MDUx
+  NjI1MTVaFw00MTA0MDUxNjI1MTVaMDQxEjAQBgNVBAoMCUtFTU8uTEFCUzEeMBwG
+  A1UEAwwVQ2VydGlmaWNhdGUgQXV0aG9yaXR5MIIBojANBgkqhkiG9w0BAQEFAAOC
+  APP_INGRESS_KEY_PEM_HERE
+  -----END RSA PRIVATE KEY-----
+
+#######################################################################################################################
+## ocp4-idp role needed variables
+#######################################################################################################################
+gcp_oauth_client_id: 1234567890-BLAH.apps.googleusercontent.com
+gcp_oauth_client_secret: GOGSPX-YEEEEEEEEEEEEEEEET
+
+ldap_bind_password: APASSWORD
+ldap_ca_cert: |
+  -----BEGIN CERTIFICATE-----
+  MIIEhTCCAu2gAwIBAgIBATANBgkqhkiG9w0BAQsFADA0MRIwEAYDVQQKDAlLRU1P
+  LkxBQlMxHjAcBgNVBAMMFUNlcnRpZmljYXRlIEF1dGhvcml0eTAeFw0yMTA0MDUx
+  NjI1MTVaFw00MTA0MDUxNjI1MTVaMDQxEjAQBgNVBAoMCUtFTU8uTEFCUzEeMBwG
+  A1UEAwwVQ2VydGlmaWNhdGUgQXV0aG9yaXR5MIIBojANBgkqhkiG9w0BAQEFAAOC
+  CERT
+  HERE
+  -----END CERTIFICATE-----
