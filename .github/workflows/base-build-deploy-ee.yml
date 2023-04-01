@@ -137,7 +137,7 @@ jobs:
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "`podman run ${{ inputs.EE_IMAGE_NAME }} ansible-galaxy collection list`" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "## :pushpin: Containerfile:" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "`cat Containerfile`" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+#          echo "## :pushpin: Containerfile:" >> $GITHUB_STEP_SUMMARY
+#          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+#          echo "`cat Containerfile`" >> $GITHUB_STEP_SUMMARY
+#          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
