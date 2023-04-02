@@ -1,0 +1,11 @@
+---
+# These tasks will provide an additional logic layer to the processing of the Playbooks
+
+# Mostly this is to make SNO easier - you could also replicate this logic in another
+# playbook if you wanted to chain it before/after the main playbook in a Workflow Job
+
+- name: Set the needed SNO fact overrides
+  when: cluster_type == "SNO"
+  ansible.builtin.set_fact:
+    cluster_user_managed_networking: "true"
+    schedulable_masters: "true"

@@ -50,12 +50,17 @@
     loop_var: var_item
 
 - name: Check for pull secret
+  when:
+    - pull_secret is undefined
+    - pull_secret_path is defined
   ansible.builtin.slurp:
     src: "{{ pull_secret_path }}"
-  when: pull_secret is undefined
   register: pull_secret_slurp
 
 - name: Set the client secret
+  when: pull_secret is undefined
   ansible.builtin.set_fact:
     pull_secret: "{{ pull_secret_slurp['content'] | b64decode | trim | to_json }}"
-  when: pull_secret is undefined
+
+- name: Run logic mutation functions
+  ansible.builtin.include_tasks: set_facts.yaml
