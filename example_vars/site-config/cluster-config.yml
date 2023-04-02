@@ -1,0 +1,248 @@
+---
+
+cluster_nodes:
+  - name: cp-1
+    type: control-plane
+    infra:
+      name: labRaza
+      type: libvirt
+    vm:
+      cpu_cores: 10
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 32768
+      disks:
+        - size: 130
+          name: boot
+    networking:
+      interfaces:
+        - name: eth0
+          mac_address: 54:52:00:70:69:11
+          dhcp: false
+          ipv4:
+            - address: 192.168.70.90
+              prefix: 23
+          #libvirt_network: "disV70"
+      routes:
+        - destination: 0.0.0.0/0
+          next_hop_address: 192.168.70.1
+          next_hop_interface: eth0
+          table_id: 254
+  - name: cp-2
+    type: control-plane
+    infra:
+      name: labRaza
+      type: libvirt
+    vm:
+      cpu_cores: 10
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 32768
+      disks:
+        - size: 130
+          name: boot
+    networking:
+      interfaces:
+        - name: eth0
+          mac_address: 54:52:00:70:69:12
+          dhcp: false
+          ipv4:
+            - address: 192.168.70.91
+              prefix: 23
+          #libvirt_network: "disV70"
+      routes:
+        - destination: 0.0.0.0/0
+          next_hop_address: 192.168.70.1
+          next_hop_interface: eth0
+          table_id: 254
+  - name: cp-3
+    type: control-plane
+    infra:
+      name: labRaza
+      type: libvirt
+    vm:
+      cpu_cores: 10
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 32768
+      disks:
+        - size: 130
+          name: boot
+    networking:
+      interfaces:
+        - name: eth0
+          mac_address: 54:52:00:70:69:13
+          dhcp: false
+          ipv4:
+            - address: 192.168.70.92
+              prefix: 23
+          #libvirt_network: "disV70"
+      routes:
+        - destination: 0.0.0.0/0
+          next_hop_address: 192.168.70.1
+          next_hop_interface: eth0
+          table_id: 254
+
+  - name: infra-1
+    type: infra-node
+    infra:
+      name: labVMWare
+      type: vsphere
+    vm:
+      cpu_cores: 12
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 98304
+      disks:
+        - size: 130
+          name: boot
+        - size: 300
+          name: odf
+    networking:
+      interfaces:
+        - name: eth0
+          mac_address: 54:52:00:70:69:24
+          dhcp: false
+          ipv4:
+            - address: 192.168.70.93
+              prefix: 23
+      routes:
+        - destination: 0.0.0.0/0
+          next_hop_address: 192.168.70.1
+          next_hop_interface: eth0
+          table_id: 254
+  - name: infra-2
+    type: infra-node
+    infra:
+      name: labVMWare
+      type: vsphere
+    vm:
+      cpu_cores: 12
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 98304
+      disks:
+        - size: 130
+          name: boot
+        - size: 300
+          name: odf
+    networking:
+      interfaces:
+        - name: eth0
+          mac_address: 54:52:00:70:69:25
+          dhcp: false
+          ipv4:
+            - address: 192.168.70.94
+              prefix: 23
+      routes:
+        - destination: 0.0.0.0/0
+          next_hop_address: 192.168.70.1
+          next_hop_interface: eth0
+          table_id: 254
+  - name: infra-3
+    type: infra-node
+    infra:
+      name: labVMWare
+      type: vsphere
+    vm:
+      cpu_cores: 12
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 98304
+      disks:
+        - size: 130
+          name: boot
+        - size: 300
+          name: odf
+    networking:
+      interfaces:
+        - name: eth0
+          mac_address: 54:52:00:70:69:26
+          dhcp: false
+          ipv4:
+            - address: 192.168.70.95
+              prefix: 23
+      routes:
+        - destination: 0.0.0.0/0
+          next_hop_address: 192.168.70.1
+          next_hop_interface: eth0
+          table_id: 254
+
+  - name: app-1
+    type: application-node
+    infra:
+      name: labEndurance
+      type: libvirt
+    vm:
+      cpu_cores: 20
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 196608
+      disks:
+        - size: 130
+          name: boot
+    networking:
+      interfaces:
+        - name: eth0
+          mac_address: 54:52:00:70:69:14
+          dhcp: false
+          ipv4:
+            - address: 192.168.70.96
+              prefix: 23
+      routes:
+        - destination: 0.0.0.0/0
+          next_hop_address: 192.168.70.1
+          next_hop_interface: eth0
+          table_id: 254
+  - name: app-2
+    type: application-node
+    infra:
+      name: labEndurance
+      type: libvirt
+    vm:
+      cpu_cores: 20
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 196608
+      disks:
+        - size: 130
+          name: boot
+    networking:
+      interfaces:
+        - name: eth0
+          mac_address: 54:52:00:70:69:15
+          dhcp: false
+          ipv4:
+            - address: 192.168.70.97
+              prefix: 23
+      routes:
+        - destination: 0.0.0.0/0
+          next_hop_address: 192.168.70.1
+          next_hop_interface: eth0
+          table_id: 254
+  - name: app-3
+    type: application-node
+    infra:
+      name: labEndurance
+      type: libvirt
+    vm:
+      cpu_cores: 20
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 196608
+      disks:
+        - size: 130
+          name: boot
+    networking:
+      interfaces:
+        - name: eth0
+          mac_address: 54:52:00:70:69:16
+          dhcp: false
+          ipv4:
+            - address: 192.168.70.98
+              prefix: 23
+      routes:
+        - destination: 0.0.0.0/0
+          next_hop_address: 192.168.70.1
+          next_hop_interface: eth0
+          table_id: 254

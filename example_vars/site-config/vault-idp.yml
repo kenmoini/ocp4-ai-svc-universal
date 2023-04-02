@@ -1,0 +1,17 @@
+---
+#######################################################################################################################
+## ocp4-idp role needed variables
+#######################################################################################################################
+# gcp_oauth_client_id: 1234567890-BLAH.apps.googleusercontent.com
+# gcp_oauth_client_secret: GOGSPX-YEEEEEEEEEEEEEEEET
+
+# ldap_bind_password: APASSWORD
+# ldap_ca_cert: |
+#   -----BEGIN CERTIFICATE-----
+#   MIIEhTCCAu2gAwIBAgIBATANBgkqhkiG9w0BAQsFADA0MRIwEAYDVQQKDAlLRU1P
+#   LkxBQlMxHjAcBgNVBAMMFUNlcnRpZmljYXRlIEF1dGhvcml0eTAeFw0yMTA0MDUx
+#   NjI1MTVaFw00MTA0MDUxNjI1MTVaMDQxEjAQBgNVBAoMCUtFTU8uTEFCUzEeMBwG
+#   A1UEAwwVQ2VydGlmaWNhdGUgQXV0aG9yaXR5MIIBojANBgkqhkiG9w0BAQEFAAOC
+#   CERT
+#   HERE
+#   -----END CERTIFICATE-----

@@ -1,0 +1,41 @@
+---
+
+#######################################################################################################################
+## ocp4-certificates role needed variables
+#######################################################################################################################
+
+# cluster_api_lb_tls_crt: |
+#   -----BEGIN CERTIFICATE-----
+#   MIIEhTCCAu2gAwIBAgIBATANBgkqhkiG9w0BAQsFADA0MRIwEAYDVQQKDAlLRU1P
+#   LkxBQlMxHjAcBgNVBAMMFUNlcnRpZmljYXRlIEF1dGhvcml0eTAeFw0yMTA0MDUx
+#   NjI1MTVaFw00MTA0MDUxNjI1MTVaMDQxEjAQBgNVBAoMCUtFTU8uTEFCUzEeMBwG
+#   A1UEAwwVQ2VydGlmaWNhdGUgQXV0aG9yaXR5MIIBojANBgkqhkiG9w0BAQEFAAOC
+#   API_CERT_PEM_HERE
+#   -----END CERTIFICATE-----
+
+# cluster_api_lb_tls_key: |
+#   -----BEGIN RSA PRIVATE KEY-----
+#   MIIEhTCCAu2gAwIBAgIBATANBgkqhkiG9w0BAQsFADA0MRIwEAYDVQQKDAlLRU1P
+#   LkxBQlMxHjAcBgNVBAMMFUNlcnRpZmljYXRlIEF1dGhvcml0eTAeFw0yMTA0MDUx
+#   NjI1MTVaFw00MTA0MDUxNjI1MTVaMDQxEjAQBgNVBAoMCUtFTU8uTEFCUzEeMBwG
+#   A1UEAwwVQ2VydGlmaWNhdGUgQXV0aG9yaXR5MIIBojANBgkqhkiG9w0BAQEFAAOC
+#   API_KEY_PEM_HERE
+#   -----END RSA PRIVATE KEY-----
+
+# cluster_app_lb_tls_crt: |
+#   -----BEGIN CERTIFICATE-----
+#   MIIEhTCCAu2gAwIBAgIBATANBgkqhkiG9w0BAQsFADA0MRIwEAYDVQQKDAlLRU1P
+#   LkxBQlMxHjAcBgNVBAMMFUNlcnRpZmljYXRlIEF1dGhvcml0eTAeFw0yMTA0MDUx
+#   NjI1MTVaFw00MTA0MDUxNjI1MTVaMDQxEjAQBgNVBAoMCUtFTU8uTEFCUzEeMBwG
+#   A1UEAwwVQ2VydGlmaWNhdGUgQXV0aG9yaXR5MIIBojANBgkqhkiG9w0BAQEFAAOC
+#   APP_INGRESS_CERT_PEM_HERE
+#   -----END CERTIFICATE-----
+
+# cluster_app_lb_tls_key: |
+#   -----BEGIN RSA PRIVATE KEY-----
+#   MIIEhTCCAu2gAwIBAgIBATANBgkqhkiG9w0BAQsFADA0MRIwEAYDVQQKDAlLRU1P
+#   LkxBQlMxHjAcBgNVBAMMFUNlcnRpZmljYXRlIEF1dGhvcml0eTAeFw0yMTA0MDUx
+#   NjI1MTVaFw00MTA0MDUxNjI1MTVaMDQxEjAQBgNVBAoMCUtFTU8uTEFCUzEeMBwG
+#   A1UEAwwVQ2VydGlmaWNhdGUgQXV0aG9yaXR5MIIBojANBgkqhkiG9w0BAQEFAAOC
+#   APP_INGRESS_KEY_PEM_HERE
+#   -----END RSA PRIVATE KEY-----

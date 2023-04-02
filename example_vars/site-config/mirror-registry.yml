@@ -1,0 +1,21 @@
+---
+
+#######################################################################################################################
+## mirror-registy configuration variables
+#######################################################################################################################
+
+# In case you need to define some mirrors for registries, you can do so here.
+# This is an example of what you could do with JFrog remote pull-through caches.
+
+# imageContentSources:
+#   - source: quay.io
+#     mirrors:
+#       - "jfrog.kemo.labs/quay-remote"
+
+#   - source: registry.redhat.io
+#     mirrors:
+#       - "jfrog.kemo.labs/registry-redhat-remote"
+
+#   - source: registry.access.redhat.com
+#     mirrors:
+#       - "jfrog.kemo.labs/registry-access-redhat-remote"

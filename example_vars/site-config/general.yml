@@ -1,0 +1,24 @@
+---
+################################################## SSH Key Configuration
+# generate_ssh_key: true/false, will generate unique key pair if true
+# When operating in Site Configs/Tower/Controller, you should probably just pass in a Public Key
+generate_ssh_key: false
+# ssh_pub_key_path: If 'generate_ssh_key' is false, point to an existing SSH Public Key
+#ssh_pub_key_path: "~/.ssh/id_rsa.pub"
+
+# ssh_public_key: this sets the public key to be used for the cluster, regardless of the ssh_pub_key_path
+ssh_public_key: ssh-rsa AAAAB3NzaC1yc2Es.SOME.PUB.KEY/YuTiSImbaN0G8YMJrUu1EzYQ5QlmNqPKVuFH8te41vxmTX47N5h8vfO9c00YFC5H9mtsPMGXYRTiRkB MasterKemoKey
+
+################################################## Cluster Basics
+# cluster_type: Standard (HA CP+App Nodes), SNO (Single Node OpenShift), Compact (3-node converged cluster)
+cluster_type: Standard
+# cluster_version can be x.y or x.y.z - must be formatted as a STRING
+cluster_version: "4.10.54"
+
+# cluster_name and cluster_domain will form the cluster base endpoint, eg cluster_name.cluster_domain
+# Ensure the DNS A records for {api,api-int,*.apps}.cluster_name.cluster_domain exist
+cluster_name: my-cluster
+cluster_domain: example.com
+
+# provider_type: baremetal, vsphere, nutanix, libvirt, none.  baremetal or none are good defaults.  None if UMN, baremetal if CMN
+provider_type: baremetal

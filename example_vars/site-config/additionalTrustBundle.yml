@@ -1,0 +1,26 @@
+---
+
+# If you need to specify extra certs to be trusted by the cluster, you can do so here.
+# This is handy in case you use a self-signed cert for your registry, proxy, etc.
+# Otherwise, just delete this file.
+
+# additionalTrustBundle: |
+#   -----BEGIN CERTIFICATE-----
+#   MIIG3TCCBMWgAwIBAgIUJSmf6Ooxg8uIwfFlHQYFQl5KMSYwDQYJKoZIhvcNAQEL
+#   BQAwgcMxIzAhBgkqhkiG9w0BCQEWFG5hLXNlLXJ0b0ByZWRoYXQuY29tMQswCQYD
+#   YOUR
+#   ROOT
+#   CERTS
+#   LSMk1f3L54UjG+iMyolALyCvpibGD6g6PRMp8UTStZatPJDzT2/JbFu9mIhU5V4g
+#   zYML3t12ZU8JGpxxfUk2ObjKbixfSwSmTcWb+s8kgg==
+#   -----END CERTIFICATE-----
+#   -----BEGIN CERTIFICATE-----
+#   MIIDGzCCAgOgAwIBAgIQIiia9v4QpyL2ar7kW4K2cDANBgkqhkiG9w0BAQsFADAm
+#   MSQwIgYDVQQDExtLZW1vIExhYnMgU21hbGxTdGVwIFJvb3QgQ0EwHhcNMjIwNDAz
+#   MjAzNDA5WhcNMzIwMzMxMjAzNDA5WjAmMSQwIgYDVQQDExtLZW1vIExhYnMgU21h
+#   YOUR
+#   OTHER
+#   ROOT
+#   CERTS
+#   g/IdSjffp7OClDHFa3nuXzsKk87O3eTr4fzKALVpqQ==
+#   -----END CERTIFICATE-----

@@ -1,0 +1,11 @@
+---
+
+################################################## OpenShift Pull Secret
+# pull_secret: Often best to pull from a file outside of the repo, remove any whitespace - get it from here: https://cloud.redhat.com/openshift/install/pull-secret
+pull_secret_raw: 'JSON_PULL_SECRET_HERE_IN_SINGLE_QUOTES'
+
+pull_secret: "{{ pull_secret_raw | to_json }}"
+
+################################################## Red Hat API Offline Token
+# rh_api_offline_token: If using the RH Cloud Assisted Installer service, you will need an Offline API Token from this page: https://access.redhat.com/management/api
+rh_api_offline_token: "RH_API_OFFLINE_TOKEN_HERE"

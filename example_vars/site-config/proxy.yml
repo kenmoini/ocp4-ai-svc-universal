@@ -1,0 +1,20 @@
+---
+
+#######################################################################################################################
+## OpenShift Assisted Installer Service proxy configuration
+#######################################################################################################################
+
+# In case the cluster will need a proxy to communicate with the internet, you can define it here.
+# If it uses authentication then make sure to vault this file.
+
+# cluster_proxy:
+#   httpProxy: http://192.168.42.31:3128/
+#   httpsProxy: http://192.168.42.31:3128/
+#   noProxy:
+#     - .svc.cluster.local
+#     - 192.168.0.0/16
+#     - .kemo.network
+#     - .kemo.labs
+#     - 127.0.0.1
+#     - ::1
+#     - localhost
