@@ -19,6 +19,10 @@
           metadata:
             name: ldap-group-syncer
             namespace: openshift-config
+      register: ldap_group_syncer_sa
+      retries: 30
+      delay: 10
+      until: ldap_group_syncer_sa is succeeded
 
     - name: Create the ClusterRole
       kubernetes.core.k8s:
@@ -44,6 +48,10 @@
                 - list
                 - create
                 - update
+      register: ldap_group_syncer_cr
+      retries: 30
+      delay: 10
+      until: ldap_group_syncer_cr is succeeded
 
     - name: Create the ClusterRoleBinding
       kubernetes.core.k8s:
@@ -65,6 +73,10 @@
             - kind: ServiceAccount
               name: ldap-group-syncer
               namespace: openshift-config
+      register: ldap_group_syncer_crb
+      retries: 30
+      delay: 10
+      until: ldap_group_syncer_crb is succeeded
 
     - name: Create the ConfigMap to house the LDAPSync yaml - LDAP or ActiveDirectory
       kubernetes.core.k8s:
@@ -82,6 +94,38 @@
           data:
             sync.yaml: |
               {{ lookup('template', 'ldap-sync.yaml.j2') }}
+      register: ldap_group_syncer_cm
+      retries: 30
+      delay: 10
+      until: ldap_group_syncer_cm is succeeded
+
+    - name: Create the ClusterRoleBinding for the Group Syncs
+      kubernetes.core.k8s:
+        kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
+        state: present
+        merge_type:
+          - strategic-merge
+          - merge
+        definition:
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: ClusterRoleBinding
+          metadata:
+            name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-group-sync"
+          roleRef:
+            apiGroup: rbac.authorization.k8s.io
+            kind: ClusterRole
+            name: "{{ crb.crb }}"
+          subjects:
+            - kind: Group
+              name: "{{ crb.group }}"
+              apiGroup: rbac.authorization.k8s.io
+      loop: "{{ provider.group_sync.group_crbs }}"
+      loop_control:
+        loop_var: crb
+      register: ldap_group_syncer_crb
+      retries: 30
+      delay: 10
+      until: ldap_group_syncer_crb is succeeded
 
     - name: Create the CronJob to run the Sync, set it to run immediately
       kubernetes.core.k8s:
@@ -134,10 +178,14 @@
                     activeDeadlineSeconds: 500
                     dnsPolicy: "ClusterFirst"
                     serviceAccountName: "ldap-group-syncer"
+      register: ldap_group_syncer_cj
+      retries: 30
+      delay: 10
+      until: ldap_group_syncer_cj is succeeded
 
-    - name: Pause for 90 seconds to allow the LDAP Sync Job to run
+    - name: Pause for 15 seconds to allow the LDAP Sync Job to start
       ansible.builtin.pause:
-        seconds: 90
+        seconds: 15
 
     - name: Set the CronJob to run the Sync to a 30min sync
       kubernetes.core.k8s:
@@ -194,27 +242,3 @@
       delay: 20
       register: cronjob_switch
       until: cronjob_switch is succeeded
-
-    - name: Create the ClusterRoleBinding for the Group Syncs
-      kubernetes.core.k8s:
-        kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
-        state: present
-        merge_type:
-          - strategic-merge
-          - merge
-        definition:
-          apiVersion: rbac.authorization.k8s.io/v1
-          kind: ClusterRoleBinding
-          metadata:
-            name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-group-sync"
-          roleRef:
-            apiGroup: rbac.authorization.k8s.io
-            kind: ClusterRole
-            name: "{{ crb.crb }}"
-          subjects:
-            - kind: Group
-              name: "{{ crb.group }}"
-              apiGroup: rbac.authorization.k8s.io
-      loop: "{{ provider.group_sync.group_crbs }}"
-      loop_control:
-        loop_var: crb

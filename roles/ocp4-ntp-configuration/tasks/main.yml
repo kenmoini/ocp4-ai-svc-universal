@@ -35,6 +35,10 @@
                     overwrite: true
                     path: /etc/chrony.conf
             osImageURL: ""
+      register: mc_99_masters_chrony_configuration
+      retries: 30
+      delay: 10
+      until: mc_99_masters_chrony_configuration is succeeded
 
     - name: Create the MachineConfig for the Application Nodes NTP chrony Configuration
       kubernetes.core.k8s:
@@ -68,3 +72,7 @@
                     overwrite: true
                     path: /etc/chrony.conf
             osImageURL: ""
+      register: mc_99_workers_chrony_configuration
+      retries: 30
+      delay: 10
+      until: mc_99_workers_chrony_configuration is succeeded

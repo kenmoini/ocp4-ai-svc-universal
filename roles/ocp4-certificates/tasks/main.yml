@@ -5,115 +5,138 @@
 ## ===================================================================================================
 ## Create the Secrets and ConfigMaps for the cluster certificates
 ## ===================================================================================================
-  - name: Create ConfigMap for Root Certificate Bundle
-    when: additionalTrustBundle is defined
-    kubernetes.core.k8s:
-      kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
-      state: present
-      merge_type:
-        - strategic-merge
-        - merge
-      definition: "{{ lookup('template', 'templates/additionalTrustBundleConfigMap.yaml.j2') | from_yaml }}"
+    - name: Create ConfigMap for Root Certificate Bundle
+      when: additionalTrustBundle is defined
+      kubernetes.core.k8s:
+        kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
+        state: present
+        merge_type:
+          - strategic-merge
+          - merge
+        definition: "{{ lookup('template', 'templates/additionalTrustBundleConfigMap.yaml.j2') | from_yaml }}"
+      register: additional_trust_bundle_cm
+      retries: 30
+      delay: 10
+      until: additional_trust_bundle_cm is succeeded
 
+    - name: Create Secret for API LoadBalancer
+      when: cluster_api_lb_tls_crt is defined and cluster_api_lb_tls_key is defined
+      kubernetes.core.k8s:
+        kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
+        state: present
+        merge_type:
+          - strategic-merge
+          - merge
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: "{{ cluster_api_lb_secret_name }}"
+            namespace: "{{ cluster_api_lb_secret_namespace }}"
+          type: kubernetes.io/tls
+          stringData:
+            "tls.crt": |
+              {{ cluster_api_lb_tls_crt }}
+            "tls.key": |
+              {{ cluster_api_lb_tls_key }}
+      register: api_lb_secret
+      retries: 30
+      delay: 10
+      until: api_lb_secret is succeeded
 
-  - name: Create Secret for API LoadBalancer
-    when: cluster_api_lb_tls_crt is defined and cluster_api_lb_tls_key is defined
-    kubernetes.core.k8s:
-      kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
-      state: present
-      merge_type:
-        - strategic-merge
-        - merge
-      definition:
-        apiVersion: v1
-        kind: Secret
-        metadata:
-          name: "{{ cluster_api_lb_secret_name }}"
-          namespace: "{{ cluster_api_lb_secret_namespace }}"
-        type: kubernetes.io/tls
-        stringData:
-          "tls.crt": |
-            {{ cluster_api_lb_tls_crt }}
-          "tls.key": |
-            {{ cluster_api_lb_tls_key }}
-
-  - name: Create Secret for Application LoadBalancer
-    when: cluster_app_lb_tls_crt is defined and cluster_app_lb_tls_key is defined
-    kubernetes.core.k8s:
-      kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
-      state: present
-      merge_type:
-        - strategic-merge
-        - merge
-      definition:
-        apiVersion: v1
-        kind: Secret
-        metadata:
-          name: "{{ cluster_app_lb_secret_name }}"
-          namespace: "{{ cluster_app_lb_secret_namespace }}"
-        type: kubernetes.io/tls
-        stringData:
-          "tls.crt": |
-            {{ cluster_app_lb_tls_crt }}
-          "tls.key": |
-            {{ cluster_app_lb_tls_key }}
-
-## ===================================================================================================
-## Patch the needed certificates into the cluster
-## ===================================================================================================
-
-  - name: Patch the cluster proxy configuration with the new root certificate bundle
-    when: additionalTrustBundle is defined
-    kubernetes.core.k8s:
-      kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
-      state: present
-      merge_type:
-        - strategic-merge
-        - merge
-      definition:
-        apiVersion: config.openshift.io/v1
-        kind: Proxy
-        metadata:
-          name: cluster
-        spec:
-          trustedCA:
-            name: root-certificate-bundle
-
-  - name: Patch the cluster IngressController Operator
-    when: cluster_app_lb_tls_crt is defined and cluster_app_lb_tls_key is defined
-    kubernetes.core.k8s:
-      kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
-      state: present
-      merge_type:
-        - strategic-merge
-        - merge
-      definition:
-        apiVersion: operator.openshift.io/v1
-        kind: IngressController
-        metadata:
-          name: default
-          namespace: openshift-ingress-operator
-        spec:
-          defaultCertificate:
+    - name: Create Secret for Application LoadBalancer
+      when: cluster_app_lb_tls_crt is defined and cluster_app_lb_tls_key is defined
+      kubernetes.core.k8s:
+        kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
+        state: present
+        merge_type:
+          - strategic-merge
+          - merge
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
             name: "{{ cluster_app_lb_secret_name }}"
+            namespace: "{{ cluster_app_lb_secret_namespace }}"
+          type: kubernetes.io/tls
+          stringData:
+            "tls.crt": |
+              {{ cluster_app_lb_tls_crt }}
+            "tls.key": |
+              {{ cluster_app_lb_tls_key }}
+      register: app_lb_secret
+      retries: 30
+      delay: 10
+      until: app_lb_secret is succeeded
 
-  - name: Patch the cluster APIServer Configuration
-    when: cluster_api_lb_tls_crt is defined and cluster_api_lb_tls_key is defined
-    kubernetes.core.k8s:
-      kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
-      state: present
-      merge_type:
-        - strategic-merge
-        - merge
-      definition:
-        apiVersion: config.openshift.io/v1
-        kind: APIServer
-        metadata:
-          name: cluster
-        spec:
-          servingCerts:
-            namedCertificates:
-              - servingCertificate:
-                  name: "{{ cluster_api_lb_secret_name }}"
-                names:
-                  - "api.{{ cluster_name }}.{{ cluster_domain }}"
+  ## ===================================================================================================
+  ## Patch the needed certificates into the cluster
+  ## ===================================================================================================
+
+    - name: Patch the cluster proxy configuration with the new root certificate bundle
+      when: additionalTrustBundle is defined
+      kubernetes.core.k8s:
+        kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
+        state: present
+        merge_type:
+          - strategic-merge
+          - merge
+        definition:
+          apiVersion: config.openshift.io/v1
+          kind: Proxy
+          metadata:
+            name: cluster
+          spec:
+            trustedCA:
+              name: root-certificate-bundle
+      register: proxy_config
+      retries: 30
+      delay: 10
+      until: proxy_config is succeeded
+
+    - name: Patch the cluster IngressController Operator
+      when: cluster_app_lb_tls_crt is defined and cluster_app_lb_tls_key is defined
+      kubernetes.core.k8s:
+        kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
+        state: present
+        merge_type:
+          - strategic-merge
+          - merge
+        definition:
+          apiVersion: operator.openshift.io/v1
+          kind: IngressController
+          metadata:
+            name: default
+            namespace: openshift-ingress-operator
+          spec:
+            defaultCertificate:
+              name: "{{ cluster_app_lb_secret_name }}"
+      register: ingress_controller
+      retries: 30
+      delay: 10
+      until: ingress_controller is succeeded
+
+    - name: Patch the cluster APIServer Configuration
+      when: cluster_api_lb_tls_crt is defined and cluster_api_lb_tls_key is defined
+      kubernetes.core.k8s:
+        kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
+        state: present
+        merge_type:
+          - strategic-merge
+          - merge
+        definition:
+          apiVersion: config.openshift.io/v1
+          kind: APIServer
+          metadata:
+            name: cluster
+          spec:
+            servingCerts:
+              namedCertificates:
+                - servingCertificate:
+                    name: "{{ cluster_api_lb_secret_name }}"
+                  names:
+                    - "api.{{ cluster_name }}.{{ cluster_domain }}"
+      register: api_server
+      retries: 30
+      delay: 10
+      until: api_server is succeeded

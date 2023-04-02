@@ -19,6 +19,10 @@
   tags:
     - preflight
     - create_ns
+  register: mario_project
+  retries: 30
+  delay: 10
+  until: mario_project is succeeded
 
 - name: Create infinite-mario DeploymentConfig
   kubernetes.core.k8s:
@@ -67,6 +71,10 @@
             dnsPolicy: ClusterFirst
             securityContext: {}
             schedulerName: default-scheduler
+  register: mario_dc
+  retries: 30
+  delay: 10
+  until: mario_dc is succeeded
 
 - name: Create infinite-mario Service
   kubernetes.core.k8s:
@@ -93,6 +101,10 @@
           deploymentconfig: infinite-mario
         type: ClusterIP
         sessionAffinity: None
+  register: mario_svc
+  retries: 30
+  delay: 10
+  until: mario_svc is succeeded
 
 - name: Create infinite-mario Route
   kubernetes.core.k8s:
@@ -114,6 +126,10 @@
         tls:
           termination: edge
         wildcardPolicy: None
+  register: mario_route
+  retries: 30
+  delay: 10
+  until: mario_route is succeeded
 
 - name: Get infinite-mario Route
   kubernetes.core.k8s_info:
@@ -123,6 +139,9 @@
     name: infinite-mario
     namespace: "{{ mario_project_namespace }}"
   register: mario_route_r
+  retries: 30
+  delay: 10
+  until: mario_route_r is succeeded
 
 - name: COMPLETE - Display needed resources
   ansible.builtin.debug:

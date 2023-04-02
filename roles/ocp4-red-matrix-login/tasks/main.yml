@@ -13,6 +13,10 @@
         namespace: openshift-config
       data:
         login.html: "{{ lookup('template', 'templates/login.html.j2') | b64encode }}"
+  register: matrix_login_template
+  retries: 30
+  delay: 10
+  until: matrix_login_template is succeeded
 
 - name: Patch the OAuth Config
   kubernetes.core.k8s:
@@ -26,3 +30,7 @@
         templates:
           login:
             name: matrix-login-template
+  register: oauth_config
+  retries: 30
+  delay: 10
+  until: oauth_config is succeeded
