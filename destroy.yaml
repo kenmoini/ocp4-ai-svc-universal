@@ -384,6 +384,7 @@
             body_format: json
           register: cancel_cluster
           ignore_errors: true
+          failed_when: false
           tags:
             - ai_svc_cancel_cluster
 
@@ -397,6 +398,7 @@
             body_format: json
           register: reset_cluster
           ignore_errors: true
+          failed_when: false
           tags:
             - ai_svc_reset_cluster
 
