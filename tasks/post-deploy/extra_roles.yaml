@@ -25,7 +25,10 @@
       loop_control:
         loop_var: role_name
 
-  always:
-  - name: Log out of the cluster
-    shell:
-      cmd: "{{ oc_binary }} logout"
+#  always:
+#    - name: Log out of the cluster
+#      ansible.builtin.shell:
+#        cmd: "{{ oc_binary }} logout"
+#      environment:
+#        KUBECONFIG: "{{ active_kc }}"
+#      changed_when: false
