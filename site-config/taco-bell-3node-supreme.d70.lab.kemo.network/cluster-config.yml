@@ -7,7 +7,7 @@ cluster_nodes:
       # type: vsphere | nutanix | libvirt | baremetal
       type: vsphere
     vm:
-      cpu_cores: 10
+      cpu_cores: 12
       cpu_sockets: 1
       cpu_threads: 1
       memory: 32768
@@ -35,7 +35,7 @@ cluster_nodes:
       # type: vsphere | nutanix | libvirt | baremetal
       type: vsphere
     vm:
-      cpu_cores: 10
+      cpu_cores: 12
       cpu_sockets: 1
       cpu_threads: 1
       memory: 32768
@@ -63,7 +63,7 @@ cluster_nodes:
       # type: vsphere | nutanix | libvirt | baremetal
       type: vsphere
     vm:
-      cpu_cores: 10
+      cpu_cores: 12
       cpu_sockets: 1
       cpu_threads: 1
       memory: 32768
