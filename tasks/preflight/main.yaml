@@ -38,7 +38,13 @@
     - cluster_type
     - cluster_api_vip
     - cluster_apps_vip
+    - cluster_node_cidr
+    - cluster_node_network_ipam
     - cluster_nodes
+    - cluster_version
+    - provider_type
+    - pull_secret
+    - generate_ssh_key
     - infrastructure_providers
   loop_control:
     loop_var: var_item
