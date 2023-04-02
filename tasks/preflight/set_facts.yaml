@@ -9,3 +9,8 @@
   ansible.builtin.set_fact:
     cluster_user_managed_networking: "true"
     schedulable_masters: "true"
+
+- name: Set the needed Compact/Converged Cluster fact overrides
+  when: cluster_type in ["Compact", "Converged"]
+  ansible.builtin.set_fact:
+    schedulable_masters: "true"
