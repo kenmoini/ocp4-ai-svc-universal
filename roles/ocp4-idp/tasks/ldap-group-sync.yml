@@ -190,6 +190,8 @@
                     activeDeadlineSeconds: 500
                     dnsPolicy: "ClusterFirst"
                     serviceAccountName: "ldap-group-syncer"
+      retries: 120
+      delay: 20
 
     - name: Create the ClusterRoleBinding for the Group Syncs
       kubernetes.core.k8s:
