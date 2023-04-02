@@ -6,7 +6,9 @@
     - name: Log into the cluster
       when: cluster_kubeadmin_password is defined
       ansible.builtin.shell:
-        cmd: "oc login {{ cluster_api_url }} --password=\"{{ cluster_kubeadmin_password }}\" --username=\"{{ cluster_kubeadmin_username }}\" --insecure-skip-tls-verify=true"
+        cmd: "{{ oc_binary }} login {{ cluster_api_url }} --password=\"{{ cluster_kubeadmin_password }}\" --username=\"{{ cluster_kubeadmin_username }}\" --insecure-skip-tls-verify=true"
+      environment:
+        KUBECONFIG: "{{ active_kc }}"
       no_log: true
       register: cluster_auth_status
       until: (cluster_auth_status.rc == 0)
@@ -23,7 +25,7 @@
       loop_control:
         loop_var: role_name
 
-  # always:
-  # - name: Log out of the cluster
-  #   shell:
-  #     cmd: oc logout
+  always:
+  - name: Log out of the cluster
+    shell:
+      cmd: "{{ oc_binary }} logout"

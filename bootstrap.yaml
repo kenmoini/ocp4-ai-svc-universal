@@ -998,35 +998,51 @@
         - post_deploy
         - infra_configuration
 
+    - name: Log into the cluster with a Kubeconfig file
+      when: cluster_kubeadmin_password is not defined
+      tags:
+        - post_deploy
+      block:
+        - name: Set the kubeconfig env
+          ansible.builtin.set_fact:
+            active_kc: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
+
     - name: Log into the cluster with a Kubeadmin password
       when: cluster_kubeadmin_password is defined
       tags:
         - post_deploy
-      ansible.builtin.shell:
-        cmd: "oc login {{ cluster_api_url }} --password=\"{{ cluster_kubeadmin_password }}\" --username=\"{{ cluster_kubeadmin_username }}\" --insecure-skip-tls-verify=true"
-      register: cluster_auth_status
-      until: (cluster_auth_status.rc == 0)
-      no_log: false
-      retries: 120
-      delay: 20
+      block:
+        - name: Set the kubeconfig env
+          ansible.builtin.set_fact:
+            active_kc: ""
+            login_cmd: |-
+              {{ oc_binary }} login --insecure-skip-tls-verify=true '{{ cluster_api_url }}' --password={{ cluster_kubeadmin_password }} --username={{ cluster_kubeadmin_username }}
+            no_log: true
+
+        - name: Run the login
+          ansible.builtin.shell:
+            cmd: "{{ login_cmd }}"
+          environment:
+            KUBECONFIG: "{{ active_kc }}"
+          register: cluster_auth_status
+          until: (cluster_auth_status.rc == 0)
+          no_log: true
+          retries: 2
+          delay: 20
 
     - name: Log into the cluster
       when: cluster_kubeadmin_password is not defined
       tags:
         - post_deploy
       ansible.builtin.shell:
-        cmd: "oc whoami"
+        cmd: "{{ oc_binary }} whoami"
       environment:
-        KUBECONFIG: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
+        KUBECONFIG: "{{ active_kc }}"
       register: cluster_auth_status
       until: (cluster_auth_status.rc == 0)
       no_log: false
       retries: 120
       delay: 20
-
-    - name: Debug
-      ansible.builtin.debug:
-        msg: "{{ cluster_auth_status }}"
 
     - name: Set infrastructure node configuration
       when: detected_infra_nodes | bool
