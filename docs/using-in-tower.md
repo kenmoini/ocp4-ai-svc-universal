@@ -32,7 +32,7 @@ use_site_configs: true
 # cluster_version: 4.11
 ```
 
-Check the box for Privilege Escalation.
+Check the box for Privilege Escalation.  Select the `bootstrap.yaml` Playbook, then duplicate the Job Template and swap out for the `destroy.yaml` Playbook.
 
 7. Once the Job Template is saved, give it a **Survey** - ask for the `site_config_name` variable as a text/string box.
 
