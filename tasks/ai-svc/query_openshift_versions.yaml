@@ -4,6 +4,7 @@
   ansible.builtin.set_fact:
     set_version_ex: "{{ cluster_version.split('.') }}"
     version_options: []
+    sorted_version_options: []
     version_found: false
 
 - name: Query versions from Assisted Installer API
@@ -31,8 +32,8 @@
 
 - name: Set sorted_version_options
   ansible.builtin.set_fact:
-    sorted_version_options: "{{ sorted_version_options | default([]) + [ver_item.msg] }}"
-  loop: "{{ version_options | sort(attribute='key') }}"
+    sorted_version_options: "{{ sorted_version_options + [ver_item.msg] }}"
+  loop: "{{ version_options }}"
   loop_control:
     loop_var: ver_item
 

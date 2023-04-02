@@ -1,5 +1,5 @@
 ---
-- name: Create an Assisted Installer provisioned OpenShift Cluster on Libvirt/KVM
+- name: Create an Assisted Installer provisioned OpenShift Cluster on mixed infrastructure
   hosts: localhost
   gather_facts: false
 
