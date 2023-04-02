@@ -1,0 +1,29 @@
+---
+cluster_nodes:
+  - name: yellow-two
+    type: sno
+    infra:
+      name: labVMWare
+      # type: vsphere | nutanix | libvirt | baremetal
+      type: vsphere
+    vm:
+      cpu_cores: 10
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 32768
+      disks:
+        - size: 240
+          name: boot
+    networking:
+      interfaces:
+        - name: eth0
+          mac_address: 54:52:00:42:69:21
+          dhcp: false
+          ipv4:
+            - address: 192.168.42.34
+              prefix: 24
+      routes:
+        - destination: 0.0.0.0/0
+          next_hop_address: 192.168.42.1
+          next_hop_interface: eth0
+          table_id: 254
