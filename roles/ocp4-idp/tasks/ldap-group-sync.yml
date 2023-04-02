@@ -192,6 +192,8 @@
                     serviceAccountName: "ldap-group-syncer"
       retries: 120
       delay: 20
+      register: cronjob_switch
+      until: cronjob_switch is succeeded
 
     - name: Create the ClusterRoleBinding for the Group Syncs
       kubernetes.core.k8s:
