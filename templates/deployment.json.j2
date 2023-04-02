@@ -6,11 +6,11 @@
   "cluster_network_cidr": "{{ cluster_network_cidr }}",
   "cluster_network_host_prefix": {{ cluster_network_host_prefix }},
   "service_network_cidr": "{{ cluster_service_cidr }}",
-  "user_managed_networking": {{ cluster_user_managed_networking | default('false') }},
+  "user_managed_networking": {{ cluster_user_managed_networking | default('false') | string | lower }},
   "vip_dhcp_allocation": {{ ((cluster_api_vip == 'auto') and (cluster_apps_vip == 'auto')) | ternary('true', 'false') }},
-  "high_availability_mode": "{{ (cluster_type == 'Standard') | ternary('Full', 'None') }}",
+  "high_availability_mode": "{% if high_availability_mode is not defined %}{{ (cluster_type == 'Standard') | ternary('Full', 'None') }}{% else %}{{ high_availability_mode }}{% endif %}",
   "network_type": "{{ ocp_network_type }}",
-  "schedulable_masters": {{ schedulable_masters | default('false') }},
+  "schedulable_masters": {{ schedulable_masters | default('false') | string | lower }},
   "platform": {
 {% if 'SNO' == cluster_type %}
     "type": "none"

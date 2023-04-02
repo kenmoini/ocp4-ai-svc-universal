@@ -14,3 +14,4 @@
   when: cluster_type in ["Compact", "Converged"]
   ansible.builtin.set_fact:
     schedulable_masters: "true"
+    high_availability_mode: "Full"
