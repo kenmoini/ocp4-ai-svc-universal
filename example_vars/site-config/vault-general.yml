@@ -9,3 +9,7 @@ pull_secret: "{{ pull_secret_raw | to_json }}"
 ################################################## Red Hat API Offline Token
 # rh_api_offline_token: If using the RH Cloud Assisted Installer service, you will need an Offline API Token from this page: https://access.redhat.com/management/api
 rh_api_offline_token: "RH_API_OFFLINE_TOKEN_HERE"
+
+#######################################################################################################################
+# core_user_password is the password for the core user on the OpenShift nodes.  This is used to log in to the nodes.
+core_user_password: someSecurePasswordForEmergencyAccess

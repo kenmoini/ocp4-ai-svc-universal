@@ -1,8 +1,13 @@
 ---
 
+- name: Generate a password hash with openssl
+  ansible.builtin.shell: "openssl passwd -6 --stdin <<<{{ core_user_password }}"
+  register: password_hash_shell_r
+
 - name: Set fact for Password
   ansible.builtin.set_fact:
-    password_hash: "{{ core_user_password | password_hash('sha512') }}"
+    #password_hash: "{{ core_user_password | password_hash('sha512') }}"
+    password_hash: "{{ password_hash_shell_r.stdout }}"
   no_log: true
 
 #- name: Get the current Discovery Ignition Config overrides
@@ -17,17 +22,21 @@
 
 - name: Set fact for json content
   ansible.builtin.set_fact:
-    ignition_overrides: {}
-    passwd_ico_object:
+    #ignition_overrides: {}
+    passwd_ico_object_y:
       passwd:
         users:
           - name: core
             groups:
               - sudo
-              - wheel
             sshAuthorizedKeys:
               - "{{ ssh_public_key }}"
             passwordHash: "{{ password_hash }}"
+
+- name: Set the JSON formatted fact
+  ansible.builtin.set_fact:
+    passwd_ico_object:
+      passwd: "{{ passwd_ico_object_y.passwd | to_json }}"
 
 #- name: Set fact for json content
 #  when: infraenv_query.json.ignition_config_override is defined and infraenv_query.json.ignition_config_override != ""

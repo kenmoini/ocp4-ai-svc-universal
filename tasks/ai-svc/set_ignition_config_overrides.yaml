@@ -1,21 +1,4 @@
 ---
-#- name: Print currently set ignition_config_override_files
-#  ansible.builtin.debug:
-#    msg: "{{ ignition_config_override_files }}"
-
-- name: Set as override string
-  when: passwd_ico_object is defined
-  ansible.builtin.set_fact:
-    ignition_config_override_bundle_string: "{\"ignition\": {\"version\": \"3.1.0\"}, \"passwd\": {{ passwd_ico_object.passwd | to_json }}, \"storage\": {\"files\": [ {{ ignition_config_override_files | default('') }} ] } }"
-
-- name: Set as override string
-  when: passwd_ico_object is not defined
-  ansible.builtin.set_fact:
-    ignition_config_override_bundle_string: "{\"ignition\": {\"version\": \"3.1.0\"}, \"storage\": {\"files\": [ {{ ignition_config_override_files | default('') }} ] } }"
-
-#- name: Print combined override string
-#  ansible.builtin.debug:
-#    msg: "{{ ignition_config_override_bundle_string }}"
 
 - name: Template for good measure
   ansible.builtin.template:
@@ -28,18 +11,8 @@
 - name: Set the patch data
   ansible.builtin.set_fact:
     override_ic_body: "{ \"ignition_config_override\": '{{ lookup(\"template\", \"ignition-config-override-files.json.j2\") | to_json }}' }"
-    #override_ic_body: "{ \"ignition_config_override\": '{{ lookup(\"template\", \"ignition-config-override-files.json.j2\") | to_json }}', \"config\": '{{ lookup(\"template\", \"ignition-config-override-files.json.j2\") | to_json }}' }"
-    #override_ic_body: "{ \"ignition_config_override\": '{{ ignition_config_override_bundle_string | to_json }}' }"
   vars:
     ignition_version: "3.1.0"
-
-#- name: Set the patch data
-#  ansible.builtin.set_fact:
-#    override_ic_body: "{ 'ignition_config_override': '{{ ignition_config_override_bundle_string | to_json }}' }"
-
-#- name: Print override body
-#  ansible.builtin.debug:
-#    msg: "{{ override_ic_body }}"
 
 - name: Patch the ignition_config_override_bundle_string
   ansible.builtin.uri:
