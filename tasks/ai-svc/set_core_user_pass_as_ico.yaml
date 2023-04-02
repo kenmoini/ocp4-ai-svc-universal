@@ -3,6 +3,8 @@
 - name: Generate a password hash with openssl
   ansible.builtin.shell: "openssl passwd -6 --stdin <<<{{ core_user_password }}"
   register: password_hash_shell_r
+  no_log: true
+  changed_when: false
 
 - name: Set fact for Password
   ansible.builtin.set_fact:
