@@ -1,0 +1,31 @@
+---
+cluster_nodes:
+  - name: small
+    type: sno
+    infra:
+      name: labAvalon
+      # type: vsphere | nutanix | libvirt | baremetal
+      type: libvirt
+      # arch: overrides global default setting for mixed arch clusters, x86_64 | arm64
+      # arch: arm64
+    vm:
+      cpu_cores: 12
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 24576
+      disks:
+        - size: 240
+          name: boot
+    networking:
+      interfaces:
+        - name: eth0
+          mac_address: "54:52:00:42:41:21"
+          dhcp: false
+          ipv4:
+            - address: 192.168.42.75
+              prefix: 24
+      routes:
+        - destination: 0.0.0.0/0
+          next_hop_address: 192.168.42.1
+          next_hop_interface: eth0
+          table_id: 254

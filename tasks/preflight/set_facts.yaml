@@ -15,3 +15,42 @@
   ansible.builtin.set_fact:
     schedulable_masters: "true"
     high_availability_mode: "Full"
+
+#######################################################################################
+# ARM64 Facts - Default/Global
+#######################################################################################
+
+- name: Set default arch facts
+  ansible.builtin.set_fact:
+    mixed_architectures: false
+
+- name: Run fact setting logic tasks for ARM64 installations
+  when: cluster_architecture in ['arm64', 'aarch64']
+  block:
+    - name: Set the cluster_architecture to arm64 for good measure
+      ansible.builtin.set_fact:
+        cluster_architecture: "arm64"
+
+    - name: Ensure all VMs will be using UEFI mode
+      ansible.builtin.set_fact:
+        libvirt_firmware_mode: "uefi"
+
+- name: Check for non-homogeneous clusters with multi-arch nodes
+  when:
+    - cluster_nodes | length > 1
+    - node_item.infra.arch is defined
+  ansible.builtin.set_fact:
+    mixed_architectures: "{{ node_item.infra.arch != cluster_architecture | ternary('true', 'false') }}"
+  loop: "{{ cluster_nodes }}"
+  loop_control:
+    loop_var: node_item
+
+- name: Set the cluster_architecture to multi if mixed architectures are detected
+  when: mixed_architectures
+  ansible.builtin.set_fact:
+    cluster_architecture: "multi"
+
+- name: Debug
+  ansible.builtin.debug:
+    msg:
+      - "Mixed architectures: {{ mixed_architectures }}"

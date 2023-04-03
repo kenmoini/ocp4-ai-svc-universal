@@ -2,6 +2,7 @@
   "name": "{{ cluster_name }}",
   "openshift_version": "{{ cluster_full_version }}",
   "base_dns_domain": "{{ cluster_domain }}",
+  "cpu_architecture": "{{ cluster_architecture | default('x86_64') }}",
   "hyperthreading": "{{ cluster_hyperthreading }}",
   "cluster_network_cidr": "{{ cluster_network_cidr }}",
   "cluster_network_host_prefix": {{ cluster_network_host_prefix }},

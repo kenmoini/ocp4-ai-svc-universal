@@ -1,6 +1,14 @@
+{%- set node_arch = node.infra.arch | default(cluster_architecture) -%}
+{%- if node_arch in ["arm64", "aarch64"] -%}
+{%- set migratable = "off" -%}
+{%- else -%}
+{%- set migratable = "on" -%}
+{%- endif -%}
 <domain type='kvm'>
   <name>{{ cluster_name }}-{{ node_item.name }}</name>
+{% if node_arch != "arm64" %}
   <genid/>
+{% endif %}
   <metadata>
     <libosinfo:libosinfo xmlns:libosinfo="http://libosinfo.org/xmlns/libvirt/domain/1.0">
       <libosinfo:os id="http://fedoraproject.org/coreos/stable"/>
@@ -13,18 +21,27 @@
     <partition>/machine</partition>
   </resource>
   <os{% if libvirt_firmware_mode == "uefi" %} firmware='efi'{% endif %}>
+{% if node_arch in ["arm64", "aarch64"] %}
+    <type arch='aarch64' machine='virt-rhel9.0.0'>hvm</type>
+{% else %}
     <type arch='x86_64' machine='q35'>hvm</type>
+{% endif %}
     <boot dev='hd'/>
     <boot dev='cdrom'/>
   </os>
   <features>
     <acpi/>
+{% if node_arch not in ["arm64", "aarch64"] %}
     <apic/>
     <kvm>
       <hidden state='on'/>
     </kvm>
+{% endif %}
+{% if node_arch in ["arm64", "aarch64"] %}
+    <gic version='3'/>
+{% endif %}
   </features>
-  <cpu mode='host-passthrough' check='none' migratable='on'>
+  <cpu mode='host-passthrough' check='none' migratable='{{ migratable }}'>
     <topology sockets='{{ node_item.vm.cpu_sockets }}' dies='1' cores='{{ node_item.vm.cpu_cores }}' threads='{{ node_item.vm.cpu_threads }}'/>
   </cpu>
   <clock offset='utc'>
@@ -35,10 +52,12 @@
   <on_poweroff>restart</on_poweroff>
   <on_reboot>restart</on_reboot>
   <on_crash>destroy</on_crash>
+{% if node_arch not in ["arm64", "aarch64"] %}
   <pm>
     <suspend-to-mem enabled='no'/>
     <suspend-to-disk enabled='no'/>
   </pm>
+{% endif %}
   <iothreads>1</iothreads>
   <devices>
     <emulator>/usr/libexec/qemu-kvm</emulator>
@@ -52,6 +71,34 @@
       <address type='pci' domain='0x0000' bus='0x0{{ loop.index0 + 6 }}' slot='0x00' function='0x0'/>
     </disk>
 {% endfor %}
+    <console type='pty' tty='/dev/pts/1'>
+      <target type='serial' port='0'/>
+      <alias name='serial0'/>
+    </console>
+{% if node_arch in ["arm64", "aarch64"] %}
+    <tpm model='tpm-tis'>
+      <backend type='emulator' version='2.0'/>
+    </tpm>
+    <disk type='file' device='cdrom'>
+      <driver name='qemu' type='raw'/>
+      <source file='{{ discovery_iso_path }}'/>
+      <target dev='sda' bus='scsi'/>
+      <readonly/>
+      <address type='drive' controller='0' bus='0' target='0' unit='0'/>
+    </disk>
+    <serial type='pty'>
+      <target type='system-serial' port='0'>
+        <model name='pl011'/>
+      </target>
+    </serial>
+    <channel type='unix'>
+      <target type='virtio' name='org.qemu.guest_agent.0'/>
+      <address type='virtio-serial' controller='0' bus='0' port='1'/>
+    </channel>
+    <input type='keyboard' bus='usb'>
+      <address type='usb' bus='0' port='2'/>
+    </input>
+{% else %}
     <disk type='file' device='cdrom'>
       <driver name='qemu' type='raw'/>
       <source file='{{ discovery_iso_path }}' index='1'/>
@@ -61,6 +108,23 @@
       <alias name='sata0-0-0'/>
       <address type='drive' controller='0' bus='0' target='0' unit='0'/>
     </disk>
+    <controller type='sata' index='0'>
+      <alias name='ide'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x1f' function='0x2'/>
+    </controller>
+    <serial type='pty'>
+      <target type='isa-serial' port='0'>
+        <model name='isa-serial'/>
+      </target>
+      <alias name='serial0'/>
+    </serial>
+    <input type='mouse' bus='ps2'>
+      <alias name='input1'/>
+    </input>
+    <input type='keyboard' bus='ps2'>
+      <alias name='input2'/>
+    </input>
+{% endif %}
     <controller type='scsi' index='0' model='virtio-scsi'>
       <alias name='scsi0'/>
       <address type='pci' domain='0x0000' bus='0x02' slot='0x00' function='0x0'/>
@@ -68,10 +132,6 @@
     <controller type='usb' index='0' model='qemu-xhci' ports='15'>
       <alias name='usb'/>
       <address type='pci' domain='0x0000' bus='0x03' slot='0x00' function='0x0'/>
-    </controller>
-    <controller type='sata' index='0'>
-      <alias name='ide'/>
-      <address type='pci' domain='0x0000' bus='0x00' slot='0x1f' function='0x2'/>
     </controller>
     <controller type='pci' index='0' model='pcie-root'>
       <alias name='pcie.0'/>
@@ -132,25 +192,9 @@
     </interface>
 {% endif %}
 {% endfor %}
-    <serial type='pty'>
-      <target type='isa-serial' port='0'>
-        <model name='isa-serial'/>
-      </target>
-      <alias name='serial0'/>
-    </serial>
-    <console type='pty' tty='/dev/pts/1'>
-      <target type='serial' port='0'/>
-      <alias name='serial0'/>
-    </console>
     <input type='tablet' bus='usb'>
       <alias name='input0'/>
       <address type='usb' bus='0' port='1'/>
-    </input>
-    <input type='mouse' bus='ps2'>
-      <alias name='input1'/>
-    </input>
-    <input type='keyboard' bus='ps2'>
-      <alias name='input2'/>
     </input>
     <graphics type='vnc' port='-1' autoport='yes' listen='0.0.0.0'/>
     <video>
