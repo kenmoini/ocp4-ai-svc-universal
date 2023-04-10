@@ -26,7 +26,7 @@
               - contents:
                   source: "data:text/plain;charset=utf-8;base64,{{ entitlementPEM | b64encode }}"
                 filesystem: root
-                mode: 0644
+                mode: '0644'
                 path: /etc/pki/entitlement/entitlement.pem
 
 - name: Apply the 50-entitlement-key-pem MachineConfig Template
@@ -49,5 +49,5 @@
               - contents:
                   source: "data:text/plain;charset=utf-8;base64,{{ entitlementPEM | b64encode }}"
                 filesystem: root
-                mode: 0644
+                mode: '0644'
                 path: /etc/pki/entitlement/entitlement-key.pem
