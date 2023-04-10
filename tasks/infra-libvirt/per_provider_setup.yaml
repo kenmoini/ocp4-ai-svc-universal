@@ -31,7 +31,7 @@
         src: "{{ generated_asset_directory }}/{{ cluster_id }}/ocp_ai.iso"
         dest: "{{ provider.configuration.libvirt_base_iso_path | default('/var/lib/libvirt/images') }}/ocp_ai-{{ cluster_id }}.iso"
         remote_src: false
-        mode: 0644
+        mode: '0644'
 
 - name: Reset facts
   ansible.builtin.set_fact:

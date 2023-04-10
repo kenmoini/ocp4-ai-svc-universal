@@ -104,7 +104,7 @@
 #     - name: Set the executable bits
 #       ansible.builtin.file:
 #         path: "{{ generated_asset_directory }}/bin/butane"
-#         mode: 0755
+#         mode: '0755'
 
 # - name: Set the butane binary path
 #   when: program_check_butane.rc == 0
@@ -137,7 +137,7 @@
 #     - name: Set the executable bits
 #       ansible.builtin.file:
 #         path: "{{ generated_asset_directory }}/bin/coreos-installer"
-#         mode: 0755
+#         mode: '0755'
 
 #     - name: Set the coreos-installer binary path
 #       set_fact:
