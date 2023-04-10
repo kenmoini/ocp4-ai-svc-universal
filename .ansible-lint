@@ -10,6 +10,7 @@ warn_list:
   - yaml[comments]
   - yaml[line-length]
   - role-name
+  - command-instead-of-shell
 
 exclude_paths:
   - .cache/ # implicit unless exclude_paths is defined in config
