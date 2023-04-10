@@ -3,153 +3,153 @@
 - name: Cluster Identity Provider Tasks
   block:
 
-## ===================================================================================================
-## Google OAuth Identity Provider
-## ===================================================================================================
+    ## ===================================================================================================
+    ## Google OAuth Identity Provider
+    ## ===================================================================================================
 
-  - name: Set up Google OAuth IdP
-    when: provider.type == 'Google'
-    block:
+    - name: Set up Google OAuth IdP
+      when: provider.type == 'Google'
+      block:
 
-      - name: Create a Secret for the Client Secret
-        kubernetes.core.k8s:
-          kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
-          state: present
-          merge_type:
-            - strategic-merge
-            - merge
-          definition:
-            apiVersion: v1
-            kind: Secret
-            metadata:
-              name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-google-oauth-client-secret"
-              namespace: openshift-config
-            type: Opaque
-            stringData:
-              clientSecret: "{{ provider.clientSecret }}"
+        - name: Create a Secret for the Client Secret
+          kubernetes.core.k8s:
+            kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
+            state: present
+            merge_type:
+              - strategic-merge
+              - merge
+            definition:
+              apiVersion: v1
+              kind: Secret
+              metadata:
+                name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-google-oauth-client-secret"
+                namespace: openshift-config
+              type: Opaque
+              stringData:
+                clientSecret: "{{ provider.clientSecret }}"
 
-      ## =============================================================================================
-      ## Google OAuth Identity Provider
-      ## =============================================================================================
+        ## =============================================================================================
+        ## Google OAuth Identity Provider
+        ## =============================================================================================
 
-      - name: Set fact for this identity provider
-        ansible.builtin.set_fact:
-          idp_item:
-            - name: "{{ provider.name }}"
-              type: Google
-              mappingMethod: "{{ provider.mappingMethod | default('claim') }}"
-              google:
-                clientID: "{{ provider.clientID }}"
-                clientSecret:
-                  name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-google-oauth-client-secret"
-                hostedDomain: "{{ provider.hostedDomain | default(omit) }}"
+        - name: Set fact for this identity provider
+          ansible.builtin.set_fact:
+            idp_item:
+              - name: "{{ provider.name }}"
+                type: Google
+                mappingMethod: "{{ provider.mappingMethod | default('claim') }}"
+                google:
+                  clientID: "{{ provider.clientID }}"
+                  clientSecret:
+                    name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-google-oauth-client-secret"
+                  hostedDomain: "{{ provider.hostedDomain | default(omit) }}"
 
-      - name: Add this IdP to the collection
-        ansible.builtin.set_fact:
-          idp_collection: "{{ idp_collection + idp_item }}"
+        - name: Add this IdP to the collection
+          ansible.builtin.set_fact:
+            idp_collection: "{{ idp_collection + idp_item }}"
 
-## ===================================================================================================
-## AD/LDAP Identity Provider
-## ===================================================================================================
+  ## ===================================================================================================
+  ## AD/LDAP Identity Provider
+  ## ===================================================================================================
 
-  - name: Set up LDAP Providers
-    when: provider.type in ['LDAP', 'ActiveDirectory']
-    block:
+    - name: Set up LDAP Providers
+      when: provider.type in ['LDAP', 'ActiveDirectory']
+      block:
 
-      - name: Create ConfigMap for LDAP CA
-        kubernetes.core.k8s:
-          kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
-          state: present
-          merge_type:
-            - strategic-merge
-            - merge
-          definition:
-            apiVersion: v1
-            kind: ConfigMap
-            metadata:
-              name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-ca"
-              namespace: openshift-config
-            type: kubernetes.io/tls
-            data:
-              "ca.crt": |
-                {{ provider.cacert }}
+        - name: Create ConfigMap for LDAP CA
+          kubernetes.core.k8s:
+            kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
+            state: present
+            merge_type:
+              - strategic-merge
+              - merge
+            definition:
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-ca"
+                namespace: openshift-config
+              type: kubernetes.io/tls
+              data:
+                "ca.crt": |
+                  {{ provider.cacert }}
 
-      - name: Create Secret for LDAP Bind Password
-        kubernetes.core.k8s:
-          kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
-          state: present
-          merge_type:
-            - strategic-merge
-            - merge
-          definition:
-            apiVersion: v1
-            kind: Secret
-            metadata:
-              name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-bind-password"
-              namespace: openshift-config
-            type: Opaque
-            stringData:
-              bindPassword: "{{ provider.bindPassword }}"
+        - name: Create Secret for LDAP Bind Password
+          kubernetes.core.k8s:
+            kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
+            state: present
+            merge_type:
+              - strategic-merge
+              - merge
+            definition:
+              apiVersion: v1
+              kind: Secret
+              metadata:
+                name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-bind-password"
+                namespace: openshift-config
+              type: Opaque
+              stringData:
+                bindPassword: "{{ provider.bindPassword }}"
 
-      ## =============================================================================================
-      ## LDAP Identity Provider
-      ## =============================================================================================
+        ## =============================================================================================
+        ## LDAP Identity Provider
+        ## =============================================================================================
 
-      - name: Set fact for this identity provider
-        when: provider.type == "LDAP"
-        ansible.builtin.set_fact:
-          idp_item:
-            - name: "{{ provider.name }}"
-              type: LDAP
-              mappingMethod: "{{ provider.mappingMethod | default('claim') }}"
-              ldap:
-                attributes:
-                  id:
-                    - dn
-                  email:
-                    - mail
-                  name:
-                    - cn
-                  preferredUsername:
-                    - uid
-                bindDN: "{{ provider.bindDN }}"
-                bindPassword:
-                  name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-bind-password"
-                insecure: "{{ provider.insecure | default(false) }}"
-                ca:
-                  name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-ca"
-                url: "{{ provider.url }}/{{ provider.url_filter }}"
+        - name: Set fact for this identity provider
+          when: provider.type == "LDAP"
+          ansible.builtin.set_fact:
+            idp_item:
+              - name: "{{ provider.name }}"
+                type: LDAP
+                mappingMethod: "{{ provider.mappingMethod | default('claim') }}"
+                ldap:
+                  attributes:
+                    id:
+                      - dn
+                    email:
+                      - mail
+                    name:
+                      - cn
+                    preferredUsername:
+                      - uid
+                  bindDN: "{{ provider.bindDN }}"
+                  bindPassword:
+                    name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-bind-password"
+                  insecure: "{{ provider.insecure | default(false) }}"
+                  ca:
+                    name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-ca"
+                  url: "{{ provider.url }}/{{ provider.url_filter }}"
 
-      ## =============================================================================================
-      ## ActiveDirectory Identity Provider
-      ## More info here: https://examples.openshift.pub/cluster-configuration/authentication/activedirectory-ldap/
-      ## =============================================================================================
+        ## =============================================================================================
+        ## ActiveDirectory Identity Provider
+        ## More info here: https://examples.openshift.pub/cluster-configuration/authentication/activedirectory-ldap/
+        ## =============================================================================================
 
-      - name: Set fact for this identity provider
-        when: provider.type == "ActiveDirectory"
-        ansible.builtin.set_fact:
-          idp_item:
-            - name: "{{ provider.name }}"
-              type: LDAP
-              mappingMethod: "{{ provider.mappingMethod | default('claim') }}"
-              ldap:
-                attributes:
-                  id:
-                    - sAMAccountName
-                  email:
-                    - mail
-                  name:
-                    - cn
-                  preferredUsername:
-                    - sAMAccountName
-                bindDN: "{{ provider.bindDN }}"
-                bindPassword:
-                  name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-bind-password"
-                insecure: false
-                ca:
-                  name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-ca"
-                url: "{{ provider.url }}/{{ provider.url_filter }}"
+        - name: Set fact for this identity provider
+          when: provider.type == "ActiveDirectory"
+          ansible.builtin.set_fact:
+            idp_item:
+              - name: "{{ provider.name }}"
+                type: LDAP
+                mappingMethod: "{{ provider.mappingMethod | default('claim') }}"
+                ldap:
+                  attributes:
+                    id:
+                      - sAMAccountName
+                    email:
+                      - mail
+                    name:
+                      - cn
+                    preferredUsername:
+                      - sAMAccountName
+                  bindDN: "{{ provider.bindDN }}"
+                  bindPassword:
+                    name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-bind-password"
+                  insecure: false
+                  ca:
+                    name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-ldap-ca"
+                  url: "{{ provider.url }}/{{ provider.url_filter }}"
 
-      - name: Add this IdP to the collection
-        ansible.builtin.set_fact:
-          idp_collection: "{{ idp_collection + idp_item }}"
+        - name: Add this IdP to the collection
+          ansible.builtin.set_fact:
+            idp_collection: "{{ idp_collection + idp_item }}"
