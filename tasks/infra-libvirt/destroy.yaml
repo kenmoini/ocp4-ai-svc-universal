@@ -79,9 +79,12 @@
 # ===========================================================================
 # Run a trim on the filesystem
 # ===========================================================================
+# BUG: This doesn't do anything in an EE context, it fails actually.
+#      This would only work if connecting to the Libvirt hosts traditionally.
+#      Need to do add_host for Libvirt systems.
 
-- name: Trim the filesystem
-  ansible.builtin.shell: fstrim -v -a
+#- name: Trim the filesystem
+#  ansible.builtin.shell: fstrim -v -a
 
 # ===========================================================================
 # Reset facts for next item in the loop
