@@ -3,7 +3,7 @@
   ansible.builtin.template:
     src: templates/infraenv.json.j2
     dest: "{{ generated_asset_directory }}/{{ cluster_id }}/infraenv.json"
-    mode: 0644
+    mode: '0644'
 
 - name: AI Service - Create Infraenv
   ansible.builtin.uri:

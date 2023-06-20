@@ -96,13 +96,18 @@ jobs:
 #        env:
 #          AH_TOKEN: ${{ secrets.AH_TOKEN }}
 
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+
       - name: Build image
         id: build-image
         working-directory: ${{ inputs.EE_FOLDER_NAME }}
         run: |
           ansible-builder build \
           --tag=${{ inputs.EE_IMAGE_NAME }}:${{ inputs.EE_IMAGE_TAG }} \
-          --tag=${{ inputs.EE_IMAGE_NAME }}:${{ github.sha }}
+          --tag=${{ inputs.EE_IMAGE_NAME }}:${{ github.sha }} \
+          --tag=${{ inputs.EE_IMAGE_NAME }}:${{ steps.date.outputs.date }}
 #         env:
 #           ANSIBLE_GALAXY_SERVER_AUTOMATION_HUB_TOKEN: ${{ secrets.AH_TOKEN }}
 # Above env var doesn't work yet: https://github.com/ansible/ansible-builder/issues/346
@@ -115,6 +120,7 @@ jobs:
           tags: |
             ${{ inputs.EE_IMAGE_TAG }}
             ${{ github.sha }}
+            ${{ steps.date.outputs.date }}
           registry: ${{ secrets.REGISTRY_HOSTNAME }}/${{ secrets.REGISTRY_PATH }}/
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }} 
@@ -127,6 +133,7 @@ jobs:
           echo "Image pushed to repository: [${{ steps.push-to-registry.outputs.registry-path }}](https://${{ steps.push-to-registry.outputs.registry-path }})" >> $GITHUB_STEP_SUMMARY
           echo "> \`podman pull ${{ steps.push-to-registry.outputs.registry-path }}\`" >> $GITHUB_STEP_SUMMARY
           echo "> \`podman pull ${{ secrets.REGISTRY_HOSTNAME }}/${{ inputs.REGISTRY_PATH }}/${{ inputs.EE_IMAGE_NAME }}:${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "> \`podman pull ${{ secrets.REGISTRY_HOSTNAME }}/${{ inputs.REGISTRY_PATH }}/${{ inputs.EE_IMAGE_NAME }}:${{ steps.date.outputs.date }}\`" >> $GITHUB_STEP_SUMMARY
           echo "## :pushpin: Ansible info:" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY

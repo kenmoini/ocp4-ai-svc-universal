@@ -8,7 +8,7 @@
   ansible.builtin.copy:
     content: '{{ wrapped_fact | to_json }}'
     dest: "{{ installconfigfilepath }}"
-    mode: 0644
+    mode: '0644'
 
 - name: Inject install-config overrides into the cluster
   ansible.builtin.uri:

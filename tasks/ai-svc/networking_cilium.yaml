@@ -18,7 +18,7 @@
       ansible.builtin.template:
         src: templates/ciliumconfig.yaml.j2
         dest: "{{ tmp_yml_dir.path }}/cilium-olm-{{ cilium_networking_git_branch }}/manifests/cilium.{{ cilium_networking_version }}/ciliumconfig.yaml"
-        mode: 0644
+        mode: '0644'
 
     - name: Base64 Encode the files
       ansible.builtin.set_fact:

@@ -55,7 +55,7 @@
   ansible.builtin.template:
     src: kvm_libvirt_vm.xml.j2
     dest: "{{ generated_asset_directory }}/{{ cluster_id }}/kvm-{{ node_item.name }}.xml"
-    mode: 0644
+    mode: '0644'
   tags:
     - infra_libvirt
     - infra_libvirt_create_vm

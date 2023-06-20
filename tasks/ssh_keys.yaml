@@ -28,7 +28,7 @@
         remote_src: true
         src: "{{ generated_asset_directory }}/cluster_key-{{ deployment_name }}"
         dest: "{{ generated_asset_directory }}/{{ cluster_id }}/cluster_key"
-        mode: 0400
+        mode: '0400'
 
     - name: Copy public key
       when: not public_key_check.stat.exists
@@ -36,7 +36,7 @@
         remote_src: true
         src: "{{ generated_asset_directory }}/cluster_key-{{ deployment_name }}.pub"
         dest: "{{ generated_asset_directory }}/{{ cluster_id }}/cluster_key.pub"
-        mode: 0644
+        mode: '0644'
 
     - name: Remove old cluster keys from primary generation folder
       when: not public_key_check.stat.exists
