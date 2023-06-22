@@ -22,13 +22,13 @@ jobs:
         command_timeout: 30m
         script: | 
           sudo yum install -y git
-          if [ -d "$HOME/todo-demo-app-helmrepo" ]; then
-            cd $HOME/todo-demo-app-helmrepo
+          if [ -d "$HOME/ocp4-ai-svc-universal" ]; then
+            cd $HOME/ocp4-ai-svc-universal
             git config pull.rebase false
             git pull
           else
-            git clone https://github.com/tosin2013/todo-demo-app-helmrepo.git
-            cd $HOME/todo-demo-app-helmrepo
+            git clone https://github.com/Red-Hat-SE-RTO/ocp4-ai-svc-universal.git
+            cd $HOME/ocp4-ai-svc-universal
           fi
           .github/workflows/configure-rhel8.7.sh
 
