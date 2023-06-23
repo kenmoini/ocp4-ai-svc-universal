@@ -43,7 +43,7 @@
         unit_number: 0
         state: present
         type: iso
-        iso_path: "[{{ provider.configuration.vcenter_datastore }}] ISOs/ocp-ai-{{ cluster_id }}.iso"
+        iso_path: "[{{ provider.configuration.vcenter_datastore }}] {{ provider.configuration.vcenter_iso_dir }}/ocp-ai-{{ cluster_id }}.iso"
 
 - name: Setup empty VMWare CDROM dictionary - {{ node_item.name }}
   when: cluster_id is not defined
