@@ -149,6 +149,9 @@ $ ansible-navigator run bootstrap.yaml  --vault-password-file $HOME/.vault_passw
 $ ansible-navigator run bootstrap.yaml  --vault-password-file $HOME/.vault_password -m stdout  --skip-tags "vmware_create_folder,vmware_create_iso_directory" 
 ```
 
+### Navigate to console.redhat.com to view your cluster details
+* https://console.redhat.com/openshift/
+
 ### Destroying the Cluster
 ```
  ansible-navigator run destroy.yaml  --vault-password-file $HOME/.vault_password -m stdout  --skip-tags vmware_create_folder
