@@ -72,6 +72,7 @@ infrastructure_providers:
       vcenter_cluster: XXXXX
       vcenter_datastore: XXXXX
       vcenter_network: XXXXX
+      vcenter_iso_dir: ISOs  # use isos/$GUID for demo.redhat.com
 EOF
 ```
 
