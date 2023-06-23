@@ -7,12 +7,12 @@ generate_ssh_key: true
 
 ################################################## OpenShift Pull Secret
 # pull_secret: Often best to pull from a file outside of the repo, remove any whitespace - get it from here: https://cloud.redhat.com/openshift/install/pull-secret
-pull_secret_path: ~/ocp-pull-secret
+pull_secret_path: /home/CHANGEME/ocp-pull-secret
 pull_secret: "{{ lookup('file', pull_secret_path) | to_json }}"
 
 ################################################## Red Hat API Offline Token
 # rh_api_offline_token: If using the RH Cloud Assisted Installer service, you will need an Offline API Token from this page: https://access.redhat.com/management/api
-rh_api_offline_token_path: "/mnt/remoteWork/rh-api-offline-token"
+rh_api_offline_token_path: "/home/CHANGEME/rh-api-offline-token"
 rh_api_offline_token: "{{ lookup('file', rh_api_offline_token_path) }}"
 
 ################################################## Cluster Basics
@@ -24,7 +24,7 @@ cluster_version: "4.12"
 # cluster_name and cluster_domain will form the cluster base endpoint, eg cluster_name.cluster_domain
 # Ensure the DNS A records for {api,api-int,*.apps}.cluster_name.cluster_domain exist
 cluster_name: vsphere-ocp-ha
-cluster_folder_name: vsphere-ocp-ha # "Workloads/sandbox-GUID" for vmc
+cluster_folder_name: Workloads/sandbox-vsphere-ocp-ha
 cluster_domain: kemo.labs
 provider_type: vsphere
 
@@ -41,8 +41,8 @@ cluster_node_cidr: 192.168.38.0/24
 cluster_node_network_ipam: static
 
 cluster_node_network_static_dns_servers:
-  - 192.168.38.9
-  - 192.168.38.10
+  - 1.1.1.1
+  - 8.8.8.8
 
 cluster_node_network_static_dns_search_domains:
   - kemo.labs
@@ -64,25 +64,18 @@ cluster_nodes:
           name: boot
     networking:
       interfaces:
-        - name: eth0
-          mac_address: 54:52:00:42:69:11
-          type: parent
-        - name: eth0.38
-          type: vlan
-          state: up
-          dhcp: false
-          vlan:
-            base_iface: eth0
-            id: 38
-          ipv4:
-            - address: 192.168.38.90
-              prefix: 24
-          # [optional] vcenter_network, if not specified, will use the network defined in the infrastructure provider credentials
-          #vcenter_network: "VMNetwork"
+      - name: ens192
+        mac_address: 54:52:00:42:69:11
+        dhcp: false
+        ipv4:
+          - address: 192.168.38.20
+            prefix: 24
+              # [optional] vcenter_network, if not specified, will use the network defined in the infrastructure provider credentials
+              #vcenter_network: "VMNetwork"
       routes:
         - destination: 0.0.0.0/0
           next_hop_address: 192.168.38.1
-          next_hop_interface: eth0.38
+          next_hop_interface: ens192
           table_id: 254
   - name: cp-2
     type: control-plane
@@ -100,25 +93,18 @@ cluster_nodes:
           name: boot
     networking:
       interfaces:
-        - name: eth0
-          mac_address: 54:52:00:42:69:12
-          type: parent
-        - name: eth0.38
-          type: vlan
-          state: up
-          dhcp: false
-          vlan:
-            base_iface: eth0
-            id: 38
-          ipv4:
-            - address: 192.168.38.91
-              prefix: 24
+      - name: ens192
+        mac_address: 54:52:00:42:69:12
+        dhcp: false
+        ipv4:
+          - address: 192.168.38.21
+            prefix: 24
           # [optional] vcenter_network, if not specified, will use the network defined in the infrastructure provider credentials
           #vcenter_network: "VMNetwork"
       routes:
         - destination: 0.0.0.0/0
           next_hop_address: 192.168.38.1
-          next_hop_interface: eth0.38
+          next_hop_interface: ens192
           table_id: 254
   - name: cp-3
     type: control-plane
@@ -136,25 +122,18 @@ cluster_nodes:
           name: boot
     networking:
       interfaces:
-        - name: eth0
-          mac_address: 54:52:00:42:69:13
-          type: parent
-        - name: eth0.38
-          type: vlan
-          state: up
-          dhcp: false
-          vlan:
-            base_iface: eth0
-            id: 38
-          ipv4:
-            - address: 192.168.38.92
-              prefix: 24
+      - name: ens192
+        mac_address: 54:52:00:42:69:13
+        dhcp: false
+        ipv4:
+          - address: 192.168.38.22
+            prefix: 24
           # [optional] vcenter_network, if not specified, will use the network defined in the infrastructure provider credentials
           #vcenter_network: "VMNetwork"
       routes:
         - destination: 0.0.0.0/0
           next_hop_address: 192.168.38.1
-          next_hop_interface: eth0.38
+          next_hop_interface: ens192
           table_id: 254
   - name: app-1
     type: application-node
@@ -176,25 +155,18 @@ cluster_nodes:
           type: thick
     networking:
       interfaces:
-        - name: eth0
-          mac_address: 54:52:00:42:69:14
-          type: parent
-        - name: eth0.38
-          type: vlan
-          state: up
-          dhcp: false
-          vlan:
-            base_iface: eth0
-            id: 38
-          ipv4:
-            - address: 192.168.38.93
-              prefix: 24
+      - name: ens192
+        mac_address: 54:52:00:42:69:14
+        dhcp: false
+        ipv4:
+          - address: 192.168.38.30
+            prefix: 24
           # [optional] vcenter_network, if not specified, will use the network defined in the infrastructure provider credentials
           #vcenter_network: "VMNetwork"
       routes:
         - destination: 0.0.0.0/0
           next_hop_address: 192.168.38.1
-          next_hop_interface: eth0.38
+          next_hop_interface: ens192
           table_id: 254
   - name: app-2
     type: application-node
@@ -216,25 +188,18 @@ cluster_nodes:
           type: thick
     networking:
       interfaces:
-        - name: eth0
-          mac_address: 54:52:00:42:69:15
-          type: parent
-        - name: eth0.38
-          type: vlan
-          state: up
-          dhcp: false
-          vlan:
-            base_iface: eth0
-            id: 38
-          ipv4:
-            - address: 192.168.38.94
-              prefix: 24
+      - name: ens192
+        mac_address: 54:52:00:42:69:15
+        dhcp: false
+        ipv4:
+          - address: 192.168.38.31
+            prefix: 24
           # [optional] vcenter_network, if not specified, will use the network defined in the infrastructure provider credentials
           #vcenter_network: "VMNetwork"
       routes:
         - destination: 0.0.0.0/0
           next_hop_address: 192.168.38.1
-          next_hop_interface: eth0.38
+          next_hop_interface: ens192
           table_id: 254
   - name: app-3
     type: application-node
@@ -256,25 +221,18 @@ cluster_nodes:
           type: thick
     networking:
       interfaces:
-        - name: eth0
-          mac_address: 54:52:00:42:69:16
-          type: parent
-        - name: eth0.38
-          type: vlan
-          state: up
-          dhcp: false
-          vlan:
-            base_iface: eth0
-            id: 38
-          ipv4:
-            - address: 192.168.38.95
-              prefix: 24
+      - name: ens192
+        mac_address: 54:52:00:42:69:16
+        dhcp: false
+        ipv4:
+          - address: 192.168.38.32
+            prefix: 24
           # [optional] vcenter_network, if not specified, will use the network defined in the infrastructure provider credentials
           #vcenter_network: "VMNetwork"
       routes:
         - destination: 0.0.0.0/0
           next_hop_address: 192.168.38.1
-          next_hop_interface: eth0.38
+          next_hop_interface: ens192
           table_id: 254
 
 ################################################## Extra Post-Provisioning Roles
