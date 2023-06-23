@@ -1,9 +1,10 @@
 # Development notes for building the ansible-navigator image
 
+The 'ocp4-ai-svc-universal' project is a comprehensive solution that guides users on deploying the OpenShift Assisted installer to VMware infrastructure. This deployment methodology is particularly suitable for static environments where a consistent setup is required. By leveraging the power of Ansible Navigator, the project automates the entire deployment process, simplifying the configuration and provisioning of the Assisted installer. With 'ocp4-ai-svc-universal', users can easily set up OpenShift clusters on VMware, taking advantage of the efficiency and reliability of the Assisted installer, while benefiting from the automation capabilities offered by Ansible Navigator. This solution streamlines the deployment workflow, enabling users to quickly and consistently deploy OpenShift in their VMware environments.
 
 ## Getting Started
 
-**Install the following packages*
+**Install the following packages**
 ```
 $ sudo dnf install git vim unzip wget bind-utils python3-pip tar util-linux-user  gcc python3-devel podman ansible-core make  -y
 ```
