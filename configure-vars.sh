@@ -97,45 +97,17 @@ sed -i 's|192.168.38.|'${oct}'.|g' inventories/${INVENTORY}/group_vars/all.yaml
 # Array of original MAC addresses
 mac_addresses=("54:52:00:42:69:11" "54:52:00:42:69:12" "54:52:00:42:69:13" "54:52:00:42:69:14" "54:52:00:42:69:15" "54:52:00:42:69:16")
 
-# Array of MAC address prefixes
-# Define the menu prefixes
-prefixes=("54:52:00:" "00:0c:29:" "00:1c:14:" "00:50:56:")
-
-# Display the menu and prompt for prefix selection
-select prefix in "${prefixes[@]}"; do
-    case $REPLY in
-        1)
-            selected_prefix="54:52:00:"
-            break
-            ;;
-        2)
-            selected_prefix="00:0c:29:"
-            break
-            ;;
-        3)
-            selected_prefix="00:1c:14:"
-            break
-            ;;
-        4)
-            selected_prefix="00:50:56:"
-            break
-            ;;
-        *)
-            echo "Invalid option. Please try again."
-            ;;
-    esac
-done
-
 # Loop through the original MAC addresses
 for mac_address in "${mac_addresses[@]}"; do
   # Select a random MAC address prefix from the array
   #rand_prefix=$[$RANDOM % ${#prefixes[@]}]
 
   # Generate a random MAC address suffix
-  suffix="$( echo $[RANDOM%10]$[RANDOM%10]:$[RANDOM%10]$[RANDOM%10]:$[RANDOM%10]$[RANDOM%10] )"
+  #suffix="$( echo $[RANDOM%10]$[RANDOM%10]:$[RANDOM%10]$[RANDOM%10]:$[RANDOM%10]$[RANDOM%10] )"
 
   # Combine the prefix and suffix to create a new MAC address
-  new_mac="${selected_prefix}$suffix"
+  #new_mac="54:52:00:$suffix"
+  new_mac=$(date +%s | md5sum | head -c 6 | sed -e 's/\([0-9A-Fa-f]\{2\}\)/\1:/g' -e 's/\(.*\):$/\1/' | sed -e 's/^/54:52:00:/')
 
   # Replace the original MAC address with the new MAC address in the YAML file
   sed -i 's/'"$mac_address"'/'"$new_mac"'/g' inventories/${INVENTORY}/group_vars/all.yaml
