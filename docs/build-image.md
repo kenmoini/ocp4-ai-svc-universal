@@ -45,7 +45,9 @@ echo "[control]" > inventories/${INVENTORY}/hosts
 echo "control ansible_host=${control_host} ansible_user=${control_user}" >> inventories/${INVENTORY}/hosts
 ```
 
+
 **Update the variables**
+`Try 00:50:56 for the mac address first`
 ```
 ./configure-vars.sh
 ```
