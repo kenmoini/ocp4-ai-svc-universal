@@ -70,6 +70,7 @@ function configure_python() {
         curl -Ol https://raw.githubusercontent.com/ansible/ansible-navigator/main/requirements.txt
         sudo pip3 install -r requirements.txt && pip3 install -r requirements.txt
         sudo pip3 install ansible-navigator && pip3 install ansible-navigator
+        sudo pip3 install ansible-builder && pip3 install ansible-builder
         sudo pip3 install firewall &&  pip3 install firewall
         sudo pip3 install pyyaml &&  pip3 install pyyaml
         sudo pip3 install Jinja2 &&  pip3 install Jinja2
@@ -78,6 +79,7 @@ function configure_python() {
         source ~/.profile
         /usr/lib64/Python-3.11.2/bin/ansible-navigator --version
         sudo cp /usr/lib64/Python-3.11.2/bin/ansible-navigator /usr/local/bin/ansible-navigator
+        sudo cp /usr/lib64/Python-3.11.2/bin/ansible-builder /usr/local/bin/ansible-builder
         sudo cp /usr/lib64/Python-3.11.2/bin/ansible-vault /usr/bin/ansible-vault
         ansible-galaxy collection install redhat_cop.controller_configuration
 

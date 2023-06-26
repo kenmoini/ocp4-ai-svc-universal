@@ -79,7 +79,7 @@ if [ -z "$GUID" ]; then
   read -p "Enter the GUID/Cluster Name: " GUID
 fi
 
-export INVENTORY=vmc
+export INVENTORY=$GUID
 cd $HOME/ocp4-ai-svc-universal
 mkdir -p inventories/${INVENTORY}/group_vars
 mkdir -p inventories/${INVENTORY}/group_vars/control
