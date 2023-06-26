@@ -170,5 +170,5 @@ $ ansible-navigator run bootstrap.yaml  --vault-password-file $HOME/.vault_passw
 
 ### Destroying the Cluster
 ```
- ansible-navigator run destroy.yaml  --vault-password-file $HOME/.vault_password -m stdout  --skip-tags vmware_create_folder
+$ ansible-navigator run destroy.yaml  --vault-password-file $HOME/.vault_password -m stdout  --skip-tags  "vmware_create_folder,vmware_create_iso_directory" 
 ```
