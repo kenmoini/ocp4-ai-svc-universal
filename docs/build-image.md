@@ -41,7 +41,7 @@ git clone https://github.com/yourrepo/ocp4-ai-svc-universal.git
 cd $HOME/ocp4-ai-svc-universal/
 ```
 
-**Create Inveentory**
+**Create Inventory**
 ```
 export INVENTORY=vmc # on demo.redhat.com $GUID
 cd $HOME/ocp4-ai-svc-universal
