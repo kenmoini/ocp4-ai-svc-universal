@@ -6,6 +6,11 @@ on:
         description: 'hostname'
         required: false
         default: hostname
+      gitrepo:
+        description: 'git repo location'
+        required: false
+        default: https://github.com/Red-Hat-SE-RTO/ocp4-ai-svc-universal.git
+    
 
 jobs:
   configure_ansible_navigator:

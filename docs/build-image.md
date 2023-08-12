@@ -41,13 +41,10 @@ git clone https://github.com/yourrepo/ocp4-ai-svc-universal.git
 cd $HOME/ocp4-ai-svc-universal/
 ```
 
-**Create Inveentory**
+**Update the variables**
+See [Configure Vars Workflow Document](../configure-vars.md) for more details
 ```
-export INVENTORY=vmc # on demo.redhat.com $GUID
-cd $HOME/ocp4-ai-svc-universal
-mkdir -p inventories/${INVENTORY}/group_vars
-mkdir -p inventories/${INVENTORY}/group_vars/control
-cp example_vars/cluster-config-vmware-demo.yaml inventories/${INVENTORY}/group_vars/all.yaml
+./configure-vars.sh -s 192.168.10.0/24 -o 192.168.10 -a 192.168.10.10 -e 192.168.10.11  -d example.com
 ```
 
 **Add hosts file**
@@ -56,13 +53,6 @@ control_user=${USER}
 control_host=$(hostname -I | awk '{print $1}')
 echo "[control]" > inventories/${INVENTORY}/hosts
 echo "control ansible_host=${control_host} ansible_user=${control_user}" >> inventories/${INVENTORY}/hosts
-```
-
-
-**Update the variables**
-See [Configure Vars Workflow Document](../configure-vars.md) for more details
-```
-./configure-vars.sh -s 192.168.10.0/24 -o 192.168.10 -a 192.168.10.10 -e 192.168.10.11  -d example.com
 ```
 
 **Create credentials file**
