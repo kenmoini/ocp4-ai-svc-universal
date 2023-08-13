@@ -16,4 +16,4 @@ sudo alternatives --set python3 /usr/bin/python3.9
 # - For Ansible-Navigator
 curl -sSL https://raw.githubusercontent.com/ansible/ansible-navigator/main/requirements.txt | python3 -m pip install -r /dev/stdin
 # - For Ansible Collections running on the bastion?
-python3 -m pip install -r $HOME/device-edge-demos/hack/bastion-requirements.txt
+python3 -m pip install -r $HOME/ocp4-ai-svc-universal/hack/bastion-requirements.txt
