@@ -57,12 +57,6 @@ echo "[control]" > inventories/${INVENTORY}/hosts
 echo "control ansible_host=${control_host} ansible_user=${control_user}" >> inventories/${INVENTORY}/hosts
 ```
 
-**Update the variables**
-See [Configure Vars Workflow Document](../configure-vars.md) for more details
-```
-./configure-vars.sh -s 192.168.10.0/24 -o 192.168.10 -a 192.168.10.10 -e 192.168.10.11  -d example.com
-```
-
 **Create credentials file**
 *Optional Still Testing [configure-creds.py](../configure-creds.py)*
 ```
