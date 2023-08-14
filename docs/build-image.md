@@ -51,6 +51,7 @@ See [Configure Vars Workflow Document](configure-vars.md) for more details
 
 **Add hosts file**
 ```
+export INVENTORY=$GUID
 control_user=${USER}
 control_host=$(hostname -I | awk '{print $1}')
 echo "[control]" > inventories/${INVENTORY}/hosts
