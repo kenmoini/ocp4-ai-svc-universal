@@ -58,7 +58,7 @@ echo "control ansible_host=${control_host} ansible_user=${control_user}" >> inve
 ```
 
 **Update the variables**
-See [Configure Vars Workflow Document](../docs/configure-vars.md) for more details
+See [Configure Vars Workflow Document](../configure-vars.md) for more details
 ```
 ./configure-vars.sh -s 192.168.10.0/24 -o 192.168.10 -a 192.168.10.10 -e 192.168.10.11  -d example.com
 ```
