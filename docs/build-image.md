@@ -41,7 +41,7 @@ git clone https://github.com/yourrepo/ocp4-ai-svc-universal.git
 cd $HOME/ocp4-ai-svc-universal/
 ```
 
-**Update the variables**
+**Update the variables**  
 See [Configure Vars Workflow Document](../configure-vars.md) for more details
 
 **Create Inventory**
