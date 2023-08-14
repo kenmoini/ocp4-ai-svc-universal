@@ -42,7 +42,7 @@ cd $HOME/ocp4-ai-svc-universal/
 ```
 
 **Update the variables**  
-See [Configure Vars Workflow Document](../configure-vars.md) for more details
+See [Configure Vars Workflow Document](configure-vars.md) for more details
 
 **Create Inventory**
 ```
