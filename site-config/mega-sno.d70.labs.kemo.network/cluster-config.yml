@@ -25,9 +25,9 @@ cluster_nodes:
       # 61:00.0 Ethernet controller: Mellanox Technologies MT42822 BlueField-2 integrated ConnectX-6 Dx network controller (rev 01)
       # 61:00.1 Ethernet controller: Mellanox Technologies MT42822 BlueField-2 integrated ConnectX-6 Dx network controller (rev 01)
       # 61:00.2 DMA controller: Mellanox Technologies MT42822 BlueField-2 SoC Management Interface (rev 01)
-      - "61:00.0"
-      - "61:00.1"
-      - "61:00.2"
+      # - "61:00.0"
+      # - "61:00.1"
+      # - "61:00.2"
     networking:
       interfaces:
         - name: eth0
