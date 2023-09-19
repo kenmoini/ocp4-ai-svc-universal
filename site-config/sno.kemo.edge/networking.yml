@@ -1,0 +1,19 @@
+---
+
+################################################## Cluster Networking
+# cluster_api_vip: an IP or "auto"
+cluster_api_vip: 192.168.99.20
+# cluster_apps_vip: an IP or "auto"
+cluster_apps_vip: 192.168.99.20
+# cluster_node_cidr: A CIDR definition or "auto"
+cluster_node_cidr: 192.168.99.0/24
+
+################################################## Cluster Node IPAM
+# cluster_node_network_ipam: dhcp or static
+cluster_node_network_ipam: static
+
+cluster_node_network_static_dns_servers:
+  - 192.168.99.10
+
+cluster_node_network_static_dns_search_domains:
+  - kemo.edge
