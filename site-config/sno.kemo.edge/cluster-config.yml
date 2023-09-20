@@ -24,6 +24,8 @@ cluster_nodes:
       # 000c:01:00.1 Audio device: NVIDIA Corporation GA104 High Definition Audio Controller (rev a1)
       #- "2a:00.0"
       #- "2f:00.0"
+      - "000c:01:00.0"
+      - "000c:01:00.1"
     networking:
       interfaces:
         - name: eth0

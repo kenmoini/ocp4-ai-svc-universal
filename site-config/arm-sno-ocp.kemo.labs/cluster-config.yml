@@ -1,31 +1,41 @@
 ---
 cluster_nodes:
-  - name: small
+  - name: edge
     type: sno
     infra:
-      name: labAvalon
+      name: labMaximus
       # type: vsphere | nutanix | libvirt | baremetal
       type: libvirt
       # arch: overrides global default setting for mixed arch clusters, x86_64 | arm64
-      # arch: arm64
+      arch: arm64
     vm:
-      cpu_cores: 12
+      cpu_cores: 64
       cpu_sockets: 1
       cpu_threads: 1
-      memory: 24576
+      memory: 98304
       disks:
-        - size: 240
+        - size: 140
           name: boot
+        - size: 400
+          name: lvm
+    #pci_devices:
+      # A4000 GPU
+      # 000c:01:00.0 VGA compatible controller: NVIDIA Corporation GA104GL [RTX A4000] (rev a1)
+      # 000c:01:00.1 Audio device: NVIDIA Corporation GA104 High Definition Audio Controller (rev a1)
+      #- "2a:00.0"
+      #- "2f:00.0"
+      # - "000c:01:00.0"
+      # - "000c:01:00.1"
     networking:
       interfaces:
         - name: eth0
-          mac_address: "54:52:00:42:41:21"
+          mac_address: "54:52:00:42:99:21"
           dhcp: false
           ipv4:
-            - address: 192.168.42.75
+            - address: 192.168.99.20
               prefix: 24
       routes:
         - destination: 0.0.0.0/0
-          next_hop_address: 192.168.42.1
+          next_hop_address: 192.168.99.1
           next_hop_interface: eth0
           table_id: 254
