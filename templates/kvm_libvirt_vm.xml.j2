@@ -1,4 +1,4 @@
-{%- set node_arch = node.infra.arch | default(cluster_architecture) -%}
+{%- set node_arch = ( node_item.infra.arch | default(cluster_architecture) ) -%}
 {%- if node_arch in ["arm64", "aarch64"] -%}
 {%- set migratable = "off" -%}
 {%- else -%}
@@ -6,7 +6,7 @@
 {%- endif -%}
 <domain type='kvm'>
   <name>{{ cluster_name }}-{{ node_item.name }}</name>
-{% if node_arch != "arm64" %}
+{% if node_arch not in ["arm64", "aarch64"] %}
   <genid/>
 {% endif %}
   <metadata>
@@ -202,12 +202,16 @@
       <alias name='video0'/>
       <address type='pci' domain='0x0000' bus='0x00' slot='0x01' function='0x0'/>
     </video>
-{% if node_item.pci_devices is defined %}{% for dev in node_item.pci_devices %}
-{% set expandSemi = dev.split(":") %}{% set busID = expandSemi[0] %}{% set slotID = expandSemi[1].split(".")[0] %}{% set functionID = expandSemi[1].split(".")[1] %}
+{% if node_item.pci_devices is defined %}{% for device in node_item.pci_devices %}{% set expandSemi = device.split(":") %}
+{% if expandSemi | length > 2 %}
+{% set domainID = expandSemi[0] %}{% set busID = expandSemi[1] %}{% set slotID = expandSemi[2].split(".")[0] %}{% set functionID = expandSemi[2].split(".")[1] %}
+{% else %}
+{% set domainID = "0000" %}{% set busID = expandSemi[0] %}{% set slotID = expandSemi[1].split(".")[0] %}{% set functionID = expandSemi[1].split(".")[1] %}
+{% endif %}
     <hostdev mode='subsystem' type='pci' managed='yes'>
       <driver name='vfio'/>
       <source>
-        <address domain='0x0000' bus='0x{{ busID }}' slot='0x{{ slotID }}' function='0x{{ functionID }}'/>
+        <address domain='0x{{ domainID }}' bus='0x{{ busID }}' slot='0x{{ slotID }}' function='0x{{ functionID }}'/>
       </source>
     </hostdev>
 {% endfor %}{% endif %}
