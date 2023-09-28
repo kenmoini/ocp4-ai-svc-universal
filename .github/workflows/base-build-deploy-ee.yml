@@ -66,7 +66,7 @@ jobs:
 
       # In this job, all steps begin with a name
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         
       - name: Install python requirements (ansible-builder)
         run: pip install ansible-builder==1.1.0
