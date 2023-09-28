@@ -39,6 +39,7 @@
 # ===========================================================================
 
 - name: Detach PCI Devices for the VM - {{ node_item.name }}
+  when: node_item.pci_devices is defined
   ansible.builtin.include_tasks: detach_devices.yaml
   loop: "{{ node_item.pci_devices }}"
   loop_control:

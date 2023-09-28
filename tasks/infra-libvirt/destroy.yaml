@@ -81,6 +81,7 @@
 # ===========================================================================
 
 - name: Reattach PCI Devices to the host from the VM - {{ node_item.name }}
+  when: node_item.pci_devices is defined
   ansible.builtin.include_tasks: reattach_devices.yaml
   loop: "{{ node_item.pci_devices }}"
   loop_control:
