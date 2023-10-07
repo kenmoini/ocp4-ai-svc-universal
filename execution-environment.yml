@@ -10,6 +10,7 @@ build_arg_defaults:
   ANSIBLE_GALAXY_CLI_COLLECTION_OPTS: "-v"
   # Uncomment the following line to build on a supported RHEL 8 image
   # EE_BASE_IMAGE: "registry.redhat.io/ansible-automation-platform-21/ee-supported-rhel8"
+  EE_BASE_IMAGE: "quay.io/ansible/awx-ee:latest"
 
 # ansible_config: 'ansible.cfg'
 
