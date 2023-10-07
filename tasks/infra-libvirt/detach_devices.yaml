@@ -27,12 +27,12 @@
     - name: Create list of devices if the domain is specified
       when: per_node_device | length > 2
       ansible.builtin.set_fact:
-        device_list: "{{ device_list|default([]) + ['pci_' + per_node_device[0] + '_' + per_node_device[1] + '_' + per_node_device[2].split('.')[0] + '_' + per_node_device[2].split('.')[1]] }}"
+        device_list: "{{ (device_list | default([])) + ['pci_' + per_node_device[0] + '_' + per_node_device[1] + '_' + per_node_device[2].split('.')[0] + '_' + per_node_device[2].split('.')[1]] }}"
 
     - name: Create list of devices if the domain is not specified
       when: per_node_device | length <= 2
       ansible.builtin.set_fact:
-        device_list: "{{ device_list|default([]) + ['pci_0000_' + per_node_device[0] + '_' + per_node_device[1].split('.')[0] + '_' + per_node_device[1].split('.')[1]] }}"
+        device_list: "{{ (device_list | default([])) + ['pci_0000_' + per_node_device[0] + '_' + per_node_device[1].split('.')[0] + '_' + per_node_device[1].split('.')[1]] }}"
 
     - name: Debug device_list
       ansible.builtin.debug:
