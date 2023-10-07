@@ -14,6 +14,9 @@ injected_manifests:
       subjects:
         - kind: User
           apiGroup: rbac.authorization.k8s.io
+          name: kadmin
+        - kind: User
+          apiGroup: rbac.authorization.k8s.io
           name: kmoini@redhat.com
         - kind: User
           apiGroup: rbac.authorization.k8s.io
@@ -68,6 +71,9 @@ injected_manifests:
         - kind: User
           apiGroup: rbac.authorization.k8s.io
           name: mhendrix@redhat.com
+        - kind: User
+          apiGroup: rbac.authorization.k8s.io
+          name: luser
       roleRef:
         apiGroup: rbac.authorization.k8s.io
         kind: ClusterRole

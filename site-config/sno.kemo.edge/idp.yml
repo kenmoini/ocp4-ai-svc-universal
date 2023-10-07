@@ -1,6 +1,12 @@
 ---
 
 idp_providers:
+## HTPasswd
+  - type: HTPasswd
+    name: LabHTPasswd
+    mappingMethod: claim
+    users: "{{ htpasswd_users }}"
+
 ## RH Google SSO Configuration
   - type: Google
     name: RedHatSSO
