@@ -17,9 +17,9 @@
     body_format: json
   register: ocp_versions
 
-- name: debug
+- name: Debug
   ansible.builtin.debug:
-    msg: "{{ (ocp_versions.json).keys() | list  }}"
+    msg: "{{ (ocp_versions.json).keys() | list }}"
 
 - name: Setup combined info facts from the Assisted Installer API
   ansible.builtin.set_fact:

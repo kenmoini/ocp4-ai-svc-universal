@@ -7,11 +7,11 @@
 #   - source: quay.io
 #     mirrors:
 #       - "jfrog.kemo.labs/quay-remote"
-# 
+#
 #   - source: registry.redhat.io
 #     mirrors:
 #       - "jfrog.kemo.labs/registry-redhat-remote"
-# 
+#
 #   - source: registry.access.redhat.com
 #     mirrors:
 #       - "jfrog.kemo.labs/registry-access-redhat-remote"

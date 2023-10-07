@@ -12,8 +12,8 @@
 
         # This works
         - name: Add the username password hash combos to a list
-          set_fact:
-            username_password_hash_combos: "{{ (username_password_hash_combos | default([])) + [ user.username + ':' + (user.password | password_hash(hashtype='bcrypt', ident='2y')) ] }}"
+          ansible.builtin.set_fact:
+            username_password_hash_combos: "{{ (username_password_hash_combos | default([])) + [user.username + ':' + (user.password | password_hash(hashtype='bcrypt', ident='2y'))] }}"
           loop: "{{ provider.users }}"
           loop_control:
             loop_var: user
