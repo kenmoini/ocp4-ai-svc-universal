@@ -69,7 +69,8 @@ jobs:
         uses: actions/checkout@v4
         
       - name: Install python requirements (ansible-builder)
-        run: pip install ansible-builder==1.1.0
+        #run: pip install ansible-builder==1.1.0
+        run: pip install ansible-builder==3.0.0
 
       - name: Log in to target registry
         id: registry-quay
