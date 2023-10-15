@@ -9,14 +9,14 @@ cluster_nodes:
       # arch: overrides global default setting for mixed arch clusters, x86_64 | arm64
       arch: arm64
     vm:
-      cpu_cores: 64
+      cpu_cores: 96
       cpu_sockets: 1
       cpu_threads: 1
-      memory: 98304
+      memory: 196608
       disks:
-        - size: 140
+        - size: 240
           name: boot
-        - size: 400
+        - size: 600
           name: lvm
     pci_devices:
       # A4000 GPU

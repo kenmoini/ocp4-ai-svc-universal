@@ -14,7 +14,7 @@ ssh_public_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC/UQ6SVJ0Jk/fDfLpecIIIfTe3
 cluster_type: SNO
 
 # cluster_version can be x.y or x.y.z - must be formatted as a STRING
-cluster_version: "4.13.10-multi"
+cluster_version: "4.13-multi"
 
 cluster_architecture: arm64 # x86_64 or arm64
 
