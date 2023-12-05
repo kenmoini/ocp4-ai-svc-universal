@@ -14,14 +14,14 @@ cluster_nodes:
       disks:
         - size: 140
           name: boot
-        - size: 250
+        - size: 1200
           name: data
-    pci_devices:
+    #pci_devices:
       # PCIe USB 3.1 Card - Has Coral Edge TPU
       # 2a:00.0 USB controller: ASMedia Technology Inc. ASM2142 USB 3.1 Host Controller
       # 2f:00.0 USB controller: ASMedia Technology Inc. ASM2142 USB 3.1 Host Controller
-      - "2a:00.0"
-      - "2f:00.0"
+      #- "2a:00.0"
+      #- "2f:00.0"
       # 61:00.0 Ethernet controller: Mellanox Technologies MT42822 BlueField-2 integrated ConnectX-6 Dx network controller (rev 01)
       # 61:00.1 Ethernet controller: Mellanox Technologies MT42822 BlueField-2 integrated ConnectX-6 Dx network controller (rev 01)
       # 61:00.2 DMA controller: Mellanox Technologies MT42822 BlueField-2 SoC Management Interface (rev 01)

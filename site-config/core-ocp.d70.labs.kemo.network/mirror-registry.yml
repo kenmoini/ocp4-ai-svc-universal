@@ -6,12 +6,20 @@
 imageContentSources:
   - source: quay.io
     mirrors:
-      - "jfrog.kemo.labs/quay-remote"
+      - "disconn-harbor.d70.kemo.labs/quay-ptc"
+
+  - source: ghcr.io
+    mirrors:
+      - "disconn-harbor.d70.kemo.labs/ghcr-ptc"
+
+  - source: docker.io
+    mirrors:
+      - "disconn-harbor.d70.kemo.labs/docker-hub-ptc"
 
   - source: registry.redhat.io
     mirrors:
-      - "jfrog.kemo.labs/registry-redhat-remote"
+      - "disconn-harbor.d70.kemo.labs/registry-redhat-io-ptc"
 
   - source: registry.access.redhat.com
     mirrors:
-      - "jfrog.kemo.labs/registry-access-redhat-remote"
+      - "disconn-harbor.d70.kemo.labs/registry-access-redhat-com-ptc"
