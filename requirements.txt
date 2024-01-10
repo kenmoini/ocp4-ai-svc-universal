@@ -4,3 +4,4 @@ pyvmomi
 jmespath
 git+https://github.com/vmware/vsphere-automation-sdk-python.git
 libvirt-python
+passlib

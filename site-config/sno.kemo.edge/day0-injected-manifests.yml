@@ -14,10 +14,10 @@ injected_manifests:
       subjects:
         - kind: User
           apiGroup: rbac.authorization.k8s.io
-          name: kmoini@redhat.com
+          name: kadmin
         - kind: User
           apiGroup: rbac.authorization.k8s.io
-          name: rhano@redhat.com
+          name: kmoini@redhat.com
         - kind: User
           apiGroup: rbac.authorization.k8s.io
           name: mtipton@redhat.com
@@ -41,30 +41,24 @@ injected_manifests:
         kind: ClusterRole
         name: cluster-admin
 
-  - name: image-content-source-policy.yaml
-    folder: manifests
-    content: |
-      apiVersion: operator.openshift.io/v1alpha1
-      kind: ImageContentSourcePolicy
-      metadata:
-        name: disconn-harbor-d70-kemo-labs
-      spec:
-        repositoryDigestMirrors:
-        - source: quay.io
-          mirrors:
-          - "disconn-harbor.d70.kemo.labs/quay-ptc"
-        - source: registry.redhat.io
-          mirrors:
-          - "disconn-harbor.d70.kemo.labs/registry-redhat-io-ptc"
-        - source: registry.access.redhat.com
-          mirrors:
-          - "disconn-harbor.d70.kemo.labs/registry-access-redhat-com-ptc"
-        - source: docker.io
-          mirrors:
-          - "disconn-harbor.d70.kemo.labs/docker-hub-ptc"
-        - source: ghcr.io
-          mirrors:
-          - "disconn-harbor.d70.kemo.labs/ghcr-ptc"
+  # - name: image-content-source-policy.yaml
+  #   folder: manifests
+  #   content: |
+  #     apiVersion: operator.openshift.io/v1alpha1
+  #     kind: ImageContentSourcePolicy
+  #     metadata:
+  #       name: jfrog-kemo-labs
+  #     spec:
+  #       repositoryDigestMirrors:
+  #       - source: quay.io
+  #         mirrors:
+  #         - "jfrog.kemo.labs/quay-remote"
+  #       - source: registry.redhat.io
+  #         mirrors:
+  #         - "jfrog.kemo.labs/registry-redhat-remote"
+  #       - source: registry.access.redhat.com
+  #         mirrors:
+  #         - "jfrog.kemo.labs/registry-access-redhat-remote"
 
   - name: cluster-reader-rbacs.yaml
     folder: manifests
@@ -77,6 +71,9 @@ injected_manifests:
         - kind: User
           apiGroup: rbac.authorization.k8s.io
           name: mhendrix@redhat.com
+        - kind: User
+          apiGroup: rbac.authorization.k8s.io
+          name: luser
       roleRef:
         apiGroup: rbac.authorization.k8s.io
         kind: ClusterRole

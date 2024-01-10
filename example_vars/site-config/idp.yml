@@ -32,3 +32,13 @@
 #           openshiftGroup: labadmins
 #         - ldapGroup: cn=admins,cn=groups,cn=accounts,dc=kemo,dc=labs
 #           openshiftGroup: admins
+
+# ## HTPasswd Configuration
+#   - type: HTPasswd
+#     name: LabHTPasswd
+#     mappingMethod: claim #optional, defaults to claim
+#     users:
+#       - username: kadmin
+#         password: r3dh4t1!
+#       - username: luser
+#         password: r3dh4t1!

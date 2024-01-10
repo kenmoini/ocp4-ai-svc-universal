@@ -1,0 +1,39 @@
+---
+
+- name: Clear facts
+  ansible.builtin.set_fact:
+    device_list: []
+
+- name: Remote Libvirt Target
+  when: provider.credentials.libvirt_transport is defined and provider.credentials.libvirt_transport == 'qemu+ssh'
+  block:
+    - name: Set user facts
+      when: provider.credentials.libvirt_username is defined
+      ansible.builtin.set_fact:
+        user_target: "{{ provider.credentials.libvirt_username }}@"
+
+    - name: Split the device slot information
+      ansible.builtin.set_fact:
+        per_node_device: "{{ device_item | split(':') }}"
+
+    - name: Create list of devices if the domain is specified
+      when: per_node_device | length > 2
+      ansible.builtin.set_fact:
+        device_list: "{{ (device_list | default([])) + ['pci_' + per_node_device[0] + '_' + per_node_device[1] + '_' + per_node_device[2].split('.')[0] + '_' + per_node_device[2].split('.')[1]] }}"
+
+    - name: Create list of devices if the domain is not specified
+      when: per_node_device | length <= 2
+      ansible.builtin.set_fact:
+        device_list: "{{ (device_list | default([])) + ['pci_0000_' + per_node_device[0] + '_' + per_node_device[1].split('.')[0] + '_' + per_node_device[1].split('.')[1]] }}"
+
+    - name: Debug device_list
+      ansible.builtin.debug:
+        msg: "{{ device_list }}"
+
+    - name: Reattach any PCI devices that was mounted to the node VM
+      ansible.builtin.shell: |
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i {{ provider.credentials.libvirt_ssh_key_path }} {{ user_target | default('') }}{{ provider.credentials.libvirt_endpoint }} virsh nodedev-reattach {{ dev_target }}
+      loop: "{{ device_list }}"
+      loop_control:
+        loop_var: dev_target
+      when: device_list is defined

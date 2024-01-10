@@ -385,7 +385,7 @@
         - name: AI Service - Inject Cilium Networking Cluster Manifests
           when: cluster_network_type == "Cilium"
           ansible.builtin.include_tasks:
-            file: tasks/networking_cilium.yaml
+            file: tasks/ai-svc/networking_cilium.yaml
             apply:
               tags:
                 - ai_svc
@@ -397,7 +397,7 @@
         - name: AI Service - Inject Calico Networking Cluster Manifests
           when: cluster_network_type == "Calico"
           ansible.builtin.include_tasks:
-            file: tasks/networking_calico.yaml
+            file: tasks/ai-svc/networking_calico.yaml
             apply:
               tags:
                 - ai_svc
@@ -1055,7 +1055,7 @@
             active_kc: ""
             login_cmd: |-
               {{ oc_binary }} login --insecure-skip-tls-verify=true '{{ cluster_api_url }}' --password={{ cluster_kubeadmin_password }} --username={{ cluster_kubeadmin_username }}
-            no_log: true
+          no_log: true
 
         - name: Run the login
           ansible.builtin.shell:

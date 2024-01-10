@@ -4,6 +4,52 @@
   block:
 
     ## ===================================================================================================
+    ## HTPasswd Identity Provider
+    ## ===================================================================================================
+    - name: Set up HTPasswd Auth IdP
+      when: provider.type == 'HTPasswd'
+      block:
+
+        # This works
+        - name: Add the username password hash combos to a list
+          ansible.builtin.set_fact:
+            username_password_hash_combos: "{{ (username_password_hash_combos | default([])) + [user.username + ':' + (user.password | password_hash(hashtype='bcrypt', ident='2y'))] }}"
+          loop: "{{ provider.users }}"
+          loop_control:
+            loop_var: user
+
+        - name: Create the HTPasswd secret
+          kubernetes.core.k8s:
+            kubeconfig: "{{ generated_asset_directory }}/{{ cluster_id }}/kubeconfig"
+            state: present
+            merge_type:
+              - strategic-merge
+              - merge
+            definition:
+              apiVersion: v1
+              kind: Secret
+              metadata:
+                name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-htpasswd"
+                namespace: openshift-config
+              type: Opaque
+              stringData:
+                htpasswd: "{{ username_password_hash_combos | join('\n') }}"
+
+        - name: Set fact for this identity provider
+          ansible.builtin.set_fact:
+            idp_item:
+              - name: "{{ provider.name }}"
+                type: HTPasswd
+                mappingMethod: "{{ provider.mappingMethod | default('claim') }}"
+                htpasswd:
+                  fileData:
+                    name: "{{ provider.name | lower | regex_replace('[^a-z0-9]', '') }}-htpasswd"
+
+        - name: Add this IdP to the collection
+          ansible.builtin.set_fact:
+            idp_collection: "{{ idp_collection + idp_item }}"
+
+    ## ===================================================================================================
     ## Google OAuth Identity Provider
     ## ===================================================================================================
 

@@ -1,0 +1,40 @@
+---
+
+idp_providers:
+## HTPasswd
+  - type: HTPasswd
+    name: LabHTPasswd
+    mappingMethod: claim
+    users: "{{ htpasswd_users }}"
+
+## RH Google SSO Configuration
+  - type: Google
+    name: RedHatSSO
+    clientID: "{{ gcp_oauth_client_id }}"
+    clientSecret: "{{ gcp_oauth_client_secret }}"
+    hostedDomain: "redhat.com"
+
+## LDAP Configuration
+  - type: LDAP
+    name: LabLDAP
+    bindDN: "uid=admin,cn=users,cn=accounts,dc=kemo,dc=labs"
+    bindPassword: "{{ ldap_bind_password }}"
+    cacert: "{{ ldap_ca_cert }}"
+    url: "ldaps://idm.kemo.labs:636"
+    url_filter: "cn=users,cn=accounts,dc=kemo,dc=labs?uid?sub?(uid=*)"
+    #mappingMethod: claim #optional, defaults to claim
+    #insecure: false #optional, defaults to false
+    group_sync:
+      group_crbs:
+        - group: admins
+          crb: cluster-admin
+        - group: labadmins
+          crb: cluster-admin
+      groupBaseDN: "cn=groups,cn=accounts,dc=kemo,dc=labs"
+      groupFilter: (|(cn=labadmins)(cn=admins))
+      userBaseDN: "cn=users,cn=accounts,dc=kemo,dc=labs"
+      groupUIDNameMappings:
+        - ldapGroup: cn=labadmins,cn=groups,cn=accounts,dc=kemo,dc=labs
+          openshiftGroup: labadmins
+        - ldapGroup: cn=admins,cn=groups,cn=accounts,dc=kemo,dc=labs
+          openshiftGroup: admins

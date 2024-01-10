@@ -17,9 +17,6 @@ injected_manifests:
           name: kmoini@redhat.com
         - kind: User
           apiGroup: rbac.authorization.k8s.io
-          name: rhano@redhat.com
-        - kind: User
-          apiGroup: rbac.authorization.k8s.io
           name: mtipton@redhat.com
         - kind: User
           apiGroup: rbac.authorization.k8s.io

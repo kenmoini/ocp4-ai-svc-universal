@@ -77,6 +77,20 @@
     loop_var: disk_item
 
 # ===========================================================================
+# Reattach PCI Devices to the host
+# ===========================================================================
+
+- name: Reattach PCI Devices to the host from the VM - {{ node_item.name }}
+  when: node_item.pci_devices is defined
+  ansible.builtin.include_tasks: reattach_devices.yaml
+  loop: "{{ node_item.pci_devices }}"
+  loop_control:
+    loop_var: device_item
+  tags:
+    - infra_libvirt
+    - infra_libvirt_reattach_pci
+
+# ===========================================================================
 # Run a trim on the filesystem
 # ===========================================================================
 # BUG: This doesn't do anything in an EE context, it fails actually.
