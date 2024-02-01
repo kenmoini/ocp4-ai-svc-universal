@@ -46,7 +46,8 @@ See [Configure Vars Workflow Document](configure-vars.md) for more details
 
 **Create Inventory**
 ```
-./configure-vars.sh -s 192.168.10.0/24 -o 192.168.10 -a 192.168.10.10 -e 192.168.10.11  -d example.com
+export OCTET="192.168.10"
+./configure-vars.sh -s ${OCTET}.0/24 -o ${OCTET} -a ${OCTET}.10 -e ${OCTET}.11  -d example.com
 ```
 
 **Add hosts file**
