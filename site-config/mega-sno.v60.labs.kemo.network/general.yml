@@ -1,0 +1,25 @@
+---
+################################################## SSH Key Configuration
+# generate_ssh_key: true/false, will generate unique key pair if true
+# When operating in Tower/Controller, you should probably just pass in a Public Key
+generate_ssh_key: false
+# ssh_pub_key_path: If 'generate_ssh_key' is false, point to an existing SSH Public Key
+#ssh_pub_key_path: "~/.ssh/id_rsa.pub"
+
+# ssh_public_key: this sets the public key to be used for the cluster, regardless of the ssh_pub_key_path
+ssh_public_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC/UQ6SVJ0Jk/fDfLpecIIIfTe3+Ry+oaF8AFKAZwXJ8xMMmrPcPX1JTb4k/keVPT5liqYLb6pxO9yKUb1fLIKXQj+6OaDFaq7J8O3ad5AjpwMH97pynPtjUnltDIPbMTLOUHMZCrvF/PIn0iQ2lfl48lADD/S/tOPh34TI8fv+miuCO7Gdsk9DqT9SxIRG4oKj7ZKp/PKyWuPheRhJ0KiSeFIHR3dXSJnLiL+JkdBotB4IK78Pygwo6P6Wyl2P4gobkKhy/YuTiSImbaN0G8YMJrUu1EzYQ5QlmNqPKVuFH8te41vxmTX47N5h8vfO9c00YFC5H9mtsPMGXYRTiRkB MasterKemoKey
+
+################################################## Cluster Basics
+# cluster_type: Standard (HA CP+App Nodes), SNO (Single Node OpenShift)
+cluster_type: SNO
+
+# cluster_version can be x.y or x.y.z - must be formatted as a STRING
+cluster_version: "4.14-multi"
+cluster_architecture: "multi"
+infraenv_cluster_architecture: "x86_64"
+
+# cluster_name and cluster_domain will form the cluster base endpoint, eg cluster_name.cluster_domain
+# Ensure the DNS A records for {api,api-int,*.apps}.cluster_name.cluster_domain exist
+cluster_name: mega-sno
+cluster_domain: v60.lab.kemo.network
+provider_type: none
