@@ -28,6 +28,9 @@
 {% endif %}
     <boot dev='hd'/>
     <boot dev='cdrom'/>
+    <firmware>
+      <feature enabled='no' name='secure-boot'/>
+    </firmware>
   </os>
   <features>
     <acpi/>
