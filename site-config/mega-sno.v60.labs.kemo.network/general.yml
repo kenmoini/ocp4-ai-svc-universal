@@ -21,5 +21,5 @@ infraenv_cluster_architecture: "x86_64"
 # cluster_name and cluster_domain will form the cluster base endpoint, eg cluster_name.cluster_domain
 # Ensure the DNS A records for {api,api-int,*.apps}.cluster_name.cluster_domain exist
 cluster_name: mega-sno
-cluster_domain: d70.lab.kemo.network
+cluster_domain: v60.lab.kemo.network
 provider_type: none

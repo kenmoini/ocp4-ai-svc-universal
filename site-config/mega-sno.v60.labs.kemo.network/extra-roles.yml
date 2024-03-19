@@ -1,0 +1,7 @@
+---
+# [optional] extra_roles: name of roles to run after cluster provisioning
+extra_roles:
+  - ocp4-certificates
+  - ocp4-red-matrix-login
+  - ocp4-idp
+  - ocp4-ntp-configuration

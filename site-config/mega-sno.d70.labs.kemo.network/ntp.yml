@@ -8,6 +8,6 @@
 
 ntp_sources:
   - type: server
-    address: deep-thought.kemo.labs
+    address: ntp.kemo.labs
   #- type: pool
   #  address: time.apple.com
