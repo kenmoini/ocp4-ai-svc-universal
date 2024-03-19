@@ -25,7 +25,7 @@
     datastore: "{{ provider.configuration.vcenter_datastore }}"
     cluster: "{{ provider.configuration.vcenter_cluster }}"
     name: "{{ cluster_name }}-{{ node_item.name }}"
-    folder: "{{ cluster_name }}"
+    folder: "{{ cluster_folder_name }}"
     state: powered-off
   ignore_errors: true
   tags:
@@ -44,7 +44,7 @@
     datastore: "{{ provider.configuration.vcenter_datastore }}"
     cluster: "{{ provider.configuration.vcenter_cluster }}"
     name: "{{ cluster_name }}-{{ node_item.name }}"
-    folder: "{{ cluster_name }}"
+    folder: "{{ cluster_folder_name }}"
     state: absent
   ignore_errors: true
   tags:

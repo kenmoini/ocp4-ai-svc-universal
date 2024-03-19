@@ -43,7 +43,7 @@
         unit_number: 0
         state: present
         type: iso
-        iso_path: "[{{ provider.configuration.vcenter_datastore }}] ISOs/ocp-ai-{{ cluster_id }}.iso"
+        iso_path: "[{{ provider.configuration.vcenter_datastore }}] {{ provider.configuration.vcenter_iso_dir }}/ocp-ai-{{ cluster_id }}.iso"
 
 - name: Setup empty VMWare CDROM dictionary - {{ node_item.name }}
   when: cluster_id is not defined
@@ -68,7 +68,7 @@
     datastore: "{{ provider.configuration.vcenter_datastore }}"
     cluster: "{{ provider.configuration.vcenter_cluster }}"
     name: "{{ cluster_name }}-{{ node_item.name }}"
-    folder: "{{ cluster_name }}"
+    folder: "{{ cluster_folder_name }}"
     guest_id: coreos64Guest
     state: present
     disk: "{{ disks }}"
@@ -99,7 +99,7 @@
     datastore: "{{ provider.configuration.vcenter_datastore }}"
     cluster: "{{ provider.configuration.vcenter_cluster }}"
     name: "{{ cluster_name }}-{{ node_item.name }}"
-    folder: "{{ cluster_name }}"
+    folder: "{{ cluster_folder_name }}"
     resource_pool: "{{ node_item.vm.resource_pool | default(omit) }}"
     advanced_settings:
       - key: disk.EnableUUID
@@ -142,7 +142,7 @@
     datastore: "{{ provider.configuration.vcenter_datastore }}"
     cluster: "{{ provider.configuration.vcenter_cluster }}"
     name: "{{ cluster_name }}-{{ node_item.name }}"
-    folder: "{{ cluster_name }}"
+    folder: "{{ cluster_folder_name }}"
     state: powered-on
   tags:
     - vmware_tasks

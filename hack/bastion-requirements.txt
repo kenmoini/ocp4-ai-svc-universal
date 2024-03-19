@@ -1,0 +1,10 @@
+setuptools-rust
+ansible-core
+ansible
+ansible-navigator
+ansible-lint
+ansible-builder
+firewall
+pyyaml
+Jinja2
+ansible-vault

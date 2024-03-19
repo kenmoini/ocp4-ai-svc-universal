@@ -1,0 +1,57 @@
+name: Configure Ansible Navgiator workflow
+on:
+  workflow_dispatch:
+    inputs:
+      hostname:
+        description: 'hostname'
+        required: false
+        default: hostname
+      gitrepo:
+        description: 'git repo location'
+        required: false
+        default: https://github.com/Red-Hat-SE-RTO/ocp4-ai-svc-universal.git
+    
+
+jobs:
+  configure_ansible_navigator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+    - name: configure ansible navigator and python 3.11
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ inputs.hostname }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        port: ${{ secrets.PORT }}
+        command_timeout: 30m
+        script: | 
+          sudo yum install -y git
+          if [ -d "$HOME/ocp4-ai-svc-universal" ]; then
+            cd $HOME/ocp4-ai-svc-universal
+            git config pull.rebase false
+            git pull
+          else
+            git clone ${{ inputs.gitrepo }}
+            cd $HOME/ocp4-ai-svc-universal
+          fi
+          ./hack/setup-bastion.sh
+  configure_openshift_cli:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+    - name: Configure OpenShift CLI
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ inputs.hostname }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        port: ${{ secrets.PORT }}
+        command_timeout: 30m
+        script: | 
+          if [ ! -f $HOME/configure-openshift-packages.sh ];
+          then 
+            curl -OL https://raw.githubusercontent.com/tosin2013/openshift-4-deployment-notes/master/pre-steps/configure-openshift-packages.sh
+            chmod +x configure-openshift-packages.sh
+            ./configure-openshift-packages.sh -i
+          fi 

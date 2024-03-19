@@ -12,7 +12,7 @@
     validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
     datacenter: "{{ provider.configuration.vcenter_path | default('') }}{{ provider.configuration.vcenter_datacenter }}"
     datastore: "{{ provider.configuration.vcenter_datastore }}"
-    path: "ISOs/ocp-ai-{{ cluster_id }}.iso"
+    path: "{{ provider.configuration.vcenter_iso_dir }}/ocp-ai-{{ cluster_id }}.iso"
     state: file
   changed_when: false
   failed_when: false
@@ -30,7 +30,7 @@
     validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
     datacenter: "{{ provider.configuration.vcenter_path | default('') }}{{ provider.configuration.vcenter_datacenter }}"
     datastore: "{{ provider.configuration.vcenter_datastore }}"
-    path: "ISOs/ocp-ai-{{ cluster_id }}.iso"
+    path: "{{ provider.configuration.vcenter_iso_dir }}/ocp-ai-{{ cluster_id }}.iso"
     state: absent
   # ignore_errors: true
   tags:
