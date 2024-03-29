@@ -10,6 +10,18 @@ When deploying from demo.redhat.com you will need to have the following:
 *Replace hostname with bastion host*
 ![20230624122814](https://i.imgur.com/Gi2eLfJ.png)
 
+### If you do not want to use the pipeline and want to run locally
+```
+$ ssh user@example.com
+$ sudo dnf install git vim unzip wget bind-utils python3-pip tar util-linux-user  gcc python3-devel podman make  -y
+$ git clone https://github.com/Red-Hat-SE-RTO/ocp4-ai-svc-universal.git
+$ cd ocp4-ai-svc-universal/
+$ ./hack/setup-bastion.sh
+$ curl -OL https://raw.githubusercontent.com/tosin2013/openshift-4-deployment-notes/master/pre-steps/configure-openshift-packages.sh
+$ chmod +x configure-openshift-packages.sh
+$ ./configure-openshift-packages.sh -i
+```
+
 ## Getting Started
 **ssh into bastion host**
 ```
