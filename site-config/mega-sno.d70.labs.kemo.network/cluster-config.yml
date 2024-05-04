@@ -1,0 +1,43 @@
+---
+cluster_nodes:
+  - name: mega-sno
+    type: sno
+    infra:
+      name: labEndurance
+      # type: vsphere | nutanix | libvirt | baremetal
+      type: libvirt
+    vm:
+      cpu_cores: 60
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 491520
+      disks:
+        - size: 140
+          name: boot
+        - size: 1200
+          name: data
+    #pci_devices:
+      # PCIe USB 3.1 Card - Has Coral Edge TPU
+      # 2a:00.0 USB controller: ASMedia Technology Inc. ASM2142 USB 3.1 Host Controller
+      # 2f:00.0 USB controller: ASMedia Technology Inc. ASM2142 USB 3.1 Host Controller
+      #- "2a:00.0"
+      #- "2f:00.0"
+      # 61:00.0 Ethernet controller: Mellanox Technologies MT42822 BlueField-2 integrated ConnectX-6 Dx network controller (rev 01)
+      # 61:00.1 Ethernet controller: Mellanox Technologies MT42822 BlueField-2 integrated ConnectX-6 Dx network controller (rev 01)
+      # 61:00.2 DMA controller: Mellanox Technologies MT42822 BlueField-2 SoC Management Interface (rev 01)
+      # - "61:00.0"
+      # - "61:00.1"
+      # - "61:00.2"
+    networking:
+      interfaces:
+        - name: eth0
+          mac_address: 54:52:00:42:69:70
+          dhcp: false
+          ipv4:
+            - address: 192.168.70.70
+              prefix: 24
+      routes:
+        - destination: 0.0.0.0/0
+          next_hop_address: 192.168.70.1
+          next_hop_interface: eth0
+          table_id: 254

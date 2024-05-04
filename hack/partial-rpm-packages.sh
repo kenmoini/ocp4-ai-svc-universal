@@ -46,6 +46,7 @@ EOF
 sudo mv /tmp/xdg_runtime_dir.sh /etc/profile.d/xdg_runtime_dir.sh
 sudo chmod a+rx /etc/profile.d/xdg_runtime_dir.sh
 sudo cp /etc/profile.d/xdg_runtime_dir.sh /etc/profile.d/xdg_runtime_dir.zsh
+sudo mkdir -p  /home/lab-user/.run/containers
 
 
 cat > /tmp/ping_group_range.conf <<EOF

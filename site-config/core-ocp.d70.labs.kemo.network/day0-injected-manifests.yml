@@ -47,18 +47,24 @@ injected_manifests:
       apiVersion: operator.openshift.io/v1alpha1
       kind: ImageContentSourcePolicy
       metadata:
-        name: jfrog-kemo-labs
+        name: disconn-harbor-d70-kemo-labs
       spec:
         repositoryDigestMirrors:
         - source: quay.io
           mirrors:
-          - "jfrog.kemo.labs/quay-remote"
+          - "disconn-harbor.d70.kemo.labs/quay-ptc"
         - source: registry.redhat.io
           mirrors:
-          - "jfrog.kemo.labs/registry-redhat-remote"
+          - "disconn-harbor.d70.kemo.labs/registry-redhat-io-ptc"
         - source: registry.access.redhat.com
           mirrors:
-          - "jfrog.kemo.labs/registry-access-redhat-remote"
+          - "disconn-harbor.d70.kemo.labs/registry-access-redhat-com-ptc"
+        - source: docker.io
+          mirrors:
+          - "disconn-harbor.d70.kemo.labs/docker-hub-ptc"
+        - source: ghcr.io
+          mirrors:
+          - "disconn-harbor.d70.kemo.labs/ghcr-ptc"
 
   - name: cluster-reader-rbacs.yaml
     folder: manifests

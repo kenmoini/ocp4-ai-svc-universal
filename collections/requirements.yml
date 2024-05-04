@@ -7,4 +7,4 @@ collections:
   - name: community.okd
   - name: community.vmware
   - name: kubernetes.core
-  #- name: nutanix.ncp # Disabled due to hardcoding pip modules
+  - name: nutanix.ncp # Disabled due to hardcoding pip modules

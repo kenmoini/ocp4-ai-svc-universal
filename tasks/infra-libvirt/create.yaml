@@ -35,6 +35,20 @@
     discovery_iso_path: ""
 
 # ===========================================================================
+# Detach PCI Devices
+# ===========================================================================
+
+- name: Detach PCI Devices for the VM - {{ node_item.name }}
+  when: node_item.pci_devices is defined
+  ansible.builtin.include_tasks: detach_devices.yaml
+  loop: "{{ node_item.pci_devices }}"
+  loop_control:
+    loop_var: device_item
+  tags:
+    - infra_libvirt
+    - infra_libvirt_detach_pci
+
+# ===========================================================================
 # Create VM Disks
 # ===========================================================================
 

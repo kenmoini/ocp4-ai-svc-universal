@@ -1,4 +1,6 @@
 .generated/
+.vscode/
+.vscode/**
 .generated/**
 *.cluster-config.yml
 *.cluster-config.yaml

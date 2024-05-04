@@ -233,6 +233,12 @@ cluster_nodes:
       disks:
         - size: 130
           name: boot
+    # pci_devices:
+      # PCIe USB 3.1 Card - Has Coral Edge TPU
+      # 2a:00.0 USB controller: ASMedia Technology Inc. ASM2142 USB 3.1 Host Controller
+      # 2f:00.0 USB controller: ASMedia Technology Inc. ASM2142 USB 3.1 Host Controller
+      # - "2a:00.0"
+      # - "2f:00.0"
     networking:
       interfaces:
         - name: eth0
