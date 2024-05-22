@@ -7,7 +7,7 @@
 ## also enable the ocp4-ntp-configuration extra_roles entry
 
 ntp_sources:
-  - type: server
+  - type: pool
     address: ntp.kemo.labs
   #- type: pool
   #  address: time.apple.com
