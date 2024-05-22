@@ -1,6 +1,7 @@
 tar [platform:rpm]
 jq [platform:rpm]
 git [platform:rpm]
+which [platform:rpm]
 curl-minimal [platform:rpm]
 wget [platform:rpm]
 pkgconf-pkg-config [platform:rpm]
