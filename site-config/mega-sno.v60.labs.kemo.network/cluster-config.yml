@@ -7,14 +7,14 @@ cluster_nodes:
       # type: vsphere | nutanix | libvirt | baremetal
       type: libvirt
     vm:
-      cpu_cores: 60
+      cpu_cores: 96
       cpu_sockets: 1
       cpu_threads: 1
       memory: 491520
       disks:
         - size: 320
           name: boot
-        - size: 1200
+        - size: 2400
           name: data
     pci_devices:
       # c1:00.0 VGA compatible controller: NVIDIA Corporation GA104GL [RTX A4000] (rev a1)
