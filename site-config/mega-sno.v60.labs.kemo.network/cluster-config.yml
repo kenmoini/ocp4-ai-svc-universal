@@ -7,8 +7,8 @@ cluster_nodes:
       # type: vsphere | nutanix | libvirt | baremetal
       type: libvirt
     vm:
-      cpu_cores: 96
-      cpu_sockets: 1
+      cpu_cores: 64
+      cpu_sockets: 2
       cpu_threads: 1
       memory: 491520
       disks:
