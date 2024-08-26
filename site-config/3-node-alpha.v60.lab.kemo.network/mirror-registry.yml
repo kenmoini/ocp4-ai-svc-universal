@@ -1,0 +1,25 @@
+---
+
+#######################################################################################################################
+## mirror-registy configuration variables
+#######################################################################################################################
+imageContentSources:
+  - source: quay.io
+    mirrors:
+      - "disconn-harbor.d70.kemo.labs/quay-ptc"
+
+  - source: ghcr.io
+    mirrors:
+      - "disconn-harbor.d70.kemo.labs/ghcr-ptc"
+
+  - source: docker.io
+    mirrors:
+      - "disconn-harbor.d70.kemo.labs/docker-hub-ptc"
+
+  - source: registry.redhat.io
+    mirrors:
+      - "disconn-harbor.d70.kemo.labs/registry-redhat-io-ptc"
+
+  - source: registry.access.redhat.com
+    mirrors:
+      - "disconn-harbor.d70.kemo.labs/registry-access-redhat-com-ptc"

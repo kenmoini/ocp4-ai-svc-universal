@@ -1,0 +1,91 @@
+---
+cluster_nodes:
+  - name: alpha-one
+    type: converged
+    infra:
+      name: labRaza
+      # type: vsphere | nutanix | libvirt | baremetal
+      type: libvirt
+    vm:
+      cpu_cores: 32
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 65536
+      disks:
+        - size: 160
+          name: boot
+        - size: 500
+          name: data
+    networking:
+      interfaces:
+        - name: eth0
+          mac_address: 54:52:00:42:60:21
+          dhcp: false
+          ipv4:
+            - address: 192.168.60.21
+              prefix: 23
+      routes:
+        - destination: 0.0.0.0/0
+          next_hop_address: 192.168.60.1
+          next_hop_interface: eth0
+          table_id: 254
+
+  - name: alpha-two
+    type: converged
+    infra:
+      name: labRaza
+      # type: vsphere | nutanix | libvirt | baremetal
+      type: libvirt
+    vm:
+      cpu_cores: 32
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 65536
+      disks:
+        - size: 160
+          name: boot
+        - size: 500
+          name: data
+    networking:
+      interfaces:
+        - name: eth0
+          mac_address: 54:52:00:42:60:22
+          dhcp: false
+          ipv4:
+            - address: 192.168.60.22
+              prefix: 23
+      routes:
+        - destination: 0.0.0.0/0
+          next_hop_address: 192.168.60.1
+          next_hop_interface: eth0
+          table_id: 254
+
+  - name: alpha-three
+    type: converged
+    infra:
+      name: labRaza
+      # type: vsphere | nutanix | libvirt | baremetal
+      type: libvirt
+    vm:
+      cpu_cores: 32
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 65536
+      disks:
+        - size: 160
+          name: boot
+        - size: 500
+          name: data
+    networking:
+      interfaces:
+        - name: eth0
+          mac_address: 54:52:00:42:60:23
+          dhcp: false
+          ipv4:
+            - address: 192.168.60.23
+              prefix: 23
+      routes:
+        - destination: 0.0.0.0/0
+          next_hop_address: 192.168.60.1
+          next_hop_interface: eth0
+          table_id: 254
