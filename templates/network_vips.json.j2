@@ -1,6 +1,13 @@
 {
   "vip_dhcp_allocation": {{ 'false' if ((cluster_api_vip != "auto") and (cluster_apps_vip != "auto")) else 'true' }},
   "api_vip": "{{ '' if cluster_api_vip == "auto" else cluster_api_vip }}",
+  "api_vips": [
+      {
+          "cluster_id": "{{ cluster_id }}",
+          "ip": "{{ cluster_api_vip }}",
+          "verification": "unverified"
+      }
+  ],
   "ingress_vip": "{{ '' if cluster_apps_vip == "auto" else cluster_apps_vip }}",
   "user_managed_networking": false
 }
