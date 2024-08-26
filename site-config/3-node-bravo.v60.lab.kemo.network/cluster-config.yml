@@ -12,9 +12,9 @@ cluster_nodes:
       cpu_threads: 1
       memory: 65536
       disks:
-        - size: 160
+        - size: 140
           name: boot
-        - size: 500
+        - size: 250
           name: data
     networking:
       interfaces:
@@ -42,9 +42,9 @@ cluster_nodes:
       cpu_threads: 1
       memory: 65536
       disks:
-        - size: 160
+        - size: 140
           name: boot
-        - size: 500
+        - size: 250
           name: data
     networking:
       interfaces:
@@ -72,9 +72,9 @@ cluster_nodes:
       cpu_threads: 1
       memory: 65536
       disks:
-        - size: 160
+        - size: 140
           name: boot
-        - size: 500
+        - size: 250
           name: data
     networking:
       interfaces:
