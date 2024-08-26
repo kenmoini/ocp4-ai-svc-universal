@@ -63,7 +63,11 @@
 {% endif %}
   <iothreads>1</iothreads>
   <devices>
+{% if libvirt_host_os == "fedora" %}
+    <emulator>/usr/bin/qemu-system-x86_64</emulator>
+{% else %}
     <emulator>/usr/libexec/qemu-kvm</emulator>
+{% endif %}
 {% for disk in node_item.vm.disks %}{% set letters = 'abcdefghijklmnopqrstuvwxyz' %}
     <disk type='file' device='disk'>
       <driver name='qemu' type='qcow2' cache='none' iothread="1" queues="8"/>
@@ -199,12 +203,32 @@
       <alias name='input0'/>
       <address type='usb' bus='0' port='1'/>
     </input>
+{% if libvirt_host_os == "fedora" %}
+    <graphics type='vnc' port='-1' autoport='yes' listen='127.0.0.1'>
+      <listen type='address' address='127.0.0.1'/>
+    </graphics>
+    <graphics type='spice' autoport='yes' listen='::1'>
+      <listen type='address' address='::1'/>
+      <image compression='off'/>
+    </graphics>
+    <video>
+      <model type='vga' vram='16384' heads='1' primary='yes'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x01' function='0x0'/>
+    </video>
+    <redirdev bus='usb' type='spicevmc'>
+      <address type='usb' bus='0' port='2'/>
+    </redirdev>
+    <redirdev bus='usb' type='spicevmc'>
+      <address type='usb' bus='0' port='3'/>
+    </redirdev>
+{% else %}
     <graphics type='vnc' port='-1' autoport='yes' listen='0.0.0.0'/>
     <video>
       <model type='virtio' heads='1' primary='yes'/>
       <alias name='video0'/>
       <address type='pci' domain='0x0000' bus='0x00' slot='0x01' function='0x0'/>
     </video>
+{% endif %}
 {% if node_item.pci_devices is defined %}{% for device in node_item.pci_devices %}{% set expandSemi = device.split(":") %}
 {% if expandSemi | length > 2 %}
 {% set domainID = expandSemi[0] %}{% set busID = expandSemi[1] %}{% set slotID = expandSemi[2].split(".")[0] %}{% set functionID = expandSemi[2].split(".")[1] %}

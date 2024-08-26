@@ -21,3 +21,6 @@ cluster_version: "4.16.7"
 cluster_name: 3-node-alpha
 cluster_domain: v60.lab.kemo.network
 provider_type: baremetal
+
+# libvirt_host_os: fedora | rhel
+libvirt_host_os: fedora

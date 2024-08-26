@@ -19,6 +19,7 @@
     generated_asset_directory: "./.generated"
     detected_infra_nodes: false
     install_config_overrides: {}
+    libvirt_host_os: "rhel"
 
     use_site_configs: false
 
