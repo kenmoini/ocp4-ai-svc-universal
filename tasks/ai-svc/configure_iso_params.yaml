@@ -15,3 +15,6 @@
     status_code: 201
     body_format: json
   register: set_cluster_iso_params
+  retries: 5
+  delay: 30
+  until: set_cluster_iso_params.status == 201

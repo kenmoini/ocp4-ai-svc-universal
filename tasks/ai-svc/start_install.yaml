@@ -8,9 +8,9 @@
     status_code: 200
     body_format: json
   register: cluster_current_status
-  #until: (cluster_current_status.json.status == "ready")
-  #retries: 120
-  #delay: 30
+  until: cluster_current_status.json is defined
+  retries: 5
+  delay: 30
 
 - name: Start the Installation of the OpenShift Cluster
   when: cluster_current_status.json.status == "ready"

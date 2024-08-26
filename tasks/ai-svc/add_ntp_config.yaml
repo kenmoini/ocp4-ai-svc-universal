@@ -29,6 +29,9 @@
     status_code: 201
     body_format: json
   register: ntp_cluster_resp
+  retries: 5
+  delay: 30
+  until: ntp_cluster_resp.status == 201
 
 - name: Inject NTP config into the InfraEnv
   ansible.builtin.uri:
@@ -40,3 +43,6 @@
     status_code: 201
     body_format: json
   register: ntp_infraenv_resp
+  retries: 5
+  delay: 30
+  until: ntp_infraenv_resp.status == 201

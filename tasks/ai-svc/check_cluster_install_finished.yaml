@@ -30,7 +30,7 @@
       failed_when: false
 
     - name: Resync auth headers
-      when: cluster_install_statustwo.status == 401
+      when: cluster_install_statustwo.status != 200
       block:
         - name: Set up Authentication Headers if needed
           when: assisted_service_authentication != "none"

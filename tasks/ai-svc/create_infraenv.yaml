@@ -15,6 +15,9 @@
     status_code: 201
     body_format: json
   register: create_infraenv
+  retries: 5
+  delay: 30
+  until: create_infraenv.status == 201
 
 - name: Set facts for Infraenv
   when: (create_infraenv.json.cluster_id == cluster_id) and (create_infraenv.json.name == cluster_name)

@@ -16,6 +16,9 @@
     status_code: 200
     body_format: json
   register: ocp_versions
+  retries: 120
+  delay: 30
+  until: ocp_versions.json is defined
 
 - name: Debug
   ansible.builtin.debug:

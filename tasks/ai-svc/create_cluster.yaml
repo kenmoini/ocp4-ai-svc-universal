@@ -16,6 +16,9 @@
     status_code: 201
     body_format: json
   register: create_cluster
+  retries: 5
+  delay: 30
+  until: create_cluster.status == 201
 
 - name: Set facts for Cluster
   when: (create_cluster.json.base_dns_domain == cluster_domain) and (create_cluster.json.name == cluster_name)
