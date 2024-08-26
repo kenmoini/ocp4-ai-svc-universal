@@ -9,8 +9,7 @@ on:
       - bindep.txt
       - execution-environment.yml
       - requirements.txt
-      - .github/workflows/build-deploy-ee.yml
-      - .github/workflows/base-build-deploy-ee.yml
+      - .github/workflows/**
       - site-config/**
 
   pull_request:
@@ -22,8 +21,7 @@ on:
       - bindep.txt
       - execution-environment.yml
       - requirements.txt
-      - .github/workflows/build-deploy-ee.yml
-      - .github/workflows/base-build-deploy-ee.yml
+      - .github/workflows/**
       - site-config/**
 
 jobs:
