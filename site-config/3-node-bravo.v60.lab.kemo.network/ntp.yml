@@ -1,0 +1,13 @@
+---
+#######################################################################################################################
+## OpenShift Assisted Installer Service additionalNTPSources & ocp4-ntp-configuration role needed variables
+#######################################################################################################################
+# optional: if you want to use a different NTP server to synchronize time
+## This will set the NTP Servers on the Assisted Installer Configuration - to use the custom chrony configuration
+## also enable the ocp4-ntp-configuration extra_roles entry
+
+ntp_sources:
+  - type: pool
+    address: ntp.kemo.labs
+  #- type: pool
+  #  address: time.apple.com
