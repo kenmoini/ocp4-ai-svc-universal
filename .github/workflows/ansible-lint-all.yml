@@ -11,6 +11,7 @@ on:
       - requirements.txt
       - .github/workflows/build-deploy-ee.yml
       - .github/workflows/base-build-deploy-ee.yml
+      - site-config/**
 
   pull_request:
     paths-ignore:
@@ -23,6 +24,7 @@ on:
       - requirements.txt
       - .github/workflows/build-deploy-ee.yml
       - .github/workflows/base-build-deploy-ee.yml
+      - site-config/**
 
 jobs:
   lint:
