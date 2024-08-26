@@ -1,6 +1,9 @@
 {
   "vip_dhcp_allocation": {{ 'false' if ((cluster_api_vip != "auto") and (cluster_apps_vip != "auto")) else 'true' }},
+{% if cluster_type == "SNO" %}
   "api_vip": "{{ '' if cluster_api_vip == "auto" else cluster_api_vip }}",
+  "ingress_vip": "{{ '' if cluster_apps_vip == "auto" else cluster_apps_vip }}",
+{% else %}
   "api_vips": [
       {
           "cluster_id": "{{ cluster_id }}",
@@ -8,6 +11,13 @@
           "verification": "unverified"
       }
   ],
-  "ingress_vip": "{{ '' if cluster_apps_vip == "auto" else cluster_apps_vip }}",
+  "ingress_vips": [
+      {
+          "cluster_id": "{{ cluster_id }}",
+          "ip": "{{ cluster_apps_vip }}",
+          "verification": "unverified"
+      }
+  ],
+{% endif %}
   "user_managed_networking": false
 }
