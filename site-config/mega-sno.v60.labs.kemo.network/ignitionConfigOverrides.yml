@@ -1,29 +1,29 @@
 ---
 
 ignitionConfigOverrideFiles:
-  - path: /etc/containers/registries.conf
-    contents: |
-      unqualified-search-registries = ["disconn-harbor.d70.kemo.labs", "quay.io", "registry.access.redhat.com", "docker.io"]
-      [[registry]]
-        location = "quay.io"
-        [[registry.mirror]]
-        location = "disconn-harbor.d70.kemo.labs/quay-ptc"
-      [[registry]]
-        location = "registry.connect.redhat.com"
-        [[registry.mirror]]
-        location = "disconn-harbor.d70.kemo.labs/registry-access-redhat-com-ptc"
-      [[registry]]
-        location = "registry.redhat.io"
-        [[registry.mirror]]
-        location = "disconn-harbor.d70.kemo.labs/registry-redhat-io-ptc"
-      [[registry]]
-        location = "ghcr.io"
-        [[registry.mirror]]
-        location = "disconn-harbor.d70.kemo.labs/ghcr-ptc"
-      [[registry]]
-        location = "docker.io"
-        [[registry.mirror]]
-        location = "disconn-harbor.d70.kemo.labs/docker-hub-ptc"
+  # - path: /etc/containers/registries.conf
+  #   contents: |
+  #     unqualified-search-registries = ["disconn-harbor.d70.kemo.labs", "quay.io", "registry.access.redhat.com", "docker.io"]
+  #     [[registry]]
+  #       location = "quay.io"
+  #       [[registry.mirror]]
+  #       location = "disconn-harbor.d70.kemo.labs/quay-ptc"
+  #     [[registry]]
+  #       location = "registry.connect.redhat.com"
+  #       [[registry.mirror]]
+  #       location = "disconn-harbor.d70.kemo.labs/registry-access-redhat-com-ptc"
+  #     [[registry]]
+  #       location = "registry.redhat.io"
+  #       [[registry.mirror]]
+  #       location = "disconn-harbor.d70.kemo.labs/registry-redhat-io-ptc"
+  #     [[registry]]
+  #       location = "ghcr.io"
+  #       [[registry.mirror]]
+  #       location = "disconn-harbor.d70.kemo.labs/ghcr-ptc"
+  #     [[registry]]
+  #       location = "docker.io"
+  #       [[registry.mirror]]
+  #       location = "disconn-harbor.d70.kemo.labs/docker-hub-ptc"
 
   - path: /etc/pki/ca-trust/source/anchors/ss_kl_ca.pem
     contents: |
