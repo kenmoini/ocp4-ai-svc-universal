@@ -7,12 +7,12 @@
 - name: Set disk provisioning type
   when: disk_item.type is defined and disk_item.type == 'thick'
   ansible.builtin.set_fact:
-    disk_provisioning_type: " -o preallocation=full"
+    disk_provisioning_type: " -o preallocation=full,compat=1.1,lazy_refcounts=on"
 
 - name: Set command facts
   ansible.builtin.set_fact:
     ls_command: "ls -1 {{ provider.configuration.libvirt_base_iso_path | default('/var/lib/libvirt/images') }}"
-    qcow_command: "qemu-img create{{ disk_provisioning_type | default('') }} -f qcow2 {{ provider.configuration.libvirt_base_iso_path | default('/var/lib/libvirt/images') }}/{{ qcow_name }} {{ disk_item.size }}G"
+    qcow_command: "qemu-img create -f qcow2{{ disk_provisioning_type | default(' -o preallocation=metadata,compat=1.1,lazy_refcounts=on') }} -f qcow2 {{ provider.configuration.libvirt_base_iso_path | default('/var/lib/libvirt/images') }}/{{ qcow_name }} {{ disk_item.size }}G"
 
 - name: Remote Libvirt Target
   when: provider.credentials.libvirt_transport is defined and provider.credentials.libvirt_transport == 'qemu+ssh'

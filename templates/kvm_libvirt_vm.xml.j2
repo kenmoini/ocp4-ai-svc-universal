@@ -76,7 +76,7 @@
 {% endif %}
 {% for disk in node_item.vm.disks %}{% set letters = 'abcdefghijklmnopqrstuvwxyz' %}
     <disk type='file' device='disk'>
-      <driver name='qemu' type='qcow2' cache='none' iothread="1" queues="8"/>
+      <driver name='qemu' type='qcow2' cache='writeback' iothread="1" queues="8"/>
       <source file='{{ provider.configuration.libvirt_base_vm_path | default('/var/lib/libvirt/images') }}/{{ cluster_name }}-{{ node_item.name }}-{{ disk.name }}.qcow2' index='{{ loop.index + 1 }}'/>
       <backingStore/>
       <target dev='vd{{ letters[loop.index0] }}' bus='virtio'/>
