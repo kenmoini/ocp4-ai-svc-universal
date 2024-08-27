@@ -23,3 +23,5 @@ infraenv_cluster_architecture: "x86_64"
 cluster_name: mega-sno
 cluster_domain: v60.lab.kemo.network
 provider_type: none
+
+libvirt_host_os: "rhel" # fedora or rhel
