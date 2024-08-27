@@ -14,7 +14,7 @@ cluster_nodes:
       disks:
         - size: 140
           name: boot
-        - size: 100
+        - size: 500
           name: data
     networking:
       interfaces:
@@ -44,7 +44,7 @@ cluster_nodes:
       disks:
         - size: 140
           name: boot
-        - size: 100
+        - size: 500
           name: data
     networking:
       interfaces:
@@ -74,7 +74,7 @@ cluster_nodes:
       disks:
         - size: 140
           name: boot
-        - size: 100
+        - size: 500
           name: data
     networking:
       interfaces:
