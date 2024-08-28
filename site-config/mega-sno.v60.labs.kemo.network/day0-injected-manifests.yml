@@ -14,6 +14,9 @@ injected_manifests:
       subjects:
         - kind: User
           apiGroup: rbac.authorization.k8s.io
+          name: kemo
+        - kind: User
+          apiGroup: rbac.authorization.k8s.io
           name: kmoini@redhat.com
         - kind: User
           apiGroup: rbac.authorization.k8s.io
@@ -26,13 +29,22 @@ injected_manifests:
           name: takinosh@redhat.com
         - kind: User
           apiGroup: rbac.authorization.k8s.io
-          name: dtrapani@redhat.com
+          name: jobrowni@redhat.com
         - kind: User
           apiGroup: rbac.authorization.k8s.io
           name: msolberg@redhat.com
         - kind: User
           apiGroup: rbac.authorization.k8s.io
-          name: nkendyal@redhat.com
+          name: jflorist@redhat.com
+        - kind: User
+          apiGroup: rbac.authorization.k8s.io
+          name: jnovotni@redhat.com
+        - kind: User
+          apiGroup: rbac.authorization.k8s.io
+          name: lnichols@redhat.com
+        - kind: User
+          apiGroup: rbac.authorization.k8s.io
+          name: sgurijal@redhat.com
       roleRef:
         apiGroup: rbac.authorization.k8s.io
         kind: ClusterRole
