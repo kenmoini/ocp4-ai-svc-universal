@@ -8,3 +8,4 @@ collections:
   - name: community.vmware
   - name: kubernetes.core
   - name: nutanix.ncp # Disabled due to hardcoding pip modules
+  - name: kenmoini.redfish
