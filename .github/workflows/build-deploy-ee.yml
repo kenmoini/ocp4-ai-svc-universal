@@ -1,12 +1,13 @@
 name: EE build and deploy
 
 on:
-  pull_request:
-    paths:
-      - 'collections/**'
-      - requirements.txt
-      - bindep.txt
-      - execution-environment.yml
+  # Disable pull_request to prevent malicious PRs
+  # pull_request:
+  #   paths:
+  #     - 'collections/**'
+  #     - requirements.txt
+  #     - bindep.txt
+  #     - execution-environment.yml
   push:
     branches:
       - main
