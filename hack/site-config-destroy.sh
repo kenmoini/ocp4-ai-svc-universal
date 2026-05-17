@@ -2,6 +2,8 @@
 
 VAULT_ARGS=""
 
+
+
 # Check to see if there was an argument passed for the cluster config
 if [ -z "$1" ]; then
     echo "No site config folder specified"

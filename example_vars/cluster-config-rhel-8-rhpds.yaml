@@ -1,0 +1,633 @@
+---
+################################################## SSH Key Configuration
+# generate_ssh_key: true/false, will generate unique key pair if true
+generate_ssh_key: true
+# ssh_pub_key_path: If 'generate_ssh_key' is false, point to an existing SSH Public Key
+#ssh_pub_key_path: "/home/remoteuser/.ssh/id_rsa.pub"
+
+################################################## OpenShift Pull Secret
+# pull_secret: Often best to pull from a file outside of the repo, remove any whitespace - get it from here: https://cloud.redhat.com/openshift/install/pull-secret
+pull_secret_path: /home/lab-user/ocp-pull-secret
+pull_secret: "{{ lookup('file', pull_secret_path) | to_json }}"
+
+################################################## Red Hat API Offline Token
+# rh_api_offline_token: If using the RH Cloud Assisted Installer service, you will need an Offline API Token from this page: https://access.redhat.com/management/api
+rh_api_offline_token_path: /home/lab-user/rh-api-offline-token
+rh_api_offline_token: "{{ lookup('file', rh_api_offline_token_path) }}"
+
+################################################## Cluster Basics
+# cluster_type: Standard (HA CP+App Nodes), SNO (Single Node OpenShift)
+cluster_type: Standard
+# cluster_version can be x.y or x.y.z - must be formatted as a STRING
+cluster_version: "4.15"
+
+# cluster_name and cluster_domain will form the cluster base endpoint, eg cluster_name.cluster_domain
+# Ensure the DNS A records for {api,api-int,*.apps}.cluster_name.cluster_domain exist
+cluster_name: ocp4
+cluster_domain: example.com
+provider_type: libvirt
+
+################################################## Cluster Networking
+# cluster_api_vip: an IP or "auto"
+cluster_api_vip: 192.168.150.253
+# cluster_apps_vip: an IP or "auto"
+cluster_apps_vip: 192.168.150.252
+# cluster_node_cidr: A CIDR definition or "auto"
+cluster_node_cidr: 192.168.150.0/24
+
+################################################## Cluster Node IPAM
+# cluster_node_network_ipam: dhcp or static
+cluster_node_network_ipam: static
+
+cluster_node_network_static_dns_servers:
+  - 192.168.150.113
+  - 1.1.1.1
+
+cluster_node_network_static_dns_search_domains:
+  - example.com
+
+cluster_nodes:
+  - name: cp-1
+    type: control-plane
+    infra:
+      name: rhel8Equinox
+      # type: vsphere | nutanix | libvirt
+      type: libvirt
+    vm:
+      cpu_cores: 6
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 16384
+      disks:
+        - size: 130
+          name: boot
+    networking:
+      interfaces:
+        - name: enp1s0
+          mac_address: 52:54:00:0B:7C:9E
+        - name: enp7s0
+          mac_address: 52:54:00:A3:45:6D
+      networkConfig:
+        interfaces:
+          - name: bond0.1924
+            type: vlan
+            state: up
+            vlan:
+              id: 1924
+              base-iface: bond0
+            ipv4:
+              enabled: true
+              address:
+                - ip: 192.168.50.21
+                  prefix-length: 23
+              dhcp: false
+
+          - name: bond0
+            type: bond
+            state: up
+            link-aggregation:
+              # mode=1 active-backup
+              # mode=2 balance-xor
+              # mode=4 802.3ad
+              # mode=5 balance-tlb
+              # mode=6 balance-alb
+              mode: 802.3ad
+              port:
+                - enp1s0
+                - enp7s0
+
+          - name: enp1s0
+            type: ethernet
+            state: up
+            mac-address: 52:54:00:0B:7C:9E
+          - name: enp7s0
+            type: ethernet
+            state: up
+            mac-address: 52:54:00:A3:45:6D
+        routes:
+          config:
+            - destination: 0.0.0.0/0
+              next-hop-address: 192.168.50.1
+              next-hop-interface: bond0.1924
+              table-id: 254
+  - name: cp-2
+    type: control-plane
+    infra:
+      name: rhel8Equinox
+      # type: vsphere | nutanix | libvirt
+      type: libvirt
+    vm:
+      cpu_cores: 6
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 16384
+      disks:
+        - size: 130
+          name: boot
+    networking:
+      interfaces:
+        - name: enp1s0
+          mac_address: 52:54:00:1B:FF:0B
+        - name: enp7s0
+          mac_address: 52:54:00:E1:74:76
+      networkConfig:
+        interfaces:
+          - name: bond0.1924
+            type: vlan
+            state: up
+            vlan:
+              id: 1924
+              base-iface: bond0
+            ipv4:
+              enabled: true
+              address:
+                - ip: 192.168.50.22
+                  prefix-length: 23
+              dhcp: false
+
+          - name: bond0
+            type: bond
+            state: up
+            link-aggregation:
+              # mode=1 active-backup
+              # mode=2 balance-xor
+              # mode=4 802.3ad
+              # mode=5 balance-tlb
+              # mode=6 balance-alb
+              mode: 802.3ad
+              port:
+                - enp1s0
+                - enp7s0
+
+          - name: enp1s0
+            type: ethernet
+            state: up
+            mac-address: 52:54:00:1B:FF:0B
+          - name: enp7s0
+            type: ethernet
+            state: up
+            mac-address: 52:54:00:E1:74:76
+        routes:
+          config:
+            - destination: 0.0.0.0/0
+              next-hop-address: 192.168.50.1
+              next-hop-interface: bond0.1924
+              table-id: 254
+  - name: cp-3
+    type: control-plane
+    infra:
+      name: rhel8Equinox
+      # type: vsphere | nutanix | libvirt
+      type: libvirt
+    vm:
+      cpu_cores: 6
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 16384
+      disks:
+        - size: 130
+          name: boot
+    networking:
+      interfaces:
+        - name: enp1s0
+          mac_address: 52:54:00:DC:66:B8
+        - name: enp7s0
+          mac_address: 52:54:00:4C:9D:DD
+      networkConfig:
+        interfaces:
+          - name: bond0.1924
+            type: vlan
+            state: up
+            vlan:
+              id: 1924
+              base-iface: bond0
+            ipv4:
+              enabled: true
+              address:
+                - ip: 192.168.50.23
+                  prefix-length: 23
+              dhcp: false
+
+          - name: bond0
+            type: bond
+            state: up
+            link-aggregation:
+              # mode=1 active-backup
+              # mode=2 balance-xor
+              # mode=4 802.3ad
+              # mode=5 balance-tlb
+              # mode=6 balance-alb
+              mode: 802.3ad
+              port:
+                - enp1s0
+                - enp7s0
+
+          - name: enp1s0
+            type: ethernet
+            state: up
+            mac-address: 52:54:00:DC:66:B8
+          - name: enp7s0
+            type: ethernet
+            state: up
+            mac-address: 52:54:00:4C:9D:DD
+        routes:
+          config:
+            - destination: 0.0.0.0/0
+              next-hop-address: 192.168.50.1
+              next-hop-interface: bond0.1924
+              table-id: 254
+  - name: app-1
+    type: application-node
+    infra:
+      name: rhel8Equinox
+      # type: vsphere | nutanix | libvirt
+      type: libvirt
+    vm:
+      cpu_cores: 12
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 48000
+      disks:
+        - size: 130
+          name: boot
+        - size: 250
+          name: odf
+    networking:
+      interfaces:
+        - name: enp1s0
+          mac_address: 52:54:00:12:09:C6
+        - name: enp7s0
+          mac_address: 52:54:00:95:F0:38
+      networkConfig:
+        interfaces:
+          - name: bond0.1924
+            type: vlan
+            state: up
+            vlan:
+              id: 1924
+              base-iface: bond0
+            ipv4:
+              enabled: true
+              address:
+                - ip: 192.168.50.24
+                  prefix-length: 23
+              dhcp: false
+
+          - name: bond0
+            type: bond
+            state: up
+            link-aggregation:
+              # mode=1 active-backup
+              # mode=2 balance-xor
+              # mode=4 802.3ad
+              # mode=5 balance-tlb
+              # mode=6 balance-alb
+              mode: 802.3ad
+              port:
+                - enp1s0
+                - enp7s0
+
+          - name: enp1s0
+            type: ethernet
+            state: up
+            mac-address: 52:54:00:12:09:C6
+          - name: enp7s0
+            type: ethernet
+            state: up
+            mac-address: 52:54:00:95:F0:38
+        routes:
+          config:
+            - destination: 0.0.0.0/0
+              next-hop-address: 192.168.50.1
+              next-hop-interface: bond0.1924
+              table-id: 254
+  - name: app-2
+    type: application-node
+    infra:
+      name: rhel8Equinox
+      # type: vsphere | nutanix | libvirt
+      type: libvirt
+    vm:
+      cpu_cores: 12
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 48000
+      disks:
+        - size: 130
+          name: boot
+        - size: 250
+          name: odf
+    networking:
+      interfaces:
+        - name: enp1s0
+          mac_address: 52:54:00:B9:39:A1
+        - name: enp7s0
+          mac_address: 52:54:00:10:26:BA
+      networkConfig:
+        interfaces:
+          - name: bond0.1924
+            type: vlan
+            state: up
+            vlan:
+              id: 1924
+              base-iface: bond0
+            ipv4:
+              enabled: true
+              address:
+                - ip: 192.168.50.25
+                  prefix-length: 23
+              dhcp: false
+
+          - name: bond0
+            type: bond
+            state: up
+            link-aggregation:
+              # mode=1 active-backup
+              # mode=2 balance-xor
+              # mode=4 802.3ad
+              # mode=5 balance-tlb
+              # mode=6 balance-alb
+              mode: 802.3ad
+              port:
+                - enp1s0
+                - enp7s0
+
+          - name: enp1s0
+            type: ethernet
+            state: up
+            mac-address: 52:54:00:B9:39:A1
+          - name: enp7s0
+            type: ethernet
+            state: up
+            mac-address: 52:54:00:10:26:BA
+        routes:
+          config:
+            - destination: 0.0.0.0/0
+              next-hop-address: 192.168.50.1
+              next-hop-interface: bond0.1924
+              table-id: 254
+  - name: app-3
+    type: application-node
+    infra:
+      name: rhel8Equinox
+      # type: vsphere | nutanix | libvirt
+      type: libvirt
+    vm:
+      cpu_cores: 12
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 48000
+      disks:
+        - size: 130
+          name: boot
+        - size: 250
+          name: odf
+    networking:
+      interfaces:
+        - name: enp1s0
+          mac_address: 52:54:00:0F:62:58
+        - name: enp7s0
+          mac_address: 52:54:00:99:CF:D6
+      networkConfig:
+        interfaces:
+          - name: bond0.1924
+            type: vlan
+            state: up
+            vlan:
+              id: 1924
+              base-iface: bond0
+            ipv4:
+              enabled: true
+              address:
+                - ip: 192.168.50.26
+                  prefix-length: 23
+              dhcp: false
+
+          - name: bond0
+            type: bond
+            state: up
+            link-aggregation:
+              # mode=1 active-backup
+              # mode=2 balance-xor
+              # mode=4 802.3ad
+              # mode=5 balance-tlb
+              # mode=6 balance-alb
+              mode: 802.3ad
+              port:
+                - enp1s0
+                - enp7s0
+
+          - name: enp1s0
+            type: ethernet
+            state: up
+            mac-address: 52:54:00:0F:62:58
+          - name: enp7s0
+            type: ethernet
+            state: up
+            mac-address: 552:54:00:99:CF:D6
+        routes:
+          config:
+            - destination: 0.0.0.0/0
+              next-hop-address: 192.168.50.1
+              next-hop-interface: bond0.1924
+              table-id: 254
+  - name: app-4
+    type: application-node
+    infra:
+      name: rhel8Equinox
+      # type: vsphere | nutanix | libvirt
+      type: libvirt
+    vm:
+      cpu_cores: 12
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 48000
+      disks:
+        - size: 130
+          name: boot
+        - size: 250
+          name: odf
+    networking:
+      interfaces:
+        - name: enp1s0
+          mac_address: 52:54:00:BE:68:55
+        - name: enp7s0
+          mac_address: 52:54:00:C1:BC:FE
+      networkConfig:
+        interfaces:
+          - name: bond0.1924
+            type: vlan
+            state: up
+            vlan:
+              id: 1924
+              base-iface: bond0
+            ipv4:
+              enabled: true
+              address:
+                - ip: 192.168.50.27
+                  prefix-length: 23
+              dhcp: false
+
+          - name: bond0
+            type: bond
+            state: up
+            link-aggregation:
+              # mode=1 active-backup
+              # mode=2 balance-xor
+              # mode=4 802.3ad
+              # mode=5 balance-tlb
+              # mode=6 balance-alb
+              mode: 802.3ad
+              port:
+                - enp1s0
+                - enp7s0
+
+          - name: enp1s0
+            type: ethernet
+            state: up
+            mac-address: 52:54:00:BE:68:55
+          - name: enp7s0
+            type: ethernet
+            state: up
+            mac-address: 52:54:00:C1:BC:FE
+        routes:
+          config:
+            - destination: 0.0.0.0/0
+              next-hop-address: 192.168.50.1
+              next-hop-interface: bond0.1924
+              table-id: 254
+  - name: app-5
+    type: application-node
+    infra:
+      name: rhel8Equinox
+      # type: vsphere | nutanix | libvirt
+      type: libvirt
+    vm:
+      cpu_cores: 12
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 48000
+      disks:
+        - size: 130
+          name: boot
+    networking:
+      interfaces:
+        - name: enp1s0
+          mac_address: 52:54:00:03:A5:83
+        - name: enp7s0
+          mac_address: 52:54:00:39:6A:11
+      networkConfig:
+        interfaces:
+          - name: bond0.1924
+            type: vlan
+            state: up
+            vlan:
+              id: 1924
+              base-iface: bond0
+            ipv4:
+              enabled: true
+              address:
+                - ip: 192.168.50.28
+                  prefix-length: 23
+              dhcp: false
+
+          - name: bond0
+            type: bond
+            state: up
+            link-aggregation:
+              # mode=1 active-backup
+              # mode=2 balance-xor
+              # mode=4 802.3ad
+              # mode=5 balance-tlb
+              # mode=6 balance-alb
+              mode: 802.3ad
+              port:
+                - enp1s0
+                - enp7s0
+
+          - name: enp1s0
+            type: ethernet
+            state: up
+            mac-address: 52:54:00:03:A5:83
+          - name: enp7s0
+            type: ethernet
+            state: up
+            mac-address: 52:54:00:39:6A:11
+        routes:
+          config:
+            - destination: 0.0.0.0/0
+              next-hop-address: 192.168.50.1
+              next-hop-interface: bond0.1924
+              table-id: 254
+  - name: app-6
+    type: application-node
+    infra:
+      name: rhel8Equinox
+      # type: vsphere | nutanix | libvirt
+      type: libvirt
+    vm:
+      cpu_cores: 12
+      cpu_sockets: 1
+      cpu_threads: 1
+      memory: 48000
+      disks:
+        - size: 130
+          name: boot
+    networking:
+      interfaces:
+        - name: enp1s0
+          mac_address: 52:54:00:2E:DC:00
+        - name: enp7s0
+          mac_address: 52:54:00:34:10:55
+      networkConfig:
+        interfaces:
+          - name: bond0.1924
+            type: vlan
+            state: up
+            vlan:
+              id: 1924
+              base-iface: bond0
+            ipv4:
+              enabled: true
+              address:
+                - ip: 192.168.50.29
+                  prefix-length: 23
+              dhcp: false
+
+          - name: bond0
+            type: bond
+            state: up
+            link-aggregation:
+              # mode=1 active-backup
+              # mode=2 balance-xor
+              # mode=4 802.3ad
+              # mode=5 balance-tlb
+              # mode=6 balance-alb
+              mode: 802.3ad
+              port:
+                - enp1s0
+                - enp7s0
+
+          - name: enp1s0
+            type: ethernet
+            state: up
+            mac-address: 52:54:00:2E:DC:00
+          - name: enp7s0
+            type: ethernet
+            state: up
+            mac-address: 52:54:00:34:10:55
+        routes:
+          config:
+            - destination: 0.0.0.0/0
+              next-hop-address: 192.168.50.1
+              next-hop-interface: bond0.1924
+              table-id: 254
+
+################################################## Extra Post-Provisioning Roles
+# [optional] extra_roles: name of roles to run after cluster provisioning
+
+# extra_roles:
+# - ocp4-matrix-login
+# - ocp4-rhsm-entitlement
+# - ocp4-certificates
+# - ocp4-ntp-configuration

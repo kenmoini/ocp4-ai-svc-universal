@@ -18,7 +18,7 @@
     - vmware_tasks
     - vmware_create_folder
 
-- name: Create the ISOs directory on the datacenter/datastore
+- name: Create the {{ provider.configuration.vcenter_iso_dir }} directory on the datacenter/datastore
   community.vmware.vsphere_file:
     host: '{{ provider.credentials.vcenter_hostname }}'
     username: '{{ provider.credentials.vcenter_username }}'
@@ -26,7 +26,7 @@
     validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
     datacenter: "{{ provider.configuration.vcenter_path | default('') }}{{ provider.configuration.vcenter_datacenter }}"
     datastore: "{{ provider.configuration.vcenter_datastore }}"
-    path: "/ISOs"
+    path: "/{{ provider.configuration.vcenter_iso_dir }}"
     state: directory
   tags:
     - vmware_tasks
@@ -44,7 +44,7 @@
     validate_certs: '{{ provider.credentials.vcenter_verify_ssl }}'
     datacenter: "{{ provider.configuration.vcenter_path | default('') }}{{ provider.configuration.vcenter_datacenter }}"
     datastore: "{{ provider.configuration.vcenter_datastore }}"
-    path: "ISOs/ocp-ai-{{ cluster_id }}.iso"
+    path: "{{ provider.configuration.vcenter_iso_dir }}/ocp-ai-{{ cluster_id }}.iso"
     state: file
   ignore_errors: true
   register: vmware_check_for_iso
@@ -62,7 +62,7 @@
     datacenter: "{{ provider.configuration.vcenter_path | default('') }}{{ provider.configuration.vcenter_datacenter }}"
     datastore: "{{ provider.configuration.vcenter_datastore }}"
     src: "{{ generated_asset_directory }}/{{ cluster_id }}/ocp_ai.iso"
-    path: "ISOs/ocp-ai-{{ cluster_id }}.iso"
+    path: "{{ provider.configuration.vcenter_iso_dir }}/ocp-ai-{{ cluster_id }}.iso"
   ignore_errors: true
   tags:
     - skip_ansible_lint # The modules aren't really great at error handling
