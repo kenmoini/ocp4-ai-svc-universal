@@ -74,7 +74,7 @@ jobs:
 
       - name: Log in to target registry
         id: registry-quay
-        uses: redhat-actions/podman-login@v1
+        uses: redhat-actions/podman-login@v2
         with:
           registry: ${{ secrets.REGISTRY_HOSTNAME }}
           username: ${{ secrets.REGISTRY_USERNAME }}
@@ -83,7 +83,7 @@ jobs:
 #      - name: Log in to registry.redhat.io
 #        id: registry-redhat
 #        if: ${{ secrets.REDHAT_PASSWORD != 0 }}
-#        uses: redhat-actions/podman-login@v1
+#        uses: redhat-actions/podman-login@v2
 #        with:
 #          registry: registry.redhat.io
 #          username: ${{ secrets.REDHAT_USERNAME }}
