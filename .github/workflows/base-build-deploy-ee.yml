@@ -115,7 +115,7 @@ jobs:
 
       - name: Push To Target Registry
         id: push-to-registry
-        uses: redhat-actions/push-to-registry@v2
+        uses: redhat-actions/push-to-registry@v3
         with:
           image: ${{ inputs.EE_IMAGE_NAME }}
           tags: |
